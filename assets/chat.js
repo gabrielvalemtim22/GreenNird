@@ -351,5 +351,5 @@ composer.querySelector('#voiceMode').onclick = () => { window.inVoiceMode = true
 if (new URLSearchParams(location.search).get('voz') === '1') {
   history.replaceState(null, '', '/chat');
   window.inVoiceMode = true;
-  setTimeout(() => window.openVoiceMode && openVoiceMode(), 0);
+  window.pendingVoice = true; // voice.js abre quando carregar
 }

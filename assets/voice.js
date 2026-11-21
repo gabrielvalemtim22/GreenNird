@@ -11,7 +11,7 @@
   // ---------- desenho da bola ----------
   function size() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    const s = Math.min(innerWidth * 0.82, innerHeight * 0.5, 460);
+    const s = Math.min(innerWidth * 0.6, innerHeight * 0.34, 300); // menor
     cv.style.width = cv.style.height = s + 'px';
     cv.width = cv.height = Math.round(s * dpr);
   }
@@ -53,23 +53,24 @@
     } else target = 0; // parada
     level += (target - level) * 0.15;
 
-    // a bola é a própria imagem (assets/blob-source.webp), recortada e desenhada no canvas
+    // bola preta: a imagem enviada, recortada e desenhada no canvas
     const W = cv.width, H = cv.height;
     ctx2d.clearRect(0, 0, W, H);
     if (!blobImg.complete || !blobImg.naturalWidth) return;
     const breathe = 1 + Math.sin(t * 1.4) * 0.012;            // respiração bem leve
     const scale = breathe * (1 + level * 0.14);               // cresce com a voz
-    const rot = state === 'thinking' ? Math.sin(t * 2.2) * 0.08 : Math.sin(t * 0.5) * 0.015 + level * Math.sin(t * 9) * 0.03;
+    const rot = state === 'thinking' ? Math.sin(t * 2.2) * 0.08 : Math.sin(t * 0.5) * 0.012 + level * Math.sin(t * 9) * 0.03;
     ctx2d.save();
     ctx2d.translate(W / 2, H / 2);
     ctx2d.rotate(rot);
     ctx2d.scale(scale, scale);
+    ctx2d.imageSmoothingQuality = 'high';
     ctx2d.drawImage(blobImg, CROP.x, CROP.y, CROP.s, CROP.s, -W / 2, -H / 2, W, H);
     ctx2d.restore();
   }
-  const CROP = { x: 106, y: 586, s: 600 };
+  const CROP = { x: 700, y: 354, s: 276 };
   const blobImg = new Image();
-  blobImg.src = '/assets/blob-source.webp';
+  blobImg.src = '/assets/blob-black-source.webp';
 
   // ---------- áudio ----------
   function audioCtx() {
@@ -190,4 +191,5 @@
     const inp = $('vinput'); const text = inp.value; inp.value = '';
     running = false; ask(text);
   };
+  if (window.pendingVoice) { window.pendingVoice = false; window.openVoiceMode(); }
 })();
