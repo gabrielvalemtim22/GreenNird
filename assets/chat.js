@@ -346,3 +346,10 @@ voiceChip.onclick = () => { $('vpanel').hidden ? openVoices() : ($('vpanel').hid
 $('vclose').onclick = () => { $('vpanel').hidden = true; if (preview) preview.pause(); };
 
 composer.querySelector('#voiceMode').onclick = () => { window.inVoiceMode = true; window.openVoiceMode && openVoiceMode(); };
+
+// abrir direto no modo voz (link da página inicial: /chat?voz=1)
+if (new URLSearchParams(location.search).get('voz') === '1') {
+  history.replaceState(null, '', '/chat');
+  window.inVoiceMode = true;
+  setTimeout(() => window.openVoiceMode && openVoiceMode(), 0);
+}
