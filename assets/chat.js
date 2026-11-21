@@ -101,7 +101,10 @@ async function send(textArg) {
         search: search.classList.contains('on')
       })
     });
-    if (!res.ok || !res.body) throw new Error((await res.text()) || ('Erro ' + res.status));
+    if (!res.ok || !res.body) {
+      const plain = (res.headers.get('content-type') || '').includes('text/plain');
+      throw new Error((plain && await res.text()) || 'O servidor de IA não respondeu (erro ' + res.status + '). Ele só funciona depois do deploy na Vercel.');
+    }
     const reader = res.body.getReader(); const dec = new TextDecoder();
     for (;;) {
       const { value, done } = await reader.read(); if (done) break;

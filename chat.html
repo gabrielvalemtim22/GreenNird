@@ -10,34 +10,42 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 <style>
   body { display: flex; height: 100vh; overflow: hidden; }
-  aside { position: relative; z-index: 3; width: 370px; flex-shrink: 0; background: #f7f8f6; border-right: 1px solid #eceee8; display: flex; flex-direction: column; padding: 24px 22px; transition: margin .25s; }
-  aside.closed { margin-left: -370px; }
+  aside { position: relative; z-index: 3; width: 300px; flex-shrink: 0; background: #f7f8f6; border-right: 1px solid #eceee8; display: flex; flex-direction: column; padding: 20px 18px; transition: margin .25s; }
+  aside.closed { margin-left: -300px; }
   .side-top { display: flex; align-items: center; gap: 6px; }
-  .side-top .logo { flex: 1; font-size: 24px; }
-  .new { margin: 26px 0 18px; display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--lime); border-radius: 999px; padding: 15px; font-weight: 700; font-size: 17px; box-shadow: 0 8px 20px rgba(190,230,0,.4); }
-  .new svg { width: 24px; height: 24px; }
+  .side-top .logo { flex: 1; font-size: 20px; gap: 8px; }
+  .side-top .logo img { width: 34px; height: 34px; }
+  .new { margin: 20px 0 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px; font-weight: 700; font-size: 14.5px; box-shadow: 0 8px 20px rgba(190,230,0,.4); }
+  .new svg { width: 20px; height: 20px; }
   .list { flex: 1; overflow-y: auto; margin: 0 -8px; padding: 0 8px; }
-  .group { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-weight: 600; font-size: 16px; padding: 18px 8px 8px; }
-  .item { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-radius: 12px; font-size: 16px; cursor: pointer; }
+  .group { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-weight: 600; font-size: 13px; padding: 14px 8px 6px; }
+  .item { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; font-size: 14px; cursor: pointer; }
   .item span { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .item:hover { background: #eef0ea; }
   .item.on { background: var(--lime-soft); }
   .item .del { opacity: 0; color: var(--muted); padding: 0 4px; font-size: 18px; }
   .item:hover .del, .item.on .del { opacity: 1; }
-  .user { border-top: 1px solid #e4e6df; padding-top: 16px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 18px; }
-  .avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-weight: 800; font-size: 20px; }
-  .user a { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .user { border-top: 1px solid #e4e6df; padding-top: 16px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 15px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-weight: 800; font-size: 17px; }
+  .user { white-space: nowrap; }
+  .user a.adm { margin-left: auto; font-size: 12px; font-weight: 700; background: var(--lime-soft); padding: 6px 10px; border-radius: 999px; }
 
   .main { position: relative; flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .topbar { position: absolute; z-index: 3; top: 18px; left: 18px; display: none; }
   aside.closed ~ .main .topbar { display: flex; }
   .scroll { position: relative; z-index: 1; flex: 1; overflow-y: auto; }
-  .hero { max-width: 1080px; margin: 0 auto; padding: 12vh 24px 0; text-align: center; }
-  .hero .logo { font-size: 46px; gap: 18px; margin-top: 18px; }
-  .hero .logo img { width: 84px; height: 84px; }
-  .hero h1 { font-size: clamp(30px, 4.4vw, 56px); font-weight: 800; letter-spacing: -.03em; margin: 10px 0 46px; }
+  .hero { max-width: 840px; margin: 0 auto; padding: 11vh 24px 0; text-align: center; }
+  .hero .logo { font-size: 36px; gap: 14px; margin-top: 14px; }
+  .hero .logo img { width: 64px; height: 64px; }
+  .spark { width: 330px; height: 56px; } .spark svg { width: 42px; height: 42px; }
+  .hero h1 { font-size: clamp(26px, 3.5vw, 44px); font-weight: 800; letter-spacing: -.03em; margin: 8px 0 36px; }
+  /* composer compacto */
+  .composer { border-radius: 22px; padding: 16px 16px 12px; }
+  .composer textarea { font-size: 16px; min-height: 52px; }
+  .chip { padding: 8px 14px; font-size: 14px; gap: 6px; } .chip svg { width: 17px; height: 17px; }
+  .send { width: 46px; height: 46px; } .send svg { width: 20px; height: 20px; }
   .thread { max-width: 820px; margin: 0 auto; padding: 70px 24px 30px; display: flex; flex-direction: column; gap: 22px; }
-  .msg { line-height: 1.65; font-size: 16.5px; }
+  .msg { line-height: 1.6; font-size: 15px; }
   .msg.user { align-self: flex-end; background: var(--lime-soft); padding: 12px 18px; border-radius: 20px 20px 4px 20px; max-width: 80%; white-space: pre-wrap; }
   .msg.ai { display: flex; gap: 14px; }
   .msg.ai img { width: 34px; height: 34px; margin-top: 2px; }
@@ -53,16 +61,16 @@
   .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b9e000; margin-right: 4px; animation: b 1s infinite; }
   .dots span:nth-child(2) { animation-delay: .15s } .dots span:nth-child(3) { animation-delay: .3s }
   @keyframes b { 0%,80%,100% { opacity: .3 } 40% { opacity: 1 } }
-  .dock { position: relative; z-index: 2; max-width: 1080px; width: 100%; margin: 0 auto; padding: 0 24px 22px; }
+  .dock { position: relative; z-index: 2; max-width: 860px; width: 100%; margin: 0 auto; padding: 0 24px 22px; }
   .main.empty .dock { display: none; }
   .main:not(.empty) .hero { display: none; }
   .hint { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
   .vsep { width: 1px; height: 30px; background: #ddd; }
   @media (max-width: 860px) {
-    aside { position: fixed; inset: 0 auto 0 0; box-shadow: 0 0 40px rgba(0,0,0,.15); width: 300px; }
-    aside.closed { margin-left: -300px; }
+    aside { position: fixed; inset: 0 auto 0 0; box-shadow: 0 0 40px rgba(0,0,0,.15); width: 280px; }
+    aside.closed { margin-left: -280px; }
     .dock { padding: 0 12px 12px; }
-    .hero { padding: 10vh 16px 0; } .hero .logo { font-size: 34px; } .hero .logo img { width: 60px; height: 60px; }
+    .hero { padding: 10vh 16px 0; } .hero .logo { font-size: 28px; } .hero .logo img { width: 48px; height: 48px; }
   }
 </style>
 </head>
@@ -75,7 +83,7 @@
   </div>
   <button class="new" id="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Nova conversa</button>
   <div class="list" id="list"></div>
-  <div class="user"><div class="avatar">G</div>Gabriel Valentim<a href="/admin">Admin</a></div>
+  <div class="user"><div class="avatar">G</div>Gabriel Valentim<a href="/admin" class="adm">Painel admin</a></div>
 </aside>
 
 <div class="main empty" id="main">
