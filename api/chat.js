@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { readSession, isAdmin, readUsage, usageCookie, FREE_DAILY } from './_lib/auth.js';
 
-const client = new Anthropic(); // usa ANTHROPIC_API_KEY das variáveis de ambiente da Vercel
+let client = null; // criado só quando ANTHROPIC_API_KEY é usada
 
 const SYSTEM = `Você é o GreenNird, um assistente de IA amigável, direto e útil.
 Responda no idioma do usuário (português do Brasil por padrão), usando Markdown quando ajudar a leitura.
@@ -9,8 +9,9 @@ Seja conciso em conversas simples e detalhado quando a tarefa pedir.`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).send('Método não permitido'); return; }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    res.status(500).send('A chave ANTHROPIC_API_KEY não está configurada na Vercel (Settings → Environment Variables).');
+  const useGrok = !!process.env.XAI_API_KEY;
+  if (!useGrok && !process.env.ANTHROPIC_API_KEY) {
+    res.status(500).send('Nenhuma chave de IA configurada na Vercel. Adicione XAI_API_KEY (Grok) em Settings → Environment Variables.');
     return;
   }
 
@@ -60,6 +61,12 @@ export default async function handler(req, res) {
     'X-Accel-Buffering': 'no',
   });
 
+  if (useGrok) {
+    await streamGrok(res, history, unlimited);
+    res.end();
+    return;
+  }
+
   const params = {
     model: 'claude-opus-5-5',
     max_tokens: unlimited ? 32000 : 1500,
@@ -70,6 +77,7 @@ export default async function handler(req, res) {
     ...(search ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: unlimited ? 5 : 2 }] } : {}),
   };
 
+  client = client || new Anthropic();
   try {
     let convo = history;
     // web search pode devolver pause_turn: continuamos a mesma resposta (máx. 3 vezes)
@@ -103,4 +111,59 @@ export default async function handler(req, res) {
     res.write('\n\n⚠️ ' + msg);
   }
   res.end();
+}
+
+// ---- Grok (xAI) — usado quando XAI_API_KEY está configurada ----
+async function streamGrok(res, history, unlimited) {
+  try {
+    const r = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
+      body: JSON.stringify({
+        model: process.env.XAI_MODEL || 'grok-4.7',
+        stream: true,
+        max_tokens: unlimited ? 32000 : 4000,
+        messages: [{ role: 'system', content: SYSTEM }, ...history],
+      }),
+    });
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      console.error('xAI', r.status, detail);
+      res.write('\n\n⚠️ ' + (r.status === 401 || r.status === 403
+        ? 'Chave do Grok inválida. Verifique XAI_API_KEY na Vercel.'
+        : r.status === 429 ? 'Muitas solicitações agora. Tente de novo em instantes.'
+        : r.status === 404 || r.status === 400 ? 'Modelo do Grok indisponível (' + r.status + '). Ajuste XAI_MODEL na Vercel.'
+        : 'Erro ao falar com o Grok (' + r.status + '). Tente novamente.'));
+      return;
+    }
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '', finish = null;
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const chunk = JSON.parse(data);
+          const c = chunk.choices && chunk.choices[0];
+          if (c && c.delta && c.delta.content) res.write(c.delta.content);
+          if (c && c.finish_reason) finish = c.finish_reason;
+        } catch {}
+      }
+    }
+    if (finish === 'length') {
+      res.write(unlimited
+        ? '\n\n_(resposta interrompida por tamanho)_'
+        : '\n\n**⚠️ Resposta cortada: pedidos longos gastam muitos créditos no plano grátis. [Assine um plano](/conta#planos) para respostas completas.**');
+    }
+  } catch (err) {
+    console.error(err);
+    res.write('\n\n⚠️ Erro ao falar com o Grok. Tente novamente.');
+  }
 }

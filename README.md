@@ -10,7 +10,7 @@ Assistente de IA (chat com Claude), contas por código numérico e painel admini
 ## Variáveis de ambiente na Vercel (Settings → Environment Variables)
 | Nome | Valor |
 |---|---|
-| `ANTHROPIC_API_KEY` | sua chave do console.anthropic.com |
+| `XAI_API_KEY` | sua chave do Grok (console.x.ai). Opcional: `XAI_MODEL` (padrão `grok-4.7`) |
 | `ACCOUNT_SECRET` | um texto aleatório longo (40+ caracteres). Não mude depois: os códigos das contas dependem dele |
 | `ADMIN_ID` | o seu código de conta (12 números). Vários: separe por vírgula |
 
