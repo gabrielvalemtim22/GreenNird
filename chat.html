@@ -124,6 +124,10 @@
   #blob { cursor: pointer; mix-blend-mode: multiply; transform-style: preserve-3d; will-change: transform; position: relative; z-index: 1; -webkit-tap-highlight-color: transparent; }
   .vshadow { position: absolute; bottom: -18px; width: 55%; height: 22px; border-radius: 50%; background: radial-gradient(rgba(0,0,0,.32), rgba(0,0,0,0) 70%); filter: blur(2px); }
   .vstatus { font-weight: 700; color: #3b4a00; min-height: 22px; }
+  .vpick { display: inline-flex; align-items: center; gap: 6px; background: #f1f2ef; border: 1px solid #e6e8e1; border-radius: 999px; padding: 9px 16px; font-size: 14.5px; margin-top: 10px; transition: transform .12s; }
+  .vpick:hover { background: var(--lime-soft); } .vpick:active { transform: scale(.94); }
+  .vpick span { color: var(--muted); }
+  .vmode .vpanel, .vpanel.invoice { left: 50%; right: auto; transform: translateX(-50%); bottom: 110px; }
   .vtranscript { max-width: 640px; color: var(--muted); font-size: 15px; line-height: 1.5; min-height: 44px; }
   .vbar { margin: 0 auto 22px; width: min(720px, calc(100% - 32px)); display: flex; align-items: center; gap: 10px; background: #f1f2ef; border-radius: 999px; padding: 8px 8px 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
   .vplus { font-size: 32px; font-weight: 300; color: #9bd400; line-height: 1; width: 34px; }
@@ -206,6 +210,7 @@
   </div>
   <div class="vcenter">
     <div class="bstage"><canvas id="blob" aria-label="Animação da voz da IA — toque nela"></canvas><div class="vshadow" id="vshadow"></div></div>
+    <button type="button" class="vpick" id="vpick">🎙 Voz: <b id="vpickName">escolher</b> <span>▾</span></button>
     <div class="vstatus" id="vstatus"></div>
     <div class="vtranscript" id="vtranscript"></div>
   </div>

@@ -232,11 +232,14 @@
     tr.textContent = '';
     setState('idle', SR ? 'Toque no microfone para falar' : 'Digite abaixo — seu navegador não reconhece voz');
     requestAnimationFrame(draw);
+    showVoiceName();
+    if (!voice.id) setTimeout(pickVoice, 700);
     if (SR) startListening();
   };
   function closeVoiceMode() {
     if (anim.mode === 'close') return;
     stopAll(); window.inVoiceMode = false;
+    $('vpanel').hidden = true; $('vpanel').classList.remove('invoice');
     window.fx && fx.toggle();
     ov.classList.add('closing');
     anim.mode = 'close'; anim.start = performance.now(); anim.dur = 480;
@@ -246,7 +249,9 @@
   $('vmic').onclick = () => (state === 'listening' ? (running = false, stopListening(), setState('idle', 'Microfone pausado')) : startListening());
   $('vx').onclick = closeVoiceMode;
   $('vmenu').onclick = closeVoiceMode;
-  $('vsettings').onclick = () => openVoices();
+  const pickVoice = () => { $('vpanel').classList.add('invoice'); openVoices(); window.fx && fx.toggle(); };
+  $('vsettings').onclick = pickVoice;
+  $('vpick').onclick = pickVoice;
   $('vplus').onclick = () => { $('new').click(); tr.textContent = ''; setState(state, 'Nova conversa — pode falar'); };
   cv.onclick = e => {
     // inclina para o lado onde tocou (efeito 3D), amassa e solta coraçõezinhos

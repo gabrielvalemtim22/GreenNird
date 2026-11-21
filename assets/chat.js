@@ -269,7 +269,9 @@ try { Object.assign(voice, JSON.parse(localStorage.getItem('gn-voice') || '{}'))
 const saveVoice = () => { try { localStorage.setItem('gn-voice', JSON.stringify({ id: voice.id, name: voice.name, autoRead: voice.autoRead })); } catch {} };
 const voiceChip = composer.querySelector('#voiceChip');
 function showVoiceName() {
-  composer.querySelector('#voiceName').textContent = voice.name ? voice.name.split(/\s|-/)[0] : 'Voz';
+  const short = voice.name ? voice.name.split(/\s|-/)[0] : null;
+  composer.querySelector('#voiceName').textContent = short || 'Voz';
+  const vp = document.getElementById('vpickName'); if (vp) vp.textContent = short || 'escolher';
   voiceChip.classList.toggle('on', !!voice.id);
 }
 showVoiceName();
@@ -331,6 +333,7 @@ function renderVoices() {
     it.onclick = () => {
       voice.id = v.id; voice.name = v.name; saveVoice(); showVoiceName(); renderVoices();
       window.fx && fx.done();
+      if (v.preview) { if (preview) preview.pause(); preview = new Audio(v.preview); preview.play().catch(() => {}); }
     };
     const pb = it.querySelector('.vplay');
     if (!v.preview) pb.hidden = true;
