@@ -53,24 +53,59 @@
     } else target = 0; // parada
     level += (target - level) * 0.15;
 
-    // bola preta: a imagem enviada, recortada e desenhada no canvas
+    // bola preta: a imagem enviada, com animações de toque, fala, abrir e fechar
     const W = cv.width, H = cv.height;
     ctx2d.clearRect(0, 0, W, H);
     if (!blobImg.complete || !blobImg.naturalWidth) return;
-    const breathe = 1 + Math.sin(t * 1.4) * 0.012;            // respiração bem leve
-    const scale = breathe * (1 + level * 0.14);               // cresce com a voz
-    const rot = state === 'thinking' ? Math.sin(t * 2.2) * 0.08 : Math.sin(t * 0.5) * 0.012 + level * Math.sin(t * 9) * 0.03;
+
+    // mola do "toque": geleia que amassa e volta
+    const dt = Math.min(0.05, (now - (draw.last || now)) / 1000); draw.last = now;
+    jelly.v += (-jelly.k * jelly.x - jelly.d * jelly.v) * dt;
+    jelly.x += jelly.v * dt;
+
+    // entrada/saída (abrir e fechar)
+    let appear = 1;
+    if (anim.mode) {
+      const p = Math.min(1, (now - anim.start) / anim.dur);
+      if (anim.mode === 'open') appear = easeOutBack(p);
+      else appear = 1 - easeInBack(p);
+      if (p >= 1) { const m = anim.mode; anim.mode = null; if (m === 'close') finishClose(); }
+    }
+
+    const breathe = 1 + Math.sin(t * 1.4) * 0.012;
+    let sx = breathe * (1 + level * 0.14), sy = sx, rot = Math.sin(t * 0.5) * 0.012;
+    if (state === 'speaking') {
+      // falando: pulsa com a voz e "respira" alternando largura e altura
+      const w = Math.sin(t * 11) * level * 0.06;
+      sx *= 1 + w; sy *= 1 - w;
+      rot += Math.sin(t * 4) * level * 0.05;
+    } else if (state === 'thinking') {
+      rot = Math.sin(t * 2.2) * 0.08;
+    } else if (state === 'listening') {
+      rot += level * Math.sin(t * 9) * 0.03;
+    }
+    // aplica a geleia do toque
+    sx *= 1 + jelly.x; sy *= 1 - jelly.x * 0.9;
+    // fechar: gira e encolhe
+    const spin = anim.mode === 'close' ? (1 - appear) * 1.4 : 0;
+
     ctx2d.save();
+    ctx2d.globalAlpha = Math.max(0, Math.min(1, appear * 1.2));
     ctx2d.translate(W / 2, H / 2);
-    ctx2d.rotate(rot);
-    ctx2d.scale(scale, scale);
+    ctx2d.rotate(rot + spin);
+    ctx2d.scale(sx * appear, sy * appear);
     ctx2d.imageSmoothingQuality = 'high';
     ctx2d.drawImage(blobImg, CROP.x, CROP.y, CROP.s, CROP.s, -W / 2, -H / 2, W, H);
     ctx2d.restore();
   }
-  const CROP = { x: 700, y: 354, s: 276 };
+  const CROP = { x: 56, y: 0, s: 1199 };
   const blobImg = new Image();
-  blobImg.src = '/assets/blob-black-source.webp';
+  blobImg.src = '/assets/blob-black.png';
+  const jelly = { x: 0, v: 0, k: 260, d: 9 };
+  const anim = { mode: null, start: 0, dur: 500 };
+  const easeOutBack = p => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const easeInBack = p => { const c = 1.7; return (c + 1) * p * p * p - c * p * p; };
+  function poke(force = 0.9) { jelly.v -= force * 3.2; }
 
   // ---------- áudio ----------
   function audioCtx() {
@@ -172,20 +207,31 @@
 
   // ---------- abrir / fechar ----------
   window.openVoiceMode = () => {
-    open = true; ov.hidden = false; size(); t0 = performance.now();
+    open = true; ov.hidden = false; ov.classList.remove('closing'); size(); t0 = performance.now();
+    anim.mode = 'open'; anim.start = performance.now(); anim.dur = 650;
     tr.textContent = '';
     setState('idle', SR ? 'Toque no microfone para falar' : 'Digite abaixo — seu navegador não reconhece voz');
     requestAnimationFrame(draw);
     if (SR) startListening();
   };
-  function closeVoiceMode() { open = false; window.inVoiceMode = false; stopAll(); ov.hidden = true; }
+  function closeVoiceMode() {
+    if (anim.mode === 'close') return;
+    stopAll(); window.inVoiceMode = false;
+    window.fx && fx.toggle();
+    ov.classList.add('closing');
+    anim.mode = 'close'; anim.start = performance.now(); anim.dur = 480;
+  }
+  function finishClose() { open = false; ov.hidden = true; ov.classList.remove('closing'); }
 
   $('vmic').onclick = () => (state === 'listening' ? (running = false, stopListening(), setState('idle', 'Microfone pausado')) : startListening());
   $('vx').onclick = closeVoiceMode;
   $('vmenu').onclick = closeVoiceMode;
   $('vsettings').onclick = () => openVoices();
   $('vplus').onclick = () => { $('new').click(); tr.textContent = ''; setState(state, 'Nova conversa — pode falar'); };
-  cv.onclick = () => { if (state === 'speaking' && player) { player.pause(); player.onended && player.onended(); } };
+  cv.onclick = () => {
+    poke(); window.fx && fx.click();
+    if (state === 'speaking' && player) { player.pause(); player.onended && player.onended(); }
+  };
   $('vform').onsubmit = e => {
     e.preventDefault();
     const inp = $('vinput'); const text = inp.value; inp.value = '';

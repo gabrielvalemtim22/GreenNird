@@ -112,6 +112,9 @@
   /* modo voz */
   .vmode { position: fixed; inset: 0; z-index: 45; background: #fff; display: flex; flex-direction: column; animation: fade .25s; }
   .vmode[hidden] { display: none; }
+  .vmode.closing { animation: fadeout .48s ease-in forwards; }
+  @keyframes fadeout { 70% { opacity: 1; } to { opacity: 0; } }
+  .vmode.closing .vbar { transform: translateY(30px); opacity: 0; transition: .35s; }
   .vtop { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; }
   .vtop .logo { font-size: 26px; } .vtop .logo img { width: 42px; height: 42px; }
   .vround { width: 50px; height: 50px; border-radius: 50%; background: #f0f1ee; display: grid; place-items: center; }
