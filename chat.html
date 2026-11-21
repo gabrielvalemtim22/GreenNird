@@ -20,7 +20,7 @@
   .side-top { display: flex; align-items: center; gap: 6px; }
   .side-top .logo { flex: 1; font-size: 20px; gap: 8px; }
   .side-top .logo img { width: 34px; height: 34px; }
-  .new { margin: 20px 0 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px; font-weight: 700; font-size: 14.5px; box-shadow: 0 8px 20px rgba(190,230,0,.4); }
+  .new { margin: 20px 0 14px; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px; font-weight: 700; font-size: 14.5px; box-shadow: 0 8px 20px color-mix(in srgb, var(--lime) 40%, transparent); }
   .new svg { width: 20px; height: 20px; }
   .list { flex: 1; overflow-y: auto; margin: 0 -8px; padding: 0 8px; }
   .group { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-weight: 600; font-size: 13px; padding: 14px 8px 6px; }
@@ -71,7 +71,7 @@
   .send:active, .chip:active, .new:active, .icon-btn:active { transform: scale(.9); }
   .chip, .new, .icon-btn { transition: transform .12s, background .15s; }
   .send { animation: breathe 2.6s ease-in-out infinite; }
-  @keyframes breathe { 50% { box-shadow: 0 6px 26px rgba(190,230,0,.85); } }
+  @keyframes breathe { 50% { box-shadow: 0 6px 26px color-mix(in srgb, var(--lime) 85%, transparent); } }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chips:not(:empty) { margin-bottom: 8px; }
   .fchip { display: inline-flex; align-items: center; gap: 6px; background: var(--lime-tint); border: 1px solid #e4f5a0; border-radius: 10px; padding: 6px 8px 6px 10px; font-size: 13px; font-weight: 600; animation: pop .3s both; }
@@ -134,13 +134,13 @@
   .ag-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
   .ag-head h1 { display: flex; align-items: center; gap: 14px; font-size: clamp(28px, 3.6vw, 42px); letter-spacing: -.03em; }
   .ag-head h1 svg { width: 40px; height: 40px; }
-  .ag-new { display: inline-flex; align-items: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 16px; box-shadow: 0 8px 20px rgba(190,230,0,.4); transition: transform .12s; }
+  .ag-new { display: inline-flex; align-items: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 16px; box-shadow: 0 8px 20px color-mix(in srgb, var(--lime) 40%, transparent); transition: transform .12s; }
   .ag-new:active { transform: scale(.95); } .ag-new svg { width: 20px; height: 20px; }
   .ag-sub { color: #555; font-size: 17px; margin: 8px 0 30px; }
   .ag-label { font-weight: 700; color: #444; margin: 0 0 14px; }
   .ag-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 30px; }
   .ag-card { display: flex; align-items: center; gap: 18px; text-align: left; background: #fff; border: 1px solid #eef0e8; border-radius: 20px; padding: 20px; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; transform-style: preserve-3d; }
-  .ag-card:hover { transform: translateY(-3px) rotateX(4deg); box-shadow: 0 18px 40px rgba(120,160,0,.18); }
+  .ag-card:hover { transform: translateY(-3px) rotateX(4deg); box-shadow: 0 18px 40px color-mix(in srgb, var(--lime) 18%, transparent); }
   .ag-ic { width: 54px; height: 54px; border-radius: 16px; background: var(--lime-soft); display: grid; place-items: center; flex-shrink: 0; }
   .ag-ic svg { width: 26px; height: 26px; }
   .ag-tx b { display: block; font-size: 17px; } .ag-tx small { color: #555; font-size: 14px; }
@@ -151,6 +151,17 @@
   .ag-empty { color: var(--muted); padding: 10px 2px; }
   .ag-all { font-weight: 700; color: #3b5a00; }
   @media (max-width: 760px) { .ag-grid { grid-template-columns: 1fr; } }
+  /* janela de configurações (estilo ChatGPT) */
+  .set-modal { position: fixed; inset: 0; z-index: 70; background: rgba(10,12,5,.42); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 18px; perspective: 1400px; animation: fade .25s; }
+  .set-card { position: relative; width: min(1180px, 100%); height: min(800px, calc(100vh - 36px)); border-radius: 28px; overflow: hidden; background: var(--bg); box-shadow: 0 40px 120px rgba(0,0,0,.35); animation: card3d .55s cubic-bezier(.2,1.2,.3,1) both; transform-origin: 50% 60%; }
+  @keyframes card3d { from { opacity: 0; transform: rotateX(16deg) translateY(40px) scale(.9); filter: blur(6px); } }
+  .set-modal.closing { animation: fade .3s reverse forwards; } .set-modal.closing .set-card { animation: card3dout .3s ease-in forwards; }
+  @keyframes card3dout { to { opacity: 0; transform: rotateX(-12deg) translateY(30px) scale(.92); filter: blur(6px); } }
+  .set-card iframe, .panel-view iframe { width: 100%; height: 100%; border: 0; display: block; background: transparent; }
+  .set-x { position: absolute; top: 14px; right: 16px; z-index: 2; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.06); font-size: 24px; display: grid; place-items: center; }
+  .set-x:hover { background: rgba(0,0,0,.12); }
+  .panel-view { padding: 0 !important; }
+  @media (max-width: 700px) { .set-modal { padding: 0; } .set-card { height: 100vh; border-radius: 0; } }
   /* ===== app: avisos, menus, configurações ===== */
   .toasts { position: fixed; z-index: 100; left: 50%; bottom: 24px; transform: translateX(-50%); display: grid; gap: 8px; width: min(420px, calc(100vw - 32px)); }
   .toast { display: flex; align-items: center; gap: 10px; background: #111; color: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 14px 40px rgba(0,0,0,.25); animation: pop .35s cubic-bezier(.2,1.3,.4,1) both; font-size: 14.5px; cursor: pointer; }
@@ -171,6 +182,12 @@
   .pmenu button.danger { color: #c0262d; }
   .pmenu .pmi { width: 20px; text-align: center; } .pmenu .pmc { margin-left: auto; color: var(--muted); }
   .pmenu hr { border: 0; border-top: 1px solid #eef0e8; margin: 4px 6px; }
+  .pmenu.big { min-width: 300px; border-radius: 24px; padding: 10px; box-shadow: 0 24px 60px rgba(0,0,0,.16); transform-origin: bottom left; animation: menu3d .35s cubic-bezier(.2,1.3,.4,1) both; }
+  @keyframes menu3d { from { opacity: 0; transform: perspective(700px) rotateX(-18deg) translateY(14px) scale(.94); } }
+  .pmenu.big button { padding: 12px 12px; font-size: 16px; font-weight: 500; gap: 14px; border-radius: 14px; }
+  .pmenu.big .pmi { width: 26px; display: grid; place-items: center; }
+  .pmenu.big button.hl { background: var(--lime-tint); font-weight: 600; }
+  .pmenu button.danger { color: #e0242c; } .pmenu button.danger svg { stroke: #e0242c; }
   .sidenav { display: grid; gap: 2px; margin-bottom: 6px; }
   .snav { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; font-size: 14px; font-weight: 600; text-align: left; }
   .snav:hover { background: #eef0ea; } .snav span { width: 20px; text-align: center; }
@@ -262,7 +279,7 @@
   .vmic.on { background: var(--lime); animation: breathe 1.2s ease-in-out infinite; }
   .vx { background: #fff; font-size: 28px; color: #222; }
   .vbtn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; transition: transform .15s; }
-  .vbtn img { width: 44px; height: 44px; filter: drop-shadow(0 4px 10px rgba(190,230,0,.6)); }
+  .vbtn svg { width: 44px; height: 44px; filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--lime) 60%, transparent)); }
   .vbtn:hover { transform: scale(1.08); } .vbtn:active { transform: scale(.9); }
   .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b9e000; margin-right: 4px; animation: b 1s infinite; }
   .dots span:nth-child(2) { animation-delay: .15s } .dots span:nth-child(3) { animation-delay: .3s }
@@ -319,7 +336,13 @@
       <span class="spacer"></span>
       <button type="button" class="icon-btn" id="attach" title="Anexar PDF ou arquivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 12V6a4 4 0 0 1 8 0v10a6 6 0 0 1-12 0V8"/><path d="M12 7v9"/></svg></button>
       <input type="file" id="file" multiple accept=".pdf,.txt,.md,.csv,.json,.html,.xml,.js,.ts,.css,.py,.java,.c,.cpp,.sql,.log,.yaml,.yml" hidden>
-      <button type="button" class="vbtn" id="voiceMode" title="Conversar por voz"><img src="/assets/voice-icon.svg" alt="Modo voz"></button>
+      <button type="button" class="vbtn" id="voiceMode" title="Conversar por voz"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="var(--lime)"/><g fill="var(--on-accent)">
+    <path d="M30.5 37.5c3.6 1 6 5 6 9.9 0 5-2.5 10-6 11.3-.7.2-1.2-.3-1-1 1-4 1.4-7.4 1.4-10.6 0-2.9-.4-5.6-1.1-8.4-.2-.8.2-1.3.7-1.2z"/>
+    <path d="M39.6 31c5.6 2 9 9.4 9 18.4 0 9.2-3.6 17.6-8.8 20.3-.7.4-1.3-.1-1.2-.9 1.3-7 2-13 2-19.3 0-6-.7-11.6-1.9-16.6-.2-.8.3-1.2.9-.9z"/>
+    <path d="M50.5 25.6c6.3 2.6 10.3 12.5 10.3 24.4 0 12.2-4.2 22.6-10.2 26.1-.8.5-1.4-.1-1.2-1 1.8-9 2.8-16.9 2.8-25.1 0-8-.9-15.5-2.6-22.5-.2-.9.3-2.2.9-1.9z"/>
+    <path d="M61.2 33c5.3 1.8 8.5 8.6 8.5 17 0 8.5-3.4 15.8-8.2 18.1-.7.3-1.2-.2-1.1-.9 1.2-6.3 1.9-11.5 1.9-17.2 0-5.4-.6-10.2-1.8-15.2-.2-.9.2-1.9.7-1.8z"/>
+    <path d="M69.8 39c3.4 1.1 5.4 5.3 5.4 10.6 0 5.3-2.2 9.6-5.3 10.8-.7.3-1.1-.2-1-.9.8-3.6 1.2-6.6 1.2-9.9 0-3.1-.4-5.9-1.1-8.9-.2-.8.3-1.8.8-1.7z"/>
+  </g></svg></button>
       <span class="vsep"></span>
       <button class="send" id="sendBtn" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7.5 3L21 3Zm0 0-7.5 18-3-7.5"/></svg></button>
     </div>

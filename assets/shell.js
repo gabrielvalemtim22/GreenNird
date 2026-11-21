@@ -95,16 +95,25 @@
       <div class="ag-list">${active.length ? active.map(t => `<a class="ag-task" href="/agendamentos#t=${t.id}"><span>${t.icon || '🗓'}</span><b></b><small>${GNTasks.describe(t)}</small></a>`).join('') : '<div class="ag-empty">Nenhuma ainda — escolha uma sugestão acima ✨</div>'}</div>
       <a class="ag-all" href="/agendamentos">Ver todos os agendamentos →</a>`;
     view.querySelectorAll('.ag-task b').forEach((b, i) => b.textContent = active[i].title);
-    view.querySelectorAll('[data-t]').forEach(b => b.onclick = () => go('/agendamentos#novo=' + b.dataset.t));
-    view.querySelectorAll('.ag-task, .ag-all').forEach(a => a.onclick = e => { e.preventDefault(); go(a.getAttribute('href')); });
+    view.querySelectorAll('[data-t]').forEach(b => b.onclick = () => openAgendaPanel('/agendamentos#novo=' + b.dataset.t));
+    view.querySelectorAll('.ag-task, .ag-all').forEach(a => a.onclick = e => { e.preventDefault(); openAgendaPanel(a.getAttribute('href')); });
+  }
+  function openAgendaPanel(url) {
+    const [path, hash] = url.split('#');
+    flip3d(() => {
+      view.hidden = true;
+      const pv = document.querySelector('.panel-view'); pv.hidden = false;
+      const f = pv.querySelector('iframe'); f.src = path + '?embed=1' + (hash ? '#' + hash : ''); f.dataset.u = url;
+      main.classList.add('in-agenda'); setNav('agenda');
+    });
   }
   function setNav(k) { document.querySelectorAll('.snav[data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === k)); }
   function showAgenda() {
     flip3d(() => { renderAgenda(); view.hidden = false; main.classList.add('in-agenda'); setNav('agenda'); });
   }
   function showChat() {
-    if (view.hidden) return;
-    flip3d(() => { view.hidden = true; main.classList.remove('in-agenda'); setNav(''); });
+    if (!main.classList.contains('in-agenda')) return;
+    flip3d(() => { view.hidden = true; document.querySelectorAll('.panel-view').forEach(p => p.hidden = true); main.classList.remove('in-agenda'); setNav(''); });
   }
   window.showChatView = showChat;
   function go(url) {
@@ -114,14 +123,48 @@
   }
   window.go3d = go;
 
+  const panel = document.createElement('section'); panel.className = 'agenda-view panel-view'; panel.hidden = true;
+  panel.innerHTML = '<iframe title="GreenNird"></iframe>';
+  main.appendChild(panel);
+  function showPanel(url, key) {
+    flip3d(() => {
+      view.hidden = true; panel.hidden = false;
+      const f = panel.querySelector('iframe'); if (f.dataset.u !== url) { f.src = url + (url.includes('?') ? '&' : '?') + 'embed=1'; f.dataset.u = url; }
+      main.classList.add('in-agenda'); setNav(key);
+    });
+  }
   document.querySelectorAll('.snav[data-go]').forEach(b => b.onclick = () => {
     const to = b.dataset.go;
-    if (to === 'agenda') return main.classList.contains('in-agenda') ? showChat() : showAgenda();
-    setNav(to); go(to);
+    if (main.classList.contains('in-agenda') && b.classList.contains('on')) return showChat();
+    if (to === 'agenda') { panel.hidden = true; return showAgenda(); }
+    showPanel(to, to);
   });
   // voltar ao chat ao clicar em Nova conversa ou numa conversa
   $('new').addEventListener('click', () => showChat());
   $('list').addEventListener('click', e => { if (e.target.closest('.item') && !e.target.closest('.more')) showChat(); });
   addEventListener('gn-tasks', () => { if (!view.hidden) renderAgenda(); });
+  // ---------- Configurações em janela (estilo ChatGPT) ----------
+  window.openSettingsModal = (tab = 'apar') => {
+    document.querySelectorAll('.set-modal').forEach(x => x.remove());
+    const m = document.createElement('div'); m.className = 'set-modal';
+    m.innerHTML = `<div class="set-card"><button class="set-x" aria-label="Fechar">×</button><iframe src="/configuracoes?embed=1#${tab}" title="Configurações"></iframe></div>`;
+    const close = () => { m.classList.add('closing'); setTimeout(() => m.remove(), 300); window.applyTheme && applyTheme(); };
+    m.querySelector('.set-x').onclick = close;
+    m.onclick = e => { if (e.target === m) close(); };
+    addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); removeEventListener('keydown', esc); } });
+    document.body.appendChild(m); window.fx && fx.toggle();
+    window.closeSettingsModal = close;
+  };
+  addEventListener('message', e => {
+    if (e.origin !== location.origin) return;
+    if (e.data === 'gn-close') { window.closeSettingsModal && closeSettingsModal(); showChat(); }
+    if (e.data === 'gn-theme') window.applyTheme && applyTheme();
+  });
+  // engrenagem no topo da barra lateral
+  const gear = document.createElement('button'); gear.className = 'icon-btn'; gear.title = 'Configurações';
+  gear.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>';
+  gear.onclick = () => openSettingsModal('apar');
+  $('toggle').before(gear);
+
   if (location.hash === '#agendamentos') showAgenda();
 })();

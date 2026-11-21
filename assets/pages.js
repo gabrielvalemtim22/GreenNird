@@ -8,6 +8,9 @@
     planos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></svg>',
     ajuda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17.5v.01"/></svg>',
   };
+  const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+  if (EMBED) document.documentElement.classList.add('embed');
+  window.GN_EMBED = EMBED;
   window.renderRail = (active, dark) => {
     const r = document.getElementById('rail'); if (!r) return;
     r.className = 'rail' + (dark ? ' dark' : '');
@@ -73,6 +76,11 @@
       if (!a || a.target || e.ctrlKey || e.metaKey || a.getAttribute('href').startsWith('/#') || a.closest('.pside') && a.getAttribute('href').includes('#')) return;
       if (a.pathname === location.pathname) return;
       e.preventDefault();
+      if (EMBED) {
+        // dentro do chat: voltar ao chat fecha o painel; outras páginas abrem no mesmo painel
+        if (a.pathname === '/chat' || a.pathname === '/') { parent.postMessage('gn-close', location.origin); return; }
+        main.classList.add('leave3d'); setTimeout(() => { location.href = a.pathname + '?embed=1' + a.hash; }, 300); return;
+      }
       try { sessionStorage.setItem('gn-enter3d', '1'); } catch {}
       main.classList.add('leave3d'); window.fx && fx.toggle();
       setTimeout(() => { location.href = a.href; }, 340);

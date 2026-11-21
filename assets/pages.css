@@ -5,14 +5,14 @@ body.app { display: flex; min-height: 100vh; }
 .rail a { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #222; transition: transform .12s, background .15s; }
 .rail.dark a { color: #fff; }
 .rail a:hover { background: rgba(0,0,0,.06); } .rail.dark a:hover { background: rgba(255,255,255,.1); }
-.rail a.on { background: var(--lime); color: #111; box-shadow: 0 6px 16px rgba(190,230,0,.45); }
+.rail a.on { background: var(--lime); color: #111; box-shadow: 0 6px 16px color-mix(in srgb, var(--lime) 45%, transparent); }
 .rail a:active { transform: scale(.9); }
 .rail svg { width: 23px; height: 23px; }
 .rail .sp { flex: 1; }
 .pside { position: sticky; top: 0; height: 100vh; width: 290px; flex-shrink: 0; padding: 26px 20px; border-right: 1px solid #eef0e8; background: rgba(255,255,255,.75); backdrop-filter: blur(8px); z-index: 2; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
 .pside .logo { margin: 0 6px 18px; font-size: 26px; }
 .pside h2 { font-size: 26px; letter-spacing: -.03em; margin: 4px 6px 12px; }
-.pbtn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--lime); border-radius: 999px; padding: 13px; font-weight: 800; font-size: 17px; box-shadow: 0 8px 20px rgba(190,230,0,.4); margin-bottom: 14px; transition: transform .12s; }
+.pbtn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--lime); border-radius: 999px; padding: 13px; font-weight: 800; font-size: 17px; box-shadow: 0 8px 20px color-mix(in srgb, var(--lime) 40%, transparent); margin-bottom: 14px; transition: transform .12s; }
 .pbtn:active { transform: scale(.96); }
 .pnav { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; font-weight: 500; font-size: 16.5px; text-align: left; width: 100%; }
 .pnav:hover { background: #f1f4e8; } .pnav.on { background: var(--lime-soft); font-weight: 700; }
@@ -69,3 +69,10 @@ body.app { display: flex; min-height: 100vh; }
 @keyframes in3dp { from { opacity: 0; filter: blur(10px); transform: perspective(1200px) translateZ(-160px) rotateY(14deg) scale(.96); } }
 @keyframes out3dp { to { opacity: 0; filter: blur(10px); transform: perspective(1200px) translateZ(-180px) rotateY(-14deg) scale(.96); } }
 .rail-av { width: 44px; height: 44px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 0 0 3px #eaffb0; }
+
+/* dentro do chat (embutido) */
+html.embed .rail { display: none; }
+html.embed .pside .logo { display: none; }
+html.embed body.app { min-height: 100%; }
+html.embed .glow { display: none; }
+html.embed body { background: transparent; }

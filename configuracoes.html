@@ -16,50 +16,54 @@
   .pnav { font-size: 17px; }
   .wrap { max-width: 1200px; }
   .wrap h1 { font-size: clamp(36px, 5vw, 54px); letter-spacing: -.04em; font-weight: 800; }
-  .wrap .lead { color: #555; font-size: 19px; margin: 4px 0 26px; }
-  .sset { display: flex; gap: 24px; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #eceee8; background: transparent; }
+  .wrap .lead { color: var(--muted); font-size: 19px; margin: 4px 0 26px; }
+  .sset { display: flex; gap: 24px; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--line); background: transparent; }
   .sset .l b { display: block; font-size: 19px; letter-spacing: -.01em; }
-  .sset .l small { color: #555; font-size: 15px; }
+  .sset .l small { color: var(--muted); font-size: 15px; }
   .sset .r { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-  .sset .l { flex: 0 1 340px; } .sset .r { flex: 1; }
-  .mode-card { width: 200px; flex-shrink: 0; border: 1.5px solid #e6e8e1; border-radius: 22px; padding: 18px 18px 12px; background: #fff; text-align: center; font-weight: 700; font-size: 17px; position: relative; }
-  .mode-card.on { border: 2.5px solid var(--lime); box-shadow: 0 10px 30px rgba(190,230,0,.25); background: #fbffef; }
+  .sset .l { flex: 0 1 300px; } .sset .r { flex: 1; flex-wrap: nowrap; }
+  .sset .r:has(.sw), .sset .r:has(.chips3) { flex-wrap: wrap; }
+  .mode-card { width: 168px; flex-shrink: 0; border: 1.5px solid var(--line); border-radius: 22px; padding: 18px 18px 12px; background: var(--card); text-align: center; font-weight: 700; font-size: 17px; position: relative; }
+  .mode-card.on { border: 2.5px solid var(--lime); box-shadow: 0 10px 30px color-mix(in srgb, var(--lime) 25%, transparent); background: var(--lime-tint); }
   .mode-card.on::after { content: "✓"; position: absolute; top: -8px; right: -8px; width: 32px; height: 32px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-size: 16px; }
-  .mini { height: 96px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 34% 1fr; overflow: hidden; border: 1px solid #e6e8e1; }
-  .mini .a { background: #f4f5f1; padding: 8px; } .mini .b { background: #fff; padding: 10px; }
+  .mini { height: 96px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 34% 1fr; overflow: hidden; border: 1px solid var(--line); }
+  .mini .a { background: #f4f5f1; padding: 8px; } .mini .b { background: var(--card); padding: 10px; }
   .mini i { display: block; height: 5px; border-radius: 4px; background: #d9dbd4; margin: 6px 0; }
   .mini .b i:nth-child(3) { background: var(--lime); width: 70%; }
   .mini.dark .a { background: #1c1d1e; } .mini.dark .b { background: #111; } .mini.dark i { background: #444; }
   .mini.sys { background: linear-gradient(115deg, #fff 55%, #111 55%); }
   .mini.sys .a { background: transparent; } .mini.sys .b { background: transparent; }
-  .sel { display: flex; align-items: center; gap: 12px; border: 1px solid #e6e8e1; border-radius: 14px; padding: 12px 16px; width: min(460px, 100%); background: #fff; font-size: 17px; font-weight: 600; }
+  .sel { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; width: min(460px, 100%); background: var(--card); font-size: 17px; font-weight: 600; }
   .sel select { border: 0; outline: 0; font: inherit; flex: 1; background: transparent; cursor: pointer; }
   .sw { width: 46px; height: 46px; border-radius: 50%; border: 1px solid #e3e5de; display: grid; place-items: center; cursor: pointer; transition: transform .12s; }
   .sw:hover { transform: scale(1.06); } .sw.on { outline: 3px solid var(--lime); outline-offset: 2px; }
   .sw.on::after { content: "✓"; font-weight: 800; color: #111; mix-blend-mode: difference; filter: invert(1); }
-  .adv { border: 1px solid #e6e8e1; border-radius: 18px; margin-top: 22px; background: #fff; }
+  .adv { border: 1px solid var(--line); border-radius: 18px; margin-top: 22px; background: var(--card); }
   .adv summary { list-style: none; display: flex; align-items: center; gap: 16px; padding: 18px 22px; cursor: pointer; }
-  .adv summary b { display: block; font-size: 18px; } .adv summary small { color: #555; }
-  .adv[open] summary { border-bottom: 1px solid #eef0e8; }
+  .adv summary b { display: block; font-size: 18px; } .adv summary small { color: var(--muted); }
+  .adv[open] summary { border-bottom: 1px solid var(--line); }
   .adv .in { padding: 4px 22px 10px; }
   .toggle { appearance: none; width: 50px; height: 30px; border-radius: 999px; background: #d9dbd4; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
-  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--card); transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
   .toggle:checked { background: var(--lime); } .toggle:checked::after { transform: translateX(20px); }
-  .field { border: 1px solid #e6e8e1; border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 16px; width: min(460px, 100%); background: #fff; outline: 0; }
+  .field { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 16px; width: min(460px, 100%); background: var(--card); outline: 0; }
   textarea.field { resize: vertical; }
   .chips3 { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-  .chips3 button { border: 1px solid #e6e8e1; border-radius: 999px; padding: 9px 15px; font-weight: 600; background: #fff; }
+  .chips3 button { border: 1px solid var(--line); border-radius: 999px; padding: 9px 15px; font-weight: 600; background: var(--card); }
   .chips3 button.on { background: var(--lime); border-color: var(--lime); }
   .savebar { position: sticky; bottom: 18px; display: flex; justify-content: flex-end; margin-top: 26px; }
   .savebar .btn { font-size: 19px; padding: 16px 34px; }
   .vlist2 { display: grid; gap: 8px; width: min(460px, 100%); }
-  .vi { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #e6e8e1; border-radius: 14px; background: #fff; cursor: pointer; text-align: left; }
+  .vi { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); cursor: pointer; text-align: left; }
   .vi.on { border-color: var(--lime); background: var(--lime-tint); }
   .vi small { color: var(--muted); display: block; font-size: 12px; }
   .vi .pl { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-size: 12px; }
   .ubar { height: 10px; background: #eef0ea; border-radius: 999px; overflow: hidden; width: min(460px, 100%); margin-top: 8px; }
   .ubar i { display: block; height: 100%; background: linear-gradient(90deg, #b9e800, var(--lime)); }
   .danger { color: #c0262d !important; }
+  .accs { display: flex; gap: 10px; width: 100%; justify-content: flex-end; }
+  html.embed .back-chat { display: none; }
+  html.embed .pmain { padding-top: 24px; }
   @media (max-width: 900px) { .sset { flex-direction: column; align-items: flex-start; } .sset .r { justify-content: flex-start; } .mode-card { width: 150px; } .mini { height: 70px; } }
 </style>
 </head>
@@ -70,7 +74,7 @@
   <h2>Configurações</h2>
   <label class="psearch small"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="find" placeholder="Pesquisar configurações"></label>
   <nav id="nav"></nav>
-  <a class="pnav" href="/chat" style="margin-top:auto">← Voltar ao chat</a>
+  <a class="pnav back-chat" href="/chat" style="margin-top:auto">← Voltar ao chat</a>
 </aside>
 <main class="pmain"><div class="wrap">
   <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -131,11 +135,11 @@ function show(id) {
     const mode = t.mode || 'system';
     const BG = [['', '#ffffff'], ['#fbfcf7', '#fbfcf7'], ['#eceef0', '#eceef0'], ['#f3fbe1', '#f3fbe1'], ['#eaffb2', '#eaffb2']];
     const TX = ['#0d0d0d', '#555555', '#8a8a8a', '#c4c4c4'];
-    const ACC = [['#d4ff00', 'Verde-limão'], ['#22c55e', 'Verde'], ['#3b82f6', 'Azul'], ['#a855f7', 'Roxo'], ['#f97316', 'Laranja'], ['#ec4899', 'Rosa']];
+    const ACC = [['#d4ff00', 'Verde-limão'], ['#ff6a00', 'Laranja'], ['#8b2cf5', 'Roxo'], ['#ff1f8f', 'Rosa'], ['#1f6bff', 'Azul']];
     b.innerHTML = row('Modo', 'Escolha como a interface da GreenNird será exibida.',
       [['system', 'Sistema', 'sys'], ['light', 'Claro', ''], ['dark', 'Escuro', 'dark']].map(([v, l, c]) => `<button class="mode-card ${mode === v ? 'on' : ''}" data-mode="${v}"><div class="mini ${c}"><div class="a"><i></i><i></i><i></i></div><div class="b"><i></i><i></i><i></i><i></i></div></div>${l}</button>`).join(''))
       + row('Tema', 'Escolha um tema de cores e tipografia.', `<label class="sel"><img src="/assets/logo.svg" width="26" alt=""><select id="fTheme"><option value="greennird">GreenNird</option><option value="minimal">Minimalista</option><option value="contraste">Alto contraste</option></select></label>`)
-      + row('Cor de destaque', 'Define a cor principal para destaques, botões e elementos ativos.', `<label class="sel"><span id="accDot" style="width:26px;height:26px;border-radius:50%;background:${t.accent || '#d4ff00'}"></span><select id="fAcc">${ACC.map(([c, n]) => `<option value="${c}" ${(t.accent || '#d4ff00') === c ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`)
+      + row('Cor de destaque', 'Define a cor principal para destaques, botões e elementos ativos.', `<label class="sel"><span id="accDot" style="width:26px;height:26px;border-radius:50%;background:${t.accent || '#d4ff00'}"></span><select id="fAcc">${ACC.map(([c, n]) => `<option value="${c}" ${(t.accent || '#d4ff00') === c ? 'selected' : ''}>${n}</option>`).join('')}</select></label><div class="accs">${ACC.map(([c, n]) => `<button class="sw ${(t.accent || '#d4ff00') === c ? 'on' : ''}" data-acc="${c}" title="${n}" style="background:${c}"></button>`).join('')}</div>`)
       + row('Fundo', 'Escolha a cor de fundo da interface.', BG.map(([v, c]) => `<span class="sw ${((t.bg || '') === v) ? 'on' : ''}" data-bg="${v}" style="background:${c}"></span>`).join('') + `<span class="sw ${t.bg === '#1a1a1a' ? 'on' : ''}" data-bg="#1a1a1a" style="background:#1a1a1a"></span><label class="sw" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative" title="Escolher cor"><input type="color" id="fBgCustom" style="opacity:0;position:absolute;inset:0;cursor:pointer"></label>`)
       + row('Texto', 'Escolha a cor principal do texto.', TX.map(c => `<span class="sw ${(t.text || '#0d0d0d') === c ? 'on' : ''}" data-tx="${c}" style="background:${c}"></span>`).join(''))
       + `<details class="adv"><summary>${I.geral.replace('<svg', '<svg width="28" height="28"')}<span><b>Avançado</b><small>Opções adicionais de aparência e exibição.</small></span><span style="margin-left:auto">⌄</span></summary><div class="in">
@@ -146,6 +150,7 @@ function show(id) {
     b.querySelector('#fTheme').value = t.preset || 'greennird';
     b.querySelector('#fTheme').onchange = e => { t.preset = e.target.value; if (e.target.value === 'contraste') { t.text = '#000000'; t.bg = ''; } preview(); };
     b.querySelector('#fAcc').onchange = e => { t.accent = e.target.value; b.querySelector('#accDot').style.background = t.accent; preview(); };
+    b.querySelectorAll('[data-acc]').forEach(x => x.onclick = () => { t.accent = x.dataset.acc; preview(); show('apar'); window.fx && fx.boop(); });
     b.querySelectorAll('[data-bg]').forEach(x => x.onclick = () => { t.bg = x.dataset.bg; if (t.bg === '#1a1a1a') t.mode = 'dark'; preview(); show('apar'); });
     b.querySelector('#fBgCustom').oninput = e => { t.bg = e.target.value; preview(); };
     b.querySelectorAll('[data-tx]').forEach(x => x.onclick = () => { t.text = x.dataset.tx; preview(); show('apar'); });
@@ -249,6 +254,10 @@ function show(id) {
   }
 }
 function preview() {
+  // salva na hora e avisa o chat por trás para mudar junto
+  store2.set('gn-theme', S.theme); window.applyTheme && applyTheme();
+  if (window.GN_EMBED) parent.postMessage('gn-theme', location.origin);
+  return;
   // aplica na hora para a pessoa ver
   store2.set('gn-theme-preview', S.theme);
   const r = document.documentElement; const t = S.theme;
@@ -272,6 +281,7 @@ document.getElementById('save').onclick = () => {
     store2.set('gn-persona', S.persona);
   }
   toast('Alterações salvas ✓'); window.fx && fx.done();
+  if (window.GN_EMBED) parent.postMessage('gn-theme', location.origin);
 };
 document.getElementById('find').oninput = e => nav(e.target.value.toLowerCase());
 document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');

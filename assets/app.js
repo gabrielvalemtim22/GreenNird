@@ -118,10 +118,10 @@
   // menu flutuante
   function popMenu(anchorEvent, entries) {
     document.querySelectorAll('.pmenu').forEach(x => x.remove());
-    const m = document.createElement('div'); m.className = 'pmenu';
+    const m = document.createElement('div'); m.className = 'pmenu' + (anchorEvent.currentTarget && anchorEvent.currentTarget.id === 'acct' ? ' big' : '');
     entries.forEach(en => {
       if (en === '-') { const s = document.createElement('hr'); m.appendChild(s); return; }
-      const b = document.createElement('button'); b.className = en.danger ? 'danger' : '';
+      const b = document.createElement('button'); b.className = (en.danger ? 'danger ' : '') + (en.hl ? 'hl' : '');
       b.innerHTML = `<span class="pmi">${en.icon || ''}</span><span></span>${en.sub ? '<span class="pmc">›</span>' : ''}`;
       b.children[1].textContent = en.label;
       b.onclick = ev => { ev.stopPropagation(); if (en.sub) { popMenu(anchorEvent, en.sub); return; } m.remove(); en.run && en.run(); };
@@ -225,12 +225,21 @@
     e.preventDefault();
     const acc = typeof account !== 'undefined' ? account : null;
     const logged = acc && acc.loggedIn;
+    const SVG = (d) => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+    const IC = {
+      user: SVG('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0Z" fill="var(--lime)"/>'),
+      star: SVG('<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="var(--lime)"/>'),
+      palette: SVG('<path d="M12 3a9 9 0 0 0 0 18c1.2 0 1.8-.9 1.8-1.8 0-1.4-1.2-1.6-1.2-2.8 0-.9.8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3Z"/><circle cx="7.5" cy="11" r="1.3" fill="var(--lime)" stroke="none"/><circle cx="10" cy="7.3" r="1.3" fill="var(--lime)" stroke="none"/><circle cx="14.5" cy="7.3" r="1.3" fill="var(--lime)" stroke="none"/>'),
+      gear: SVG('<circle cx="12" cy="12" r="3" stroke="var(--lime)" stroke-width="2.4"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>'),
+      help: SVG('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6" stroke="var(--lime)" stroke-width="2.2"/><path d="M12 17.5v.01" stroke="var(--lime)" stroke-width="2.6"/>'),
+      out: SVG('<path d="M14 4h-7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7M10 12h11M17 8l4 4-4 4"/>'),
+    };
     popMenu({ currentTarget: acct }, [
-      ...(logged ? [{ icon: '👤', label: 'Conta ' + acc.id, run: () => location.href = '/conta' }] : [{ icon: '👤', label: 'Entrar / Criar conta', run: () => location.href = '/conta' }]),
-      { icon: '⭐', label: 'Fazer upgrade do plano', run: () => location.href = '/conta#planos' },
-      { icon: '🎨', label: 'Personalização', run: () => openSettings('persona') },
-      { icon: '⚙️', label: 'Configurações', run: () => openSettings('apar') },
-      { icon: '❓', label: 'Ajuda', sub: [
+      ...(logged ? [{ icon: IC.user, label: 'Conta ' + acc.id, hl: true, run: () => openSettings('conta') }] : [{ icon: IC.user, label: 'Entrar / Criar conta', hl: true, run: () => location.href = '/conta' }]),
+      { icon: IC.star, label: 'Fazer upgrade do plano', run: () => location.href = '/conta#planos' },
+      { icon: IC.palette, label: 'Personalização', run: () => openSettings('persona') },
+      { icon: IC.gear, label: 'Configurações', run: () => openSettings('apar') },
+      { icon: IC.help, label: 'Ajuda', sub: [
         { icon: '📚', label: 'Central de ajuda', run: () => location.href = '/ajuda#central' },
         { icon: '💬', label: 'Falar no WhatsApp', run: () => location.href = '/ajuda#contato' },
         { icon: '🛡', label: 'Central de privacidade', run: () => location.href = '/ajuda#privacidade' },
@@ -241,7 +250,7 @@
         { icon: '🔏', label: 'Política de privacidade', run: () => location.href = '/ajuda#politica' },
         { icon: '🐞', label: 'Relatar um bug', run: reportBug },
       ] },
-      ...(logged ? ['-', { icon: '🚪', label: 'Sair', danger: true, run: async () => {
+      ...(logged ? ['-', { icon: IC.out, label: 'Sair', danger: true, run: async () => {
         await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) });
         toast('Você saiu da conta'); setTimeout(() => location.reload(), 800);
       } }] : []),
@@ -307,7 +316,7 @@
   ];
   function openSettings(tab = 'geral') {
     const map = { geral: 'geral', persona: 'pers', voz: 'voz', uso: 'uso', plugins: 'conex', dados: 'priv', conta: 'conta' };
-    location.href = '/configuracoes#' + (map[tab] || 'apar'); return;
+    window.openSettingsModal ? openSettingsModal(map[tab] || tab || 'apar') : (location.href = '/configuracoes#' + (map[tab] || 'apar')); return;
     document.querySelectorAll('#settings').forEach(x => x.remove());
     const m = document.createElement('div'); m.className = 'modal'; m.id = 'settings';
     m.innerHTML = `<div class="scard"><button class="mclose" aria-label="Fechar">×</button>
