@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Meu espaço</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<script src="/assets/theme.js"></script>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="manifest" href="/manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="/assets/fx.js"></script>
+<style>
+  .spark-top { position: absolute; left: 30%; top: 0; }
+  .rows { display: grid; }
+  .row { display: flex; align-items: center; gap: 22px; padding: 14px 10px; border-bottom: 1px solid #eef0e8; border-radius: 14px; cursor: pointer; transition: background .15s; }
+  .row:hover { background: rgba(255,255,255,.7); }
+  .thumb { width: 146px; height: 64px; border-radius: 12px; flex-shrink: 0; overflow: hidden; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.08); background: #fff; border: 1px solid #eef0e8; position: relative; }
+  .thumb.site { background: #111; } .thumb.site::after { content: ""; position: absolute; right: 8px; bottom: 6px; width: 60px; height: 36px; border-radius: 50% 0 0 0; background: linear-gradient(135deg, #d4ff00, #8bc400); }
+  .thumb.site b { position: absolute; left: 10px; top: 10px; width: 40px; height: 5px; background: #d4ff00; border-radius: 4px; }
+  .thumb.site i { position: absolute; left: 10px; top: 24px; width: 70px; height: 4px; background: #555; border-radius: 4px; box-shadow: 0 8px 0 #444; }
+  .thumb.doc i { display: block; width: 90px; height: 5px; background: #e6e8e1; border-radius: 4px; box-shadow: 0 10px 0 #e6e8e1, 0 20px 0 #e6e8e1; margin-top: -20px; }
+  .thumb.doc b { position: absolute; left: 14px; top: 12px; width: 8px; height: 40px; background: repeating-linear-gradient(#b9e800 0 6px, transparent 6px 10px); border-radius: 3px; }
+  .thumb.sheet { background: linear-gradient(#f4f6ef 1px, transparent 1px) 0 0/100% 12px, linear-gradient(90deg, #e9ecdf 1px, #fff 1px) 0 0/24px 100%; }
+  .thumb.sheet b { position: absolute; bottom: 8px; left: 40px; width: 60px; height: 30px; background: linear-gradient(90deg, #b9e800 0 18%, transparent 18% 27%, #b9e800 27% 45%, transparent 45% 54%, #b9e800 54% 72%, transparent 72% 81%, #b9e800 81%); clip-path: polygon(0 60%, 18% 60%, 18% 100%, 0 100%, 0 60%, 27% 40%, 45% 40%, 45% 100%, 27% 100%, 27% 40%, 54% 20%, 72% 20%, 72% 100%, 54% 100%, 54% 20%, 81% 0, 100% 0, 100% 100%, 81% 100%); }
+  .thumb.project { background: linear-gradient(135deg, #f6ffd0, #e7ff7a); font-size: 28px; }
+  .thumb.image { background: linear-gradient(135deg, #e9ffb0, #b9e800); font-size: 26px; }
+  .row h3 { font-size: 20px; letter-spacing: -.01em; }
+  .row .meta { color: #555; font-size: 14.5px; display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+  .row .meta svg { width: 16px; height: 16px; }
+  .row .grow { flex: 1; min-width: 0; }
+  .tag { font-size: 11px; font-weight: 700; background: var(--lime-soft); padding: 2px 8px; border-radius: 999px; }
+  /* editor */
+  .editor { position: fixed; inset: 0; z-index: 60; background: #fbfdf5; display: flex; flex-direction: column; animation: fade .2s; }
+  .ebar { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #eef0e8; background: #fff; }
+  .ebar input { flex: 1; border: 0; outline: 0; font: inherit; font-size: 20px; font-weight: 800; letter-spacing: -.02em; background: none; min-width: 0; }
+  .ebody { flex: 1; overflow: auto; padding: 24px clamp(14px, 5vw, 80px); }
+  .doc-area { max-width: 820px; margin: 0 auto; background: #fff; min-height: 70vh; border-radius: 18px; box-shadow: var(--shadow); padding: 40px clamp(18px, 4vw, 56px); outline: 0; font-size: 17px; line-height: 1.7; }
+  .doc-area:empty::before { content: "Comece a escrever… (ou peça para a IA escrever abaixo)"; color: #aaa; }
+  .grid { border-collapse: collapse; background: #fff; box-shadow: var(--shadow); }
+  .grid th { background: #f4f6ef; font-weight: 700; font-size: 12px; color: #666; padding: 6px; min-width: 40px; border: 1px solid #e6e8e1; }
+  .grid td { border: 1px solid #e6e8e1; padding: 0; }
+  .grid input { width: 120px; border: 0; padding: 8px; font: inherit; font-size: 14px; outline: 0; }
+  .grid input:focus { background: var(--lime-tint); }
+  .aibar { display: flex; gap: 10px; padding: 12px 18px; background: #fff; border-top: 1px solid #eef0e8; }
+  .aibar input { flex: 1; border: 1px solid var(--line); border-radius: 999px; padding: 12px 18px; font: inherit; outline: 0; }
+  .site-wrap { display: grid; grid-template-columns: 1fr; gap: 14px; height: 100%; }
+  .site-wrap iframe { width: 100%; height: 100%; min-height: 60vh; border: 1px solid #e6e8e1; border-radius: 16px; background: #fff; box-shadow: var(--shadow); }
+  .loading { display: grid; place-items: center; height: 60vh; color: var(--muted); font-weight: 600; }
+</style>
+</head>
+<body class="app">
+<div class="glow"></div>
+<nav id="rail"></nav>
+<aside class="pside" id="side">
+  <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <button class="pbtn" id="create"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Criar</button>
+  <button class="pnav on" data-view="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3v-9Z"/></svg>Tudo</button>
+  <button class="pnav" data-view="project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>Meus projetos</button>
+  <button class="pnav" data-view="shared"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.5 5.2"/></svg>Compartilhados</button>
+  <a class="pnav" href="/conexoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Conexões</a>
+  <hr class="psep">
+  <button class="pnav" data-view="trash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Lixeira</button>
+</aside>
+<main class="pmain">
+  <div class="phead">
+    <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <h1 id="title">Meu espaço</h1>
+    <label class="psearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Pesquisar projetos"></label>
+    <button class="pbtn" id="create2" style="margin:0;padding:12px 22px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Criar novo</button>
+  </div>
+  <div class="pfilters" id="filters">
+    <button class="on" data-f="all">Tudo</button><button data-f="project">Projetos</button><button data-f="doc">Documentos</button><button data-f="sheet">Planilhas</button><button data-f="image">Imagens</button><button data-f="site">Sites</button>
+  </div>
+  <div class="rows" id="rows"></div>
+</main>
+<script src="/assets/pages.js"></script>
+<script>
+renderRail('espaco', true);
+const TYPES = { doc: ['Documento', '📝'], sheet: ['Planilha', '📊'], site: ['Site (com IA)', '🌐'], project: ['Projeto', '📁'], image: ['Imagem', '🖼'] };
+let items = store2.get('gn-space', null);
+if (!items) { // exemplos para começar
+  const d = n => Date.now() - n * 864e5;
+  items = [
+    { id: 'ex1', type: 'site', title: 'Meu site profissional', updated: d(1), html: '<!doctype html><html><body style="font-family:system-ui;background:#111;color:#fff;display:grid;place-items:center;height:100vh;margin:0"><div style="text-align:center"><h1 style="color:#d4ff00">Meu site profissional</h1><p>Edite este site pedindo para a IA abaixo ✨</p></div></body></html>' },
+    { id: 'ex2', type: 'doc', title: 'Planejamento de conteúdo', updated: d(3), html: '<h2>Planejamento de conteúdo</h2><ul><li>Segunda: dica rápida</li><li>Quarta: bastidores</li><li>Sexta: promoção</li></ul>' },
+    { id: 'ex3', type: 'sheet', title: 'Relatório de desempenho', updated: d(6), cells: { A1: 'Mês', B1: 'Vendas', A2: 'Out', B2: '120', A3: 'Nov', B3: '180' } },
+  ];
+}
+const save = () => store2.set('gn-space', items);
+let view = 'all', filt = 'all', query = '';
+
+function thumb(t) {
+  if (t === 'site') return '<div class="thumb site"><b></b><i></i></div>';
+  if (t === 'doc') return '<div class="thumb doc"><b></b><i></i></div>';
+  if (t === 'sheet') return '<div class="thumb sheet"><b></b></div>';
+  if (t === 'project') return '<div class="thumb project">📁</div>';
+  return '<div class="thumb image">🖼</div>';
+}
+const CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+const DOTS = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+
+function render() {
+  const rows = document.getElementById('rows'); rows.innerHTML = '';
+  document.getElementById('title').textContent = { all: 'Meu espaço', project: 'Meus projetos', shared: 'Compartilhados', trash: 'Lixeira' }[view];
+  const list = items.filter(i => (view === 'trash' ? i.trashed : !i.trashed))
+    .filter(i => view !== 'project' || i.type === 'project')
+    .filter(i => view !== 'shared' || i.shared)
+    .filter(i => filt === 'all' || i.type === filt)
+    .filter(i => i.title.toLowerCase().includes(query))
+    .sort((a, b) => b.updated - a.updated);
+  if (!list.length) { rows.innerHTML = `<div class="empty">${view === 'trash' ? 'A lixeira está vazia 🧹' : 'Nada por aqui ainda. Clique em <b>Criar</b> para começar ✨'}</div>`; return; }
+  list.forEach(i => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = `${thumb(i.type)}<div class="grow"><h3></h3><div class="meta">${CAL}${fmtDate(i.updated)} · ${TYPES[i.type][0]} ${i.shared ? '<span class="tag">Compartilhado</span>' : ''}</div></div><button class="pmore" aria-label="Opções">${DOTS}</button>`;
+    r.querySelector('h3').textContent = i.title;
+    r.onclick = () => view === 'trash' ? toast('Restaure da lixeira para abrir', { icon: '🗑' }) : openItem(i);
+    r.querySelector('.pmore').onclick = e => { e.stopPropagation(); itemMenu(e.currentTarget, i); };
+    rows.appendChild(r);
+  });
+}
+function itemMenu(btn, i) {
+  if (i.trashed) return popMenu(btn, [
+    { icon: '↩️', label: 'Restaurar', run: () => { i.trashed = false; save(); render(); toast('Restaurado ✨'); } },
+    { icon: '🗑', label: 'Excluir para sempre', danger: true, run: () => { const bk = items.slice(); items = items.filter(x => x !== i); save(); render(); toast('Excluído para sempre', { icon: '🗑', action: 'Desfazer', onAction: () => { items = bk; save(); render(); } }); } },
+  ]);
+  popMenu(btn, [
+    { icon: '📂', label: 'Abrir', run: () => openItem(i) },
+    { icon: '✏️', label: 'Renomear', run: async () => { const n = await askText('Renomear', i.title); if (n) { i.title = n.slice(0, 80); i.updated = Date.now(); save(); render(); toast('Renomeado ✏️'); } } },
+    { icon: '🔗', label: i.shared ? 'Parar de compartilhar' : 'Compartilhar', run: () => share(i) },
+    { icon: '📄', label: 'Duplicar', run: () => { items.push({ ...structuredClone(i), id: crypto.randomUUID(), title: i.title + ' (cópia)', updated: Date.now(), shared: false }); save(); render(); toast('Duplicado 📄'); } },
+    '-',
+    { icon: '🗑', label: 'Mover para a lixeira', danger: true, run: () => { i.trashed = true; save(); render(); toast('Movido para a lixeira', { icon: '🗑', action: 'Desfazer', onAction: () => { i.trashed = false; save(); render(); } }); } },
+  ]);
+}
+async function share(i) {
+  if (i.shared) { i.shared = false; save(); render(); toast('Não está mais compartilhado'); return; }
+  i.shared = true; save(); render();
+  const text = i.type === 'doc' ? i.title + '\n\n' + (new DOMParser().parseFromString(i.html || '', 'text/html').body.innerText)
+    : i.type === 'sheet' ? i.title + '\n\n' + Object.entries(i.cells || {}).map(([k, v]) => `${k}: ${v}`).join('\n')
+    : i.type === 'site' ? (i.html || '') : i.title;
+  try { if (navigator.share) { await navigator.share({ title: i.title, text }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text); toast('Copiado para compartilhar 🔗'); } catch {}
+}
+
+// ---------- criar ----------
+function createMenu(btn) {
+  popMenu(btn, [
+    { icon: '📝', label: 'Documento', run: () => create('doc') },
+    { icon: '📊', label: 'Planilha', run: () => create('sheet') },
+    { icon: '🌐', label: 'Site com IA', run: () => create('site') },
+    { icon: '📁', label: 'Projeto', run: () => create('project') },
+    { icon: '🖼', label: 'Imagem (em breve)', run: () => toast('Criação de imagens chega em breve 🎨', { icon: '🖼' }) },
+  ]);
+}
+async function create(type) {
+  const name = await askText('Nome do ' + TYPES[type][0].toLowerCase().replace(' (com ia)', ''), '', { ok: 'Criar', placeholder: 'Ex.: Loja online' });
+  if (!name) return;
+  const i = { id: crypto.randomUUID(), type, title: name.slice(0, 80), updated: Date.now(), html: '', cells: {} };
+  items.push(i); save(); render(); window.fx && fx.done();
+  if (type === 'project') { toast('Projeto criado 📁 — mova conversas para ele pelo menu ⋯ do chat'); const p = store2.get('gn-projects', []); p.push({ id: i.id, name: i.title }); store2.set('gn-projects', p); return; }
+  openItem(i);
+}
+
+// ---------- editores ----------
+function openItem(i) {
+  if (i.type === 'project') { location.href = '/chat'; return; }
+  if (i.type === 'image') { toast('Criação de imagens chega em breve 🎨', { icon: '🖼' }); return; }
+  const ed = document.createElement('div'); ed.className = 'editor';
+  ed.innerHTML = `<div class="ebar"><button class="pmore" data-close aria-label="Voltar">←</button><input value=""><span class="soon" id="saved">Salvo</span></div><div class="ebody"></div>
+    <form class="aibar"><input placeholder="${i.type === 'site' ? 'Descreva o site ou a mudança (ex.: site de pizzaria com cardápio e WhatsApp)' : i.type === 'doc' ? 'Peça para a IA escrever (ex.: um post sobre promoção de Black Friday)' : 'Peça para a IA preencher (ex.: tabela de gastos do mês)'}"><button class="btn btn-lime" style="padding:10px 18px;font-size:15px">✨ Gerar</button></form>`;
+  const title = ed.querySelector('.ebar input'); title.value = i.title;
+  const body = ed.querySelector('.ebody');
+  const touch = () => { i.updated = Date.now(); save(); ed.querySelector('#saved').textContent = 'Salvo ✓'; };
+  title.oninput = () => { i.title = title.value || 'Sem título'; touch(); };
+  ed.querySelector('[data-close]').onclick = () => { ed.remove(); render(); };
+  document.body.appendChild(ed);
+
+  if (i.type === 'doc') {
+    body.innerHTML = '<div class="doc-area" contenteditable="true"></div>';
+    const area = body.firstChild; area.innerHTML = i.html || '';
+    area.oninput = () => { i.html = area.innerHTML; touch(); };
+  }
+  if (i.type === 'sheet') {
+    const cols = 'ABCDEFGHIJ'.split(''), nrows = 25;
+    let h = '<table class="grid"><tr><th></th>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+    for (let r = 1; r <= nrows; r++) h += `<tr><th>${r}</th>` + cols.map(c => `<td><input data-k="${c}${r}"></td>`).join('') + '</tr>';
+    body.innerHTML = h + '</table>';
+    body.querySelectorAll('input').forEach(inp => { inp.value = (i.cells || {})[inp.dataset.k] || ''; inp.oninput = () => { i.cells = i.cells || {}; if (inp.value) i.cells[inp.dataset.k] = inp.value; else delete i.cells[inp.dataset.k]; touch(); }; });
+  }
+  if (i.type === 'site') {
+    body.innerHTML = '<div class="site-wrap"><iframe sandbox="allow-scripts" title="Prévia do site"></iframe></div>';
+    body.querySelector('iframe').srcdoc = i.html || '<p style="font-family:system-ui;color:#888;text-align:center;margin-top:30vh">Descreva o site abaixo e clique em ✨ Gerar</p>';
+  }
+
+  ed.querySelector('.aibar').onsubmit = async e => {
+    e.preventDefault();
+    const inp = e.target.querySelector('input'); const ask = inp.value.trim(); if (!ask) return;
+    const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = '⏳ Gerando…';
+    let prompt;
+    if (i.type === 'site') prompt = `Crie (ou altere) um site de uma página só. Pedido: ${ask}\n${i.html ? 'Site atual:\n```html\n' + i.html.slice(0, 15000) + '\n```' : ''}\nResponda SOMENTE com o HTML completo dentro de um bloco \`\`\`html, com CSS e JS embutidos, bonito, responsivo e em português.`;
+    else if (i.type === 'doc') prompt = `Escreva em português, em Markdown, para um documento chamado "${i.title}": ${ask}. Responda só com o conteúdo.`;
+    else prompt = `Monte uma tabela para uma planilha chamada "${i.title}": ${ask}. Responda SOMENTE com um bloco \`\`\`csv usando ; como separador, com no máximo 10 colunas e 25 linhas.`;
+    try {
+      const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], persona: store2.get('gn-persona', null) }) });
+      if (r.status === 402) { const j = await r.json(); throw new Error(j.message); }
+      const text = await r.text();
+      if (/^\s*⚠️/.test(text)) throw new Error(text.replace('⚠️', '').trim());
+      if (i.type === 'site') {
+        const m = text.match(/```html\s*([\s\S]*?)```/) || text.match(/(<!doctype[\s\S]*<\/html>)/i);
+        if (!m) throw new Error('A IA não devolveu um site. Tente descrever de novo.');
+        i.html = m[1].trim(); body.querySelector('iframe').srcdoc = i.html;
+      } else if (i.type === 'doc') {
+        const area = body.querySelector('.doc-area'); area.innerHTML += marked.parse(text); i.html = area.innerHTML;
+      } else {
+        const m = text.match(/```(?:csv)?\s*([\s\S]*?)```/); const csv = (m ? m[1] : text).trim().split('\n').slice(0, 25);
+        i.cells = {}; csv.forEach((line, r) => line.split(';').slice(0, 10).forEach((v, c) => { if (v.trim()) i.cells['ABCDEFGHIJ'[c] + (r + 1)] = v.trim(); }));
+        body.querySelectorAll('input[data-k]').forEach(x => x.value = i.cells[x.dataset.k] || '');
+      }
+      touch(); inp.value = ''; toast('Pronto ✨'); window.fx && fx.done();
+    } catch (err) { toast(err.message || 'Erro ao gerar', { icon: '⚠️' }); }
+    btn.disabled = false; btn.textContent = '✨ Gerar';
+  };
+}
+
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-view]').forEach(x => x.classList.toggle('on', x === b)); view = b.dataset.view; document.getElementById('side').classList.remove('open'); render(); });
+document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === b)); filt = b.dataset.f; render(); });
+document.getElementById('q').oninput = e => { query = e.target.value.toLowerCase(); render(); };
+document.getElementById('create').onclick = e => createMenu(e.currentTarget);
+document.getElementById('create2').onclick = e => createMenu(e.currentTarget);
+document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
+render();
+</script>
+</body>
+</html>

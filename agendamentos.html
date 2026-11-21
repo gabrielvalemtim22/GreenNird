@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Agendamentos</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<script src="/assets/theme.js"></script>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="manifest" href="/manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="/assets/fx.js"></script>
+<style>
+  .sec { margin-top: 10px; }
+  .sech { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 6px; font-weight: 700; font-size: 17px; }
+  .sech .dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: var(--lime-soft); }
+  .sech .chev { margin-left: auto; transition: transform .2s; } .sec.closed .chev { transform: rotate(-90deg); } .sec.closed .tasks { display: none; }
+  .task { display: flex; gap: 12px; align-items: flex-start; padding: 10px 8px; border-radius: 12px; cursor: pointer; text-align: left; width: 100%; }
+  .task:hover { background: #f1f4e8; } .task.on { background: var(--lime-soft); }
+  .task .ti { font-size: 20px; width: 26px; text-align: center; }
+  .task b { display: block; font-size: 15px; } .task small { color: #666; font-size: 13px; }
+  .hero { text-align: center; margin: 10px auto 34px; max-width: 760px; }
+  .hero .cal { width: 96px; height: 96px; margin: 8px auto 6px; }
+  .hero h1 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -.04em; font-weight: 800; }
+  .hero p { color: #555; font-size: 20px; margin-top: 8px; }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; max-width: 1060px; margin: 0 auto; }
+  .tcard { display: flex; gap: 22px; align-items: center; text-align: left; background: rgba(255,255,255,.92); border: 1px solid #eef0e8; border-radius: 24px; padding: 24px; box-shadow: var(--shadow); transition: transform .15s; }
+  .tcard:hover { transform: translateY(-3px); }
+  .tcard .ic { width: 70px; height: 70px; border-radius: 18px; background: var(--lime-soft); display: grid; place-items: center; font-size: 32px; flex-shrink: 0; }
+  .tcard h3 { font-size: 23px; letter-spacing: -.02em; } .tcard p { color: #444; font-size: 16px; line-height: 1.45; margin-top: 6px; }
+  .detail { max-width: 860px; margin: 0 auto; }
+  .dhead { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .dhead .ic { width: 64px; height: 64px; border-radius: 18px; background: var(--lime-soft); display: grid; place-items: center; font-size: 30px; }
+  .dhead h1 { font-size: 34px; letter-spacing: -.03em; flex: 1; }
+  .dacts { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .dacts .btn { padding: 10px 18px; font-size: 15px; }
+  .res { background: #fff; border: 1px solid #eef0e8; border-radius: 18px; padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); line-height: 1.6; }
+  .res small { color: var(--muted); display: block; margin-bottom: 6px; font-weight: 600; }
+  .note { background: #fff7d6; border: 1px solid #f3df8a; color: #5c4700; border-radius: 14px; padding: 12px 14px; font-size: 14px; max-width: 1060px; margin: 26px auto 0; line-height: 1.5; }
+  .days { display: flex; gap: 6px; flex-wrap: wrap; }
+  .days label { border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .days input { display: none; } .days label:has(input:checked) { background: var(--lime); border-color: var(--lime); }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body class="app">
+<div class="glow"></div>
+<nav id="rail"></nav>
+<aside class="pside" id="side">
+  <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <h2>Agendamentos</h2>
+  <button class="pbtn" id="newTask"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova tarefa</button>
+  <div id="lists"></div>
+</aside>
+<main class="pmain">
+  <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div id="content"></div>
+</main>
+<script src="/assets/pages.js"></script>
+<script src="/assets/tasks.js"></script>
+<script>
+renderRail('agenda');
+const T = GNTasks;
+const TEMPLATES = [
+  { icon: '🏷', title: 'Alertas de preço', desc: 'Receba avisos quando o preço de um produto cair ou atingir o valor que deseja.', kind: 'ai', prompt: 'Pesquise o preço atual de: [produto]. Diga se caiu e onde está mais barato.', freq: 'daily', time: '08:00' },
+  { icon: '📰', title: 'Resumo de notícias', desc: 'Receba um resumo das principais notícias no horário que preferir.', kind: 'ai', prompt: 'Faça um resumo das 5 principais notícias de hoje sobre tecnologia no Brasil e no mundo.', freq: 'weekdays', time: '07:30' },
+  { icon: '🔔', title: 'Lembretes importantes', desc: 'Nunca mais esqueça de compromissos, reuniões ou tarefas do dia a dia.', kind: 'reminder', prompt: '', freq: 'daily', time: '10:00' },
+  { icon: '🗓', title: 'Planejar minha semana', desc: 'Organize sua semana com sugestões de tarefas e prioridades personalizadas.', kind: 'ai', prompt: 'Monte um plano simples para a minha semana com prioridades por dia.', freq: 'weekly', days: [1], time: '08:00' },
+  { icon: '📈', title: 'Pesquisar oportunidades', desc: 'Monitore e receba novas oportunidades de negócios, vagas ou promoções.', kind: 'ai', prompt: 'Procure novas oportunidades de [vagas/negócios/promoções] em [área/cidade].', freq: 'daily', time: '09:00' },
+  { icon: '✅', title: 'Acompanhar tarefas', desc: 'Receba um resumo do andamento das suas tarefas agendadas.', kind: 'ai', prompt: 'Me dê uma mensagem curta de motivação e lembre de revisar minhas tarefas do dia.', freq: 'daily', time: '18:00' },
+];
+let selected = null;
+
+function renderSide() {
+  const tasks = T.get();
+  const groups = [['active', '▶', 'Ativas'], ['paused', '⏸', 'Em pausa'], ['done', '✓', 'Concluídas']];
+  const box = document.getElementById('lists'); box.innerHTML = '';
+  groups.forEach(([st, ic, label]) => {
+    const list = tasks.filter(t => t.status === st);
+    const sec = document.createElement('div'); sec.className = 'sec';
+    sec.innerHTML = `<button class="sech"><span class="dot">${ic}</span>${label} (${list.length})<span class="chev">⌄</span></button><div class="tasks"></div><hr class="psep">`;
+    sec.querySelector('.sech').onclick = () => sec.classList.toggle('closed');
+    list.forEach(t => {
+      const b = document.createElement('button'); b.className = 'task' + (selected === t.id ? ' on' : '');
+      b.innerHTML = `<span class="ti">${t.icon}</span><span><b></b><small></small></span>`;
+      b.querySelector('b').textContent = t.title;
+      b.querySelector('small').textContent = st === 'done' ? 'Concluída · ' + (t.lastRun ? new Date(t.lastRun).toLocaleString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '') : T.describe(t);
+      b.onclick = () => { selected = t.id; document.getElementById('side').classList.remove('open'); render(); };
+      sec.querySelector('.tasks').appendChild(b);
+    });
+    if (!list.length) sec.querySelector('.tasks').innerHTML = '<small style="color:#999;padding:0 10px">Nenhuma</small>';
+    box.appendChild(sec);
+  });
+}
+
+function renderHome() {
+  const c = document.getElementById('content');
+  c.innerHTML = `<div class="hero"><div class="spark"><svg viewBox="0 0 24 24"><path fill="#d4ff00" d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0z"/></svg></div>
+    <svg class="cal" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3.5"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="m8.5 15 2.3 2.3 4.7-4.6" stroke="#9bd400" stroke-width="2.4"/></svg>
+    <h1>Agende uma tarefa</h1><p>A GreenNird cuida das suas tarefas no momento certo.</p></div>
+    <div class="cards">${TEMPLATES.map((t, k) => `<button class="tcard" data-k="${k}"><span class="ic">${t.icon}</span><span><h3>${t.title}</h3><p>${t.desc}</p></span></button>`).join('')}</div>
+    <div class="note">ℹ️ As tarefas rodam enquanto o GreenNird estiver aberto em alguma aba (chat ou esta página). Para receber avisos mesmo com o site fechado, ative as notificações e deixe uma aba aberta — a execução 24h na nuvem chega numa próxima versão.</div>`;
+  c.querySelectorAll('.tcard').forEach(b => b.onclick = () => taskForm(TEMPLATES[b.dataset.k]));
+}
+
+function renderDetail(t) {
+  const c = document.getElementById('content');
+  c.innerHTML = `<div class="detail"><div class="dhead"><span class="ic">${t.icon}</span><h1></h1><button class="pmore" id="back" title="Voltar">←</button></div>
+    <p style="color:#555;margin:-6px 0 16px">${escapeHtml(T.describe(t))} · ${t.kind === 'reminder' ? 'Lembrete' : 'Tarefa com IA'}${t.status === 'active' && t.next ? ' · próxima: ' + new Date(t.next).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</p>
+    <div class="dacts">
+      <button class="btn btn-lime" id="runNow">▶ Executar agora</button>
+      <button class="btn btn-white" id="toggle">${t.status === 'active' ? '⏸ Pausar' : '▶ Ativar'}</button>
+      <button class="btn btn-white" id="edit">✏️ Editar</button>
+      <button class="btn btn-white" id="del">🗑 Excluir</button>
+    </div>
+    ${t.prompt ? `<div class="res"><small>O que a IA faz</small>${escapeHtml(t.prompt)}</div>` : ''}
+    <h3 style="margin:20px 0 10px">Resultados</h3>
+    ${(t.results || []).map(r => `<div class="res"><small>${new Date(r.at).toLocaleString('pt-BR')}</small>${DOMPurify.sanitize(marked.parse(r.text))}</div>`).join('') || '<div class="empty">Ainda não rodou. Clique em “Executar agora” para testar.</div>'}
+  </div>`;
+  c.querySelector('h1').textContent = t.title;
+  c.querySelector('#back').onclick = () => { selected = null; render(); };
+  c.querySelector('#runNow').onclick = async e => { e.target.disabled = true; e.target.textContent = '⏳ Executando…'; await T.run(t, true); render(); };
+  c.querySelector('#toggle').onclick = () => { const all = T.get(); const x = all.find(y => y.id === t.id); x.status = x.status === 'active' ? 'paused' : 'active'; if (x.status === 'active') x.next = T.nextRun(x); T.set(all); toast(x.status === 'active' ? 'Tarefa ativada ▶' : 'Tarefa pausada ⏸'); render(); };
+  c.querySelector('#edit').onclick = () => taskForm(t, true);
+  c.querySelector('#del').onclick = () => { const bk = T.get(); T.set(bk.filter(x => x.id !== t.id)); selected = null; render(); toast('Tarefa excluída', { icon: '🗑', action: 'Desfazer', onAction: () => { T.set(bk); render(); } }); };
+}
+
+function taskForm(base = {}, editing = false) {
+  const m = document.createElement('div'); m.className = 'modal';
+  const t = { icon: '🗓', kind: 'ai', freq: 'daily', time: '09:00', days: [1], ...base };
+  m.innerHTML = `<div class="mcard" style="width:min(520px,100%)"><button class="mclose">×</button><h2>${editing ? 'Editar tarefa' : 'Nova tarefa'}</h2>
+    <label class="mfield">Nome<input id="fTitle" maxlength="60"></label>
+    <label class="mfield">Tipo<select id="fKind"><option value="ai">A IA faz algo e me avisa</option><option value="reminder">Só me lembrar</option></select></label>
+    <label class="mfield" id="pWrap">O que a IA deve fazer<textarea id="fPrompt" rows="3" maxlength="800"></textarea></label>
+    <label class="mfield">Quando<select id="fFreq"><option value="daily">Todos os dias</option><option value="weekdays">Segunda a sexta</option><option value="weekly">Dias da semana que eu escolher</option><option value="once">Uma vez</option></select></label>
+    <div class="mfield" id="dWrap">Dias<div class="days">${T.DAYS.map((d, i) => `<label><input type="checkbox" value="${i}">${d}</label>`).join('')}</div></div>
+    <label class="mfield" id="dateWrap">Data<input type="date" id="fDate"></label>
+    <label class="mfield">Horário<input type="time" id="fTime"></label>
+    <div class="mrow"><button class="btn btn-white" data-x>Cancelar</button><button class="btn btn-lime" data-ok>${editing ? 'Salvar' : 'Agendar'}</button></div></div>`;
+  document.body.appendChild(m);
+  const $f = id => m.querySelector('#' + id);
+  $f('fTitle').value = t.title || ''; $f('fKind').value = t.kind; $f('fPrompt').value = t.prompt || ''; $f('fFreq').value = t.freq; $f('fTime').value = t.time;
+  $f('fDate').value = t.date || new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+  m.querySelectorAll('.days input').forEach(x => x.checked = (t.days || []).includes(+x.value));
+  const sync = () => { $f('pWrap').hidden = $f('fKind').value !== 'ai'; $f('dWrap').hidden = $f('fFreq').value !== 'weekly'; $f('dateWrap').hidden = $f('fFreq').value !== 'once'; };
+  $f('fKind').onchange = $f('fFreq').onchange = sync; sync();
+  const close = () => m.remove();
+  m.querySelector('.mclose').onclick = m.querySelector('[data-x]').onclick = close;
+  m.querySelector('[data-ok]').onclick = async () => {
+    const title = $f('fTitle').value.trim(); if (!title) return toast('Dê um nome para a tarefa', { icon: '⚠️' });
+    const task = { ...t, id: t.id || crypto.randomUUID(), title, kind: $f('fKind').value, prompt: $f('fPrompt').value.trim(), freq: $f('fFreq').value, time: $f('fTime').value || '09:00', date: $f('fDate').value,
+      days: [...m.querySelectorAll('.days input:checked')].map(x => +x.value), status: 'active', results: t.results || [] };
+    if (task.freq === 'weekly' && !task.days.length) return toast('Escolha pelo menos um dia', { icon: '⚠️' });
+    task.next = T.nextRun(task);
+    const all = T.get().filter(x => x.id !== task.id); all.push(task); T.set(all);
+    selected = task.id; close(); render(); toast(editing ? 'Tarefa salva ✓' : 'Tarefa agendada 🗓'); window.fx && fx.done();
+    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  };
+}
+
+function render() {
+  renderSide();
+  const t = selected && T.get().find(x => x.id === selected);
+  t ? renderDetail(t) : renderHome();
+}
+document.getElementById('newTask').onclick = () => taskForm({});
+document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
+addEventListener('gn-tasks', render);
+render();
+</script>
+</body>
+</html>

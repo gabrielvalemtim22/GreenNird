@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Central de ajuda</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<script src="/assets/theme.js"></script>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
+<script src="/assets/fx.js"></script>
+<style>
+  .doc { max-width: 860px; }
+  .doc section { background: rgba(255,255,255,.92); border: 1px solid #eef0e8; border-radius: 22px; padding: 26px 28px; margin-bottom: 20px; box-shadow: var(--shadow); scroll-margin-top: 20px; }
+  .doc h2 { font-size: 26px; letter-spacing: -.02em; margin-bottom: 12px; }
+  .doc h3 { font-size: 17px; margin: 16px 0 6px; }
+  .doc p, .doc li { color: #333; line-height: 1.65; font-size: 15.5px; }
+  .doc ul { padding-left: 22px; }
+  .doc details { border-bottom: 1px solid #eef0e8; padding: 12px 0; }
+  .doc summary { font-weight: 700; cursor: pointer; }
+  .doc details p { margin-top: 8px; }
+  .wa { display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #fff; font-weight: 800; border-radius: 999px; padding: 13px 24px; margin-top: 10px; }
+  .ver { border-left: 4px solid var(--lime); padding-left: 14px; margin: 14px 0; }
+  .ver b { display: block; }
+  .small { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body class="app">
+<div class="glow"></div>
+<nav id="rail"></nav>
+<aside class="pside" id="side">
+  <a class="logo" href="/chat"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <h2 style="font-size:26px;margin:4px 6px 12px">Ajuda</h2>
+  <a class="pnav" href="#central">📚 Central de ajuda</a>
+  <a class="pnav" href="#contato">💬 Falar no WhatsApp</a>
+  <a class="pnav" href="#atalhos">⌨️ Atalhos de teclado</a>
+  <a class="pnav" href="#notas">🆕 Notas de versão</a>
+  <a class="pnav" href="#privacidade">🛡 Central de privacidade</a>
+  <a class="pnav" href="#termos">📄 Termos de serviço</a>
+  <a class="pnav" href="#politica">🔏 Política de privacidade</a>
+  <a class="pnav" href="#bug">🐞 Relatar um bug</a>
+</aside>
+<main class="pmain"><div class="doc">
+  <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <h1 style="font-size:clamp(34px,5vw,52px);letter-spacing:-.04em;margin-bottom:20px">Como podemos ajudar? 💚</h1>
+
+  <section id="central"><h2>📚 Central de ajuda</h2>
+    <details><summary>Como crio minha conta?</summary><p>Entre em <a href="/conta">Conta</a> e clique em <b>Criar minha conta</b>. Você recebe um código de 12 números — guarde-o, ele é a sua senha.</p></details>
+    <details><summary>Perdi meu código. E agora?</summary><p>Por segurança, não temos como recuperar contas sem o código. Crie uma conta nova e guarde o código num lugar seguro.</p></details>
+    <details><summary>Como funciona o modo voz?</summary><p>Clique no botão verde de ondas no chat. Fale normalmente: a GreenNird espera você terminar, responde em voz alta e volta a ouvir. Se quiser interromper, é só falar por cima ou tocar na bola. Use o Chrome para o melhor reconhecimento de voz.</p></details>
+    <details><summary>A IA entendeu errado o que eu falei</summary><p>O reconhecimento de voz é feito pelo navegador. Fale perto do microfone, sem barulho de fundo, e prefira o Chrome. O texto que ela entendeu aparece embaixo da bola.</p></details>
+    <details><summary>Como mudo o jeito que a IA fala?</summary><p>Em <a href="/configuracoes#pers">Configurações → Personalização</a>: escolha o tom (descontraído, profissional…), se pode ou não falar palavrão, emojis e instruções personalizadas.</p></details>
+    <details><summary>Como fixo, renomeio ou bloqueio uma conversa?</summary><p>No chat, passe o mouse na conversa e clique em <b>⋯</b>: fixar, renomear, compartilhar, bloquear com PIN, mover para projeto, arquivar ou excluir.</p></details>
+    <details><summary>Como agendo uma tarefa?</summary><p>Em <a href="/agendamentos">Agendamentos</a>, escolha um modelo ou clique em <b>Nova tarefa</b>. Deixe o GreenNird aberto em uma aba e permita as notificações.</p></details>
+    <details><summary>Quais são os limites do plano grátis?</summary><p>3 mensagens por dia e 15 por semana. Veja todos os planos em <a href="/conta#planos">Planos</a>.</p></details>
+  </section>
+
+  <section id="contato"><h2>💬 Falar com o suporte</h2>
+    <p>Atendimento pelo WhatsApp, de segunda a sábado.</p>
+    <a class="wa" id="waLink" href="#" target="_blank" rel="noopener">💬 Abrir WhatsApp do suporte</a>
+    <p class="small" id="waNote"></p>
+  </section>
+
+  <section id="atalhos"><h2>⌨️ Atalhos de teclado</h2>
+    <ul><li><b>Enter</b> — enviar · <b>Shift + Enter</b> — nova linha</li><li><b>Ctrl + Shift + O</b> — nova conversa</li><li><b>Ctrl + K</b> — buscar conversas</li><li><b>Ctrl + Shift + S</b> — abrir/fechar barra lateral</li><li><b>Ctrl + Shift + V</b> — modo voz</li><li><b>Ctrl + ,</b> — configurações · <b>Ctrl + /</b> — atalhos · <b>Esc</b> — fechar</li></ul>
+  </section>
+
+  <section id="notas"><h2>🆕 Notas de versão</h2>
+    <div class="ver"><b>Versão 1.4 — 21 de novembro de 2026</b><p>Meu espaço (documentos, planilhas e sites com IA), Agendamentos, Conexões, Configurações completas com tema claro/escuro, personalização da IA, menu das conversas (fixar, renomear, bloquear, projetos, arquivar), modo voz que não corta e pode ser interrompido.</p></div>
+    <div class="ver"><b>Versão 1.3</b><p>Modo voz com a bola animada, vozes ElevenLabs, plugin de WhatsApp.</p></div>
+    <div class="ver"><b>Versão 1.2</b><p>Contas por código, planos, limite do plano grátis, painel administrativo 3D.</p></div>
+    <div class="ver"><b>Versão 1.0</b><p>Lançamento do chat GreenNird com Grok.</p></div>
+  </section>
+
+  <section id="privacidade"><h2>🛡 Central de privacidade</h2>
+    <ul>
+      <li><b>Suas conversas ficam no seu aparelho.</b> Não guardamos histórico de conversas em servidor.</li>
+      <li>Para responder, a mensagem é enviada ao provedor de IA (xAI/Grok) e, se você usar voz, à ElevenLabs.</li>
+      <li>Sua conta não tem e-mail nem nome: só um código numérico.</li>
+      <li>Você pode <a href="/configuracoes#priv">exportar ou apagar seus dados</a> a qualquer momento.</li>
+    </ul>
+  </section>
+
+  <section id="termos"><h2>📄 Termos de serviço</h2>
+    <p class="small">Rascunho — revise com um advogado antes de usar comercialmente.</p>
+    <h3>1. O serviço</h3><p>A GreenNird é um assistente de inteligência artificial. As respostas são geradas automaticamente e podem conter erros; confira informações importantes.</p>
+    <h3>2. Sua conta</h3><p>Sua conta é acessada por um código numérico. Você é responsável por guardá-lo. Sem o código não é possível recuperar a conta.</p>
+    <h3>3. Uso permitido</h3><p>Não use a GreenNird para atividades ilegais, spam, golpes, assédio ou para violar direitos de terceiros. Podemos limitar ou encerrar contas que abusem do serviço.</p>
+    <h3>4. Planos e limites</h3><p>Cada plano tem limites de uso descritos na página de planos. Os limites podem ser ajustados para manter o serviço estável.</p>
+    <h3>5. Conteúdo</h3><p>O que você cria com a GreenNird é seu. Você é responsável pelo uso que faz das respostas.</p>
+    <h3>6. Alterações</h3><p>Podemos atualizar estes termos; avisaremos nas notas de versão.</p>
+  </section>
+
+  <section id="politica"><h2>🔏 Política de privacidade</h2>
+    <p class="small">Rascunho — revise para adequação à LGPD antes de usar comercialmente.</p>
+    <h3>Quais dados tratamos</h3><p>Código da conta, contadores de uso (em cookie assinado) e o conteúdo das mensagens enviado para gerar a resposta. Conversas, projetos e tarefas ficam salvos no seu navegador.</p>
+    <h3>Com quem compartilhamos</h3><p>Provedores necessários para funcionar: xAI (respostas da IA), ElevenLabs (voz), Vercel (hospedagem) e Meta (WhatsApp, quando usado pela empresa).</p>
+    <h3>Seus direitos</h3><p>Você pode acessar, exportar e apagar seus dados em Configurações → Privacidade, ou pedir ajuda pelo suporte.</p>
+  </section>
+
+  <section id="bug"><h2>🐞 Relatar um bug</h2>
+    <p>Conte o que aconteceu, em qual página e, se puder, mande um print. O relato é copiado para você colar na conversa com o suporte.</p>
+    <div class="mfield" style="margin-top:12px"><textarea id="bugText" rows="4" placeholder="Ex.: no modo voz, depois de falar, a bola parou…" style="border:1px solid var(--line);border-radius:14px;padding:12px;font:inherit"></textarea></div>
+    <button class="btn btn-lime" id="bugSend" style="padding:12px 24px;font-size:16px">Copiar relato e abrir suporte</button>
+  </section>
+</div></main>
+<script src="/assets/pages.js"></script>
+<script>
+renderRail('');
+// número do suporte: troque aqui (só números, com DDI 55)
+const SUPPORT_WHATSAPP = '';
+const wa = document.getElementById('waLink');
+if (SUPPORT_WHATSAPP) wa.href = 'https://wa.me/' + SUPPORT_WHATSAPP + '?text=' + encodeURIComponent('Olá! Preciso de ajuda com a GreenNird.');
+else { wa.onclick = e => { e.preventDefault(); toast('O WhatsApp do suporte ainda não foi configurado', { icon: 'ℹ️' }); }; document.getElementById('waNote').textContent = 'Número do suporte ainda não configurado.'; }
+document.getElementById('bugSend').onclick = async () => {
+  const t = document.getElementById('bugText').value.trim(); if (!t) return toast('Escreva o que aconteceu', { icon: '⚠️' });
+  try { await navigator.clipboard.writeText('Bug no GreenNird:\n' + t + '\n\nNavegador: ' + navigator.userAgent); } catch {}
+  toast('Relato copiado 🐞 — cole na conversa com o suporte'); wa.click();
+};
+document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
+document.querySelectorAll('.pside a').forEach(a => a.addEventListener('click', () => document.getElementById('side').classList.remove('open')));
+</script>
+</body>
+</html>

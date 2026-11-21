@@ -205,15 +205,14 @@
   extra.innerHTML = `
     <div class="sbox" id="sbox" hidden><input id="sinput" placeholder="Buscar conversas…"></div>
     <a class="snav" href="/agendamentos"><span>🗓</span>Agendamentos</a>
+    <a class="snav" href="/espaco"><span>🗂</span>Meu espaço</a>
     <a class="snav" href="/conexoes"><span>🔌</span>Conexões</a>
     <button class="snav" id="navImages"><span>🖼</span>Imagens <em>em breve</em></button>
-    <button class="snav" id="navSpaces"><span>🗂</span>Espaços <em>em breve</em></button>
     <button class="snav" id="navNewProject"><span>📁</span>Novo projeto</button>`;
   newBtn.after(extra);
   $('findBtn').onclick = () => { const b = $('sbox'); b.hidden = !b.hidden; if (!b.hidden) $('sinput').focus(); else { filter = ''; $('sinput').value = ''; renderList(); } };
   $('sinput').oninput = e => { filter = e.target.value.toLowerCase(); renderList(); };
   $('navImages').onclick = () => toast('Criação de imagens chega em breve 🎨', { icon: '🖼' });
-  $('navSpaces').onclick = () => toast('Espaços (slides, planilhas, sites) chegam em breve', { icon: '🗂' });
   $('navNewProject').onclick = () => newProject();
 
   // ---------- menu da conta (rodapé) ----------
@@ -228,7 +227,7 @@
       ...(logged ? [{ icon: '👤', label: 'Conta ' + acc.id, run: () => location.href = '/conta' }] : [{ icon: '👤', label: 'Entrar / Criar conta', run: () => location.href = '/conta' }]),
       { icon: '⭐', label: 'Fazer upgrade do plano', run: () => location.href = '/conta#planos' },
       { icon: '🎨', label: 'Personalização', run: () => openSettings('persona') },
-      { icon: '⚙️', label: 'Configurações', run: () => openSettings('geral') },
+      { icon: '⚙️', label: 'Configurações', run: () => openSettings('apar') },
       { icon: '❓', label: 'Ajuda', sub: [
         { icon: '📚', label: 'Central de ajuda', run: () => location.href = '/ajuda#central' },
         { icon: '💬', label: 'Falar no WhatsApp', run: () => location.href = '/ajuda#contato' },
@@ -297,7 +296,7 @@
 
   // ---------- personalização (vai junto com cada mensagem) ----------
   const PERSONA_DEFAULT = { tone: 'descontraido', profanity: false, emojis: true, length: 'normal', nickname: '', about: '', custom: '' };
-  window.getPersona = () => ({ ...PERSONA_DEFAULT, ...ls.get('gn-persona', {}) });
+  window.getPersona = () => ({ ...PERSONA_DEFAULT, ...ls.get('gn-persona', {}), maps: !!ls.get('gn-connections', { maps: true }).maps });
 
   // ---------- configurações ----------
   const TABS = [
@@ -305,6 +304,8 @@
     ['plugins', '🔌', 'Conexões'], ['dados', '🗂', 'Dados'], ['conta', '👤', 'Conta'],
   ];
   function openSettings(tab = 'geral') {
+    const map = { geral: 'geral', persona: 'pers', voz: 'voz', uso: 'uso', plugins: 'conex', dados: 'priv', conta: 'conta' };
+    location.href = '/configuracoes#' + (map[tab] || 'apar'); return;
     document.querySelectorAll('#settings').forEach(x => x.remove());
     const m = document.createElement('div'); m.className = 'modal'; m.id = 'settings';
     m.innerHTML = `<div class="scard"><button class="mclose" aria-label="Fechar">×</button>

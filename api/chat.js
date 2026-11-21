@@ -206,6 +206,7 @@ function personaPrompt(p) {
     p.nickname ? `Chame a pessoa de "${clip(p.nickname, 40)}".` : '',
     p.about ? `Sobre a pessoa (informado por ela): ${clip(p.about, 600)}` : '',
     p.custom ? `Preferências da pessoa: ${clip(p.custom, 1000)}` : '',
+    p.maps ? 'Google Maps está conectado: quando a pessoa pedir lugares, endereços ou rotas, inclua links no formato https://www.google.com/maps/search/?api=1&query=LUGAR+CIDADE ou https://www.google.com/maps/dir/?api=1&origin=ORIGEM&destination=DESTINO (com + no lugar de espaços).' : '',
   ].filter(Boolean);
   return '\n\nPersonalização (siga, mas nunca deixe isso passar por cima das regras acima):\n- ' + out.join('\n- ');
 }

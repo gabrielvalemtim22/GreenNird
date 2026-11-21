@@ -63,3 +63,34 @@ svg { flex-shrink: 0; }
   .send { width: 48px; height: 48px; }
   .btn { padding: 14px 22px; font-size: 16px; }
 }
+
+/* ===== tema escuro e cores personalizadas ===== */
+body { color: var(--ink); }
+:root[data-theme="dark"] {
+  --ink: #f2f4ee; --muted: #a2a8a0; --line: #2a2e27; --card: #17191a; --bg: #0e0f10;
+  --lime-soft: #2b3510; --lime-tint: #1f2610;
+  --shadow: 0 10px 40px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+:root[data-theme="dark"] .glow::before, :root[data-theme="dark"] .glow::after { opacity: .28; }
+:root[data-theme="dark"] .composer, :root[data-theme="dark"] .btn-white, :root[data-theme="dark"] .card,
+:root[data-theme="dark"] .box, :root[data-theme="dark"] .plan, :root[data-theme="dark"] .pmenu, :root[data-theme="dark"] .mcard,
+:root[data-theme="dark"] .scard, :root[data-theme="dark"] .vpanel, :root[data-theme="dark"] .cc, :root[data-theme="dark"] .tcard,
+:root[data-theme="dark"] .res, :root[data-theme="dark"] .psearch, :root[data-theme="dark"] .pfilters button, :root[data-theme="dark"] .lang,
+:root[data-theme="dark"] .doc-area, :root[data-theme="dark"] .grid, :root[data-theme="dark"] .ebar, :root[data-theme="dark"] .aibar,
+:root[data-theme="dark"] .pill, :root[data-theme="dark"] .bell, :root[data-theme="dark"] .sset, :root[data-theme="dark"] .mode-card {
+  background: #17191a !important; color: var(--ink); border-color: var(--line) !important;
+}
+:root[data-theme="dark"] aside, :root[data-theme="dark"] .pside, :root[data-theme="dark"] .stabs, :root[data-theme="dark"] .vmode { background: #121314 !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] .chip { background: #222527; border-color: #2e3230; color: var(--ink); }
+:root[data-theme="dark"] .chip.on, :root[data-theme="dark"] .pnav.on, :root[data-theme="dark"] .item.on, :root[data-theme="dark"] .stabs button.on { background: var(--lime-soft) !important; }
+:root[data-theme="dark"] .item:hover, :root[data-theme="dark"] .snav:hover, :root[data-theme="dark"] .pnav:hover, :root[data-theme="dark"] .pmenu button:hover { background: #202324; }
+:root[data-theme="dark"] .composer textarea, :root[data-theme="dark"] input, :root[data-theme="dark"] textarea, :root[data-theme="dark"] select { color: var(--ink); background: transparent; }
+:root[data-theme="dark"] .msg.user { background: #2b3510; }
+:root[data-theme="dark"] .logo img, :root[data-theme="dark"] .icon-btn svg, :root[data-theme="dark"] .rail:not(.dark) a { filter: none; }
+:root[data-theme="dark"] .logo img, :root[data-theme="dark"] .msg.ai > img { filter: invert(1) hue-rotate(180deg); }
+:root[data-theme="dark"] #blob { mix-blend-mode: screen; filter: invert(1); }
+:root[data-theme="dark"] .vround, :root[data-theme="dark"] .vbar, :root[data-theme="dark"] .vpick, :root[data-theme="dark"] .pmore { background: #1d2021; color: var(--ink); }
+:root[data-theme="dark"] .rail:not(.dark) a { color: var(--ink); }
+:root[data-theme="dark"] .toast { background: #f2f4ee; color: #111; }
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }

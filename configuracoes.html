@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Configurações</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<script src="/assets/theme.js"></script>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="manifest" href="/manifest.json">
+<script src="/assets/fx.js"></script>
+<style>
+  .pside h2 { font-size: 28px; margin: 6px 8px 18px; }
+  .psearch.small { padding: 11px 16px; min-width: 0; margin-bottom: 14px; box-shadow: none; }
+  .pnav { font-size: 17px; }
+  .wrap { max-width: 1200px; }
+  .wrap h1 { font-size: clamp(36px, 5vw, 54px); letter-spacing: -.04em; font-weight: 800; }
+  .wrap .lead { color: #555; font-size: 19px; margin: 4px 0 26px; }
+  .sset { display: flex; gap: 24px; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #eceee8; background: transparent; }
+  .sset .l b { display: block; font-size: 19px; letter-spacing: -.01em; }
+  .sset .l small { color: #555; font-size: 15px; }
+  .sset .r { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .sset .l { flex: 0 1 340px; } .sset .r { flex: 1; }
+  .mode-card { width: 200px; flex-shrink: 0; border: 1.5px solid #e6e8e1; border-radius: 22px; padding: 18px 18px 12px; background: #fff; text-align: center; font-weight: 700; font-size: 17px; position: relative; }
+  .mode-card.on { border: 2.5px solid var(--lime); box-shadow: 0 10px 30px rgba(190,230,0,.25); background: #fbffef; }
+  .mode-card.on::after { content: "✓"; position: absolute; top: -8px; right: -8px; width: 32px; height: 32px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-size: 16px; }
+  .mini { height: 96px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 34% 1fr; overflow: hidden; border: 1px solid #e6e8e1; }
+  .mini .a { background: #f4f5f1; padding: 8px; } .mini .b { background: #fff; padding: 10px; }
+  .mini i { display: block; height: 5px; border-radius: 4px; background: #d9dbd4; margin: 6px 0; }
+  .mini .b i:nth-child(3) { background: var(--lime); width: 70%; }
+  .mini.dark .a { background: #1c1d1e; } .mini.dark .b { background: #111; } .mini.dark i { background: #444; }
+  .mini.sys { background: linear-gradient(115deg, #fff 55%, #111 55%); }
+  .mini.sys .a { background: transparent; } .mini.sys .b { background: transparent; }
+  .sel { display: flex; align-items: center; gap: 12px; border: 1px solid #e6e8e1; border-radius: 14px; padding: 12px 16px; width: min(460px, 100%); background: #fff; font-size: 17px; font-weight: 600; }
+  .sel select { border: 0; outline: 0; font: inherit; flex: 1; background: transparent; cursor: pointer; }
+  .sw { width: 46px; height: 46px; border-radius: 50%; border: 1px solid #e3e5de; display: grid; place-items: center; cursor: pointer; transition: transform .12s; }
+  .sw:hover { transform: scale(1.06); } .sw.on { outline: 3px solid var(--lime); outline-offset: 2px; }
+  .sw.on::after { content: "✓"; font-weight: 800; color: #111; mix-blend-mode: difference; filter: invert(1); }
+  .adv { border: 1px solid #e6e8e1; border-radius: 18px; margin-top: 22px; background: #fff; }
+  .adv summary { list-style: none; display: flex; align-items: center; gap: 16px; padding: 18px 22px; cursor: pointer; }
+  .adv summary b { display: block; font-size: 18px; } .adv summary small { color: #555; }
+  .adv[open] summary { border-bottom: 1px solid #eef0e8; }
+  .adv .in { padding: 4px 22px 10px; }
+  .toggle { appearance: none; width: 50px; height: 30px; border-radius: 999px; background: #d9dbd4; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .toggle:checked { background: var(--lime); } .toggle:checked::after { transform: translateX(20px); }
+  .field { border: 1px solid #e6e8e1; border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 16px; width: min(460px, 100%); background: #fff; outline: 0; }
+  textarea.field { resize: vertical; }
+  .chips3 { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .chips3 button { border: 1px solid #e6e8e1; border-radius: 999px; padding: 9px 15px; font-weight: 600; background: #fff; }
+  .chips3 button.on { background: var(--lime); border-color: var(--lime); }
+  .savebar { position: sticky; bottom: 18px; display: flex; justify-content: flex-end; margin-top: 26px; }
+  .savebar .btn { font-size: 19px; padding: 16px 34px; }
+  .vlist2 { display: grid; gap: 8px; width: min(460px, 100%); }
+  .vi { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #e6e8e1; border-radius: 14px; background: #fff; cursor: pointer; text-align: left; }
+  .vi.on { border-color: var(--lime); background: var(--lime-tint); }
+  .vi small { color: var(--muted); display: block; font-size: 12px; }
+  .vi .pl { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-size: 12px; }
+  .ubar { height: 10px; background: #eef0ea; border-radius: 999px; overflow: hidden; width: min(460px, 100%); margin-top: 8px; }
+  .ubar i { display: block; height: 100%; background: linear-gradient(90deg, #b9e800, var(--lime)); }
+  .danger { color: #c0262d !important; }
+  @media (max-width: 900px) { .sset { flex-direction: column; align-items: flex-start; } .sset .r { justify-content: flex-start; } .mode-card { width: 150px; } .mini { height: 70px; } }
+</style>
+</head>
+<body class="app">
+<div class="glow"></div>
+<aside class="pside" id="side">
+  <a class="logo" href="/chat"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <h2>Configurações</h2>
+  <label class="psearch small"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="find" placeholder="Pesquisar configurações"></label>
+  <nav id="nav"></nav>
+  <a class="pnav" href="/chat" style="margin-top:auto">← Voltar ao chat</a>
+</aside>
+<main class="pmain"><div class="wrap">
+  <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="spark" style="margin:0 0 -34px 30%;width:300px"><svg viewBox="0 0 24 24"><path fill="#d4ff00" d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0z"/></svg></div>
+  <h1 id="h"></h1><p class="lead" id="lead"></p>
+  <div id="body"></div>
+  <div class="savebar"><button class="btn btn-lime" id="save">✓ Salvar alterações</button></div>
+</div></main>
+<script src="/assets/pages.js"></script>
+<script>
+const I = {
+  conta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5"/></svg>',
+  seg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="M12 10v4"/></svg>',
+  geral: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
+  apar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  notif: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2ZM10 21h4"/></svg>',
+  voz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  pers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4 5 5L9 20H4v-5L15 4Z"/></svg>',
+  priv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  uso: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  conex: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+};
+const SECTIONS = [
+  ['conta', 'Conta', 'Seu código de acesso e plano.'], ['seg', 'Segurança e login', 'Proteja sua conta e suas conversas.'],
+  ['geral', 'Geral', 'Preferências do dia a dia.'], ['apar', 'Aparência', 'Personalize as cores e o visual da GreenNird.'],
+  ['notif', 'Notificações', 'Escolha quando a GreenNird te avisa.'], ['voz', 'Voz', 'Escolha a voz da IA.'],
+  ['pers', 'Personalização', 'Como a GreenNird conversa com você.'], ['uso', 'Uso e limites', 'Acompanhe seu uso e seus limites.'],
+  ['priv', 'Privacidade', 'Seus dados e conversas.'], ['conex', 'Conexões', 'Ferramentas conectadas à GreenNird.'],
+];
+const S = {
+  theme: store2.get('gn-theme', {}), persona: { tone: 'descontraido', length: 'normal', profanity: false, emojis: true, nickname: '', about: '', custom: '', ...store2.get('gn-persona', {}) },
+  voice: store2.get('gn-voice', {}), notify: { tasks: true, sounds: true, replies: false, ...store2.get('gn-notify', {}) },
+  search: store2.get('gn-search-default', true), lang: store2.get('gn-lang', 'pt'),
+};
+let cur = (location.hash.slice(1) && SECTIONS.some(s => s[0] === location.hash.slice(1))) ? location.hash.slice(1) : 'apar';
+let account = null;
+fetch('/api/account').then(r => r.json()).then(a => { account = a; if (['conta', 'uso'].includes(cur)) show(cur); }).catch(() => {});
+
+function nav(q = '') {
+  const n = document.getElementById('nav'); n.innerHTML = '';
+  SECTIONS.filter(s => (s[1] + s[2]).toLowerCase().includes(q)).forEach(([id, label]) => {
+    const b = document.createElement('button'); b.className = 'pnav' + (id === cur ? ' on' : '');
+    b.innerHTML = I[id] + label; b.onclick = () => { show(id); document.getElementById('side').classList.remove('open'); };
+    n.appendChild(b);
+  });
+}
+const row = (title, sub, right) => `<div class="sset"><div class="l"><b>${title}</b><small>${sub}</small></div><div class="r">${right}</div></div>`;
+const tog = (id, on) => `<input type="checkbox" class="toggle" id="${id}" ${on ? 'checked' : ''}>`;
+
+function show(id) {
+  cur = id; history.replaceState(null, '', '#' + id); nav(document.getElementById('find').value.toLowerCase());
+  const [, title, lead] = SECTIONS.find(s => s[0] === id);
+  document.getElementById('h').textContent = title; document.getElementById('lead').textContent = lead;
+  const b = document.getElementById('body'); const t = S.theme, p = S.persona;
+  document.querySelector('.savebar').hidden = !['apar', 'geral', 'notif', 'pers'].includes(id);
+
+  if (id === 'apar') {
+    const mode = t.mode || 'system';
+    const BG = [['', '#ffffff'], ['#fbfcf7', '#fbfcf7'], ['#eceef0', '#eceef0'], ['#f3fbe1', '#f3fbe1'], ['#eaffb2', '#eaffb2']];
+    const TX = ['#0d0d0d', '#555555', '#8a8a8a', '#c4c4c4'];
+    const ACC = [['#d4ff00', 'Verde-limão'], ['#22c55e', 'Verde'], ['#3b82f6', 'Azul'], ['#a855f7', 'Roxo'], ['#f97316', 'Laranja'], ['#ec4899', 'Rosa']];
+    b.innerHTML = row('Modo', 'Escolha como a interface da GreenNird será exibida.',
+      [['system', 'Sistema', 'sys'], ['light', 'Claro', ''], ['dark', 'Escuro', 'dark']].map(([v, l, c]) => `<button class="mode-card ${mode === v ? 'on' : ''}" data-mode="${v}"><div class="mini ${c}"><div class="a"><i></i><i></i><i></i></div><div class="b"><i></i><i></i><i></i><i></i></div></div>${l}</button>`).join(''))
+      + row('Tema', 'Escolha um tema de cores e tipografia.', `<label class="sel"><img src="/assets/logo.svg" width="26" alt=""><select id="fTheme"><option value="greennird">GreenNird</option><option value="minimal">Minimalista</option><option value="contraste">Alto contraste</option></select></label>`)
+      + row('Cor de destaque', 'Define a cor principal para destaques, botões e elementos ativos.', `<label class="sel"><span id="accDot" style="width:26px;height:26px;border-radius:50%;background:${t.accent || '#d4ff00'}"></span><select id="fAcc">${ACC.map(([c, n]) => `<option value="${c}" ${(t.accent || '#d4ff00') === c ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`)
+      + row('Fundo', 'Escolha a cor de fundo da interface.', BG.map(([v, c]) => `<span class="sw ${((t.bg || '') === v) ? 'on' : ''}" data-bg="${v}" style="background:${c}"></span>`).join('') + `<span class="sw ${t.bg === '#1a1a1a' ? 'on' : ''}" data-bg="#1a1a1a" style="background:#1a1a1a"></span><label class="sw" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative" title="Escolher cor"><input type="color" id="fBgCustom" style="opacity:0;position:absolute;inset:0;cursor:pointer"></label>`)
+      + row('Texto', 'Escolha a cor principal do texto.', TX.map(c => `<span class="sw ${(t.text || '#0d0d0d') === c ? 'on' : ''}" data-tx="${c}" style="background:${c}"></span>`).join(''))
+      + `<details class="adv"><summary>${I.geral.replace('<svg', '<svg width="28" height="28"')}<span><b>Avançado</b><small>Opções adicionais de aparência e exibição.</small></span><span style="margin-left:auto">⌄</span></summary><div class="in">
+          ${row('Texto maior', 'Aumenta o tamanho das letras.', tog('fBig', t.font === 'grande'))}
+          ${row('Reduzir animações', 'Menos movimento na tela.', tog('fMotion', !!t.reduceMotion))}
+        </div></details>`;
+    b.querySelectorAll('[data-mode]').forEach(x => x.onclick = () => { t.mode = x.dataset.mode; preview(); show('apar'); });
+    b.querySelector('#fTheme').value = t.preset || 'greennird';
+    b.querySelector('#fTheme').onchange = e => { t.preset = e.target.value; if (e.target.value === 'contraste') { t.text = '#000000'; t.bg = ''; } preview(); };
+    b.querySelector('#fAcc').onchange = e => { t.accent = e.target.value; b.querySelector('#accDot').style.background = t.accent; preview(); };
+    b.querySelectorAll('[data-bg]').forEach(x => x.onclick = () => { t.bg = x.dataset.bg; if (t.bg === '#1a1a1a') t.mode = 'dark'; preview(); show('apar'); });
+    b.querySelector('#fBgCustom').oninput = e => { t.bg = e.target.value; preview(); };
+    b.querySelectorAll('[data-tx]').forEach(x => x.onclick = () => { t.text = x.dataset.tx; preview(); show('apar'); });
+    b.querySelector('#fBig').onchange = e => { t.font = e.target.checked ? 'grande' : ''; preview(); };
+    b.querySelector('#fMotion').onchange = e => { t.reduceMotion = e.target.checked; preview(); };
+  }
+  if (id === 'geral') {
+    b.innerHTML = row('Idioma', 'Idioma da interface e das respostas.', `<label class="sel"><select id="fLang"><option value="pt">Português (Brasil)</option><option value="en">English</option></select></label>`)
+      + row('Pesquisa na web ligada', 'Começar o chat com “Pesquisar” ativado.', tog('fSearch', S.search))
+      + row('Sons e vibração', 'Cliques e avisos com som.', tog('fSounds', S.notify.sounds))
+      + row('Atalhos de teclado', 'Veja no chat: Ctrl + /', '<a class="btn btn-white" style="padding:10px 18px;font-size:15px" href="/chat">Abrir chat</a>')
+      + row('Baixar aplicativo', 'Instale a GreenNird no celular ou computador.', '<button class="btn btn-white" style="padding:10px 18px;font-size:15px" id="inst">📲 Instalar</button>');
+    b.querySelector('#fLang').value = S.lang;
+    b.querySelector('#inst').onclick = () => toast(/iphone|ipad/i.test(navigator.userAgent) ? 'No iPhone: Compartilhar → "Adicionar à Tela de Início"' : 'No Chrome: menu ⋮ → "Instalar GreenNird"', { icon: '📲', ms: 6000 });
+  }
+  if (id === 'notif') {
+    b.innerHTML = row('Tarefas agendadas', 'Avisar quando uma tarefa rodar.', tog('nTasks', S.notify.tasks))
+      + row('Resposta pronta', 'Avisar quando a IA terminar de responder com a aba em segundo plano.', tog('nReplies', S.notify.replies))
+      + row('Permissão do navegador', 'Necessária para avisos fora da página.', `<button class="btn btn-white" style="padding:10px 18px;font-size:15px" id="perm">${'Notification' in window && Notification.permission === 'granted' ? '✅ Permitido' : '🔔 Permitir notificações'}</button>`);
+    b.querySelector('#perm').onclick = async () => { if (!('Notification' in window)) return toast('Seu navegador não tem notificações', { icon: '⚠️' }); const r = await Notification.requestPermission(); toast(r === 'granted' ? 'Notificações liberadas 🔔' : 'Notificações bloqueadas', { icon: r === 'granted' ? '🔔' : '⚠️' }); show('notif'); };
+  }
+  if (id === 'voz') {
+    b.innerHTML = row('Voz da IA', 'Toque no ▶ para ouvir. Clique na voz para escolher.', '<div class="vlist2" id="vl">Carregando vozes…</div>')
+      + row('Ler respostas automaticamente', 'A IA fala cada resposta no chat.', tog('vAuto', !!S.voice.autoRead))
+      + row('Interromper quando eu falar', 'No modo voz, a IA para quando você fala por cima.', tog('vBarge', true));
+    b.querySelector('#vAuto').onchange = e => { S.voice.autoRead = e.target.checked; store2.set('gn-voice', S.voice); toast('Salvo ✓'); };
+    fetch('/api/voices').then(r => r.json()).then(j => {
+      const vl = document.getElementById('vl'); if (!vl) return;
+      if (!j.voices) { vl.textContent = j.error || 'Vozes indisponíveis'; return; }
+      vl.innerHTML = '';
+      let au = null;
+      j.voices.forEach(v => {
+        const it = document.createElement('div'); it.className = 'vi' + (S.voice.id === v.id ? ' on' : '');
+        it.innerHTML = `<span><b></b><small></small></span>${v.preview ? '<button class="pl">▶</button>' : ''}`;
+        it.querySelector('b').textContent = v.name; it.querySelector('small').textContent = v.tags || '';
+        it.onclick = () => { S.voice.id = v.id; S.voice.name = v.name; store2.set('gn-voice', S.voice); toast('Voz escolhida: ' + v.name.split(' ')[0] + ' 🎙'); show('voz'); };
+        const pl = it.querySelector('.pl'); if (pl) pl.onclick = e => { e.stopPropagation(); if (au) au.pause(); au = new Audio(v.preview); au.play(); };
+        vl.appendChild(it);
+      });
+    }).catch(() => {});
+  }
+  if (id === 'pers') {
+    const tones = [['descontraido', '😎 Descontraído'], ['amigavel', '🤗 Amigável'], ['profissional', '💼 Profissional'], ['direto', '🎯 Direto'], ['engracado', '😂 Engraçado'], ['professor', '🧑‍🏫 Professor']];
+    b.innerHTML = row('Jeito de falar', 'O estilo das respostas.', `<div class="chips3" id="pTone">${tones.map(([v, l]) => `<button data-v="${v}" class="${p.tone === v ? 'on' : ''}">${l}</button>`).join('')}</div>`)
+      + row('Tamanho das respostas', 'Curtas, normais ou detalhadas.', `<div class="chips3" id="pLen">${[['curta', 'Curtas'], ['normal', 'Normais'], ['detalhada', 'Detalhadas']].map(([v, l]) => `<button data-v="${v}" class="${p.length === v ? 'on' : ''}">${l}</button>`).join('')}</div>`)
+      + row('Pode falar palavrão', 'Desligado: a IA nunca usa palavrões.', tog('pProf', p.profanity))
+      + row('Usar emojis', 'Deixa as respostas mais leves.', tog('pEmo', p.emojis))
+      + row('Como te chamar', 'Seu nome ou apelido.', `<input class="field" id="pNick" maxlength="40" placeholder="Ex.: Gabriel">`)
+      + row('Sobre você', 'A IA usa para te ajudar melhor.', `<textarea class="field" id="pAbout" rows="3" maxlength="600" placeholder="Ex.: tenho uma loja de roupas"></textarea>`)
+      + row('Instruções personalizadas', 'Regras que a IA sempre segue.', `<textarea class="field" id="pCustom" rows="3" maxlength="1000" placeholder="Ex.: sempre me dê exemplos práticos"></textarea>`);
+    b.querySelector('#pNick').value = p.nickname; b.querySelector('#pAbout').value = p.about; b.querySelector('#pCustom').value = p.custom;
+    ['pTone', 'pLen'].forEach(g => b.querySelectorAll('#' + g + ' button').forEach(x => x.onclick = () => { b.querySelectorAll('#' + g + ' button').forEach(y => y.classList.remove('on')); x.classList.add('on'); }));
+  }
+  if (id === 'conta') {
+    const a = account || {};
+    b.innerHTML = a.loggedIn
+      ? row('Seu código', 'Guarde: é a única forma de entrar.', `<b style="font-size:20px;letter-spacing:.06em">${escapeHtml(a.id)}</b> <button class="btn btn-white" style="padding:9px 16px;font-size:14px" id="cp">Copiar</button>`)
+        + row('Plano', 'Seu plano atual.', `<b>${escapeHtml(a.plan)}</b> <a class="btn btn-lime" style="padding:10px 18px;font-size:15px" href="/conta#planos">⭐ Fazer upgrade</a>`)
+        + row('Sair da conta', 'Você só volta com seu código.', '<button class="btn btn-white danger" style="padding:10px 18px;font-size:15px" id="out">Sair</button>')
+      : row('Você não entrou', 'Crie sua conta grátis em 1 clique.', '<a class="btn btn-lime" style="padding:10px 18px;font-size:15px" href="/conta">Entrar / Criar conta</a>');
+    const cp = b.querySelector('#cp'); if (cp) cp.onclick = () => { navigator.clipboard.writeText(a.id.replace(/\s/g, '')); toast('Código copiado 📋'); };
+    const out = b.querySelector('#out'); if (out) out.onclick = async () => { await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }); toast('Você saiu'); setTimeout(() => location.reload(), 700); };
+  }
+  if (id === 'seg') {
+    const hasPin = !!store2.get('gn-pin', null);
+    b.innerHTML = row('Login por código', 'Sua conta usa um código de 12 números — sem senha para vazar.', '<b>Ativo ✅</b>')
+      + row('PIN das conversas bloqueadas', hasPin ? 'Você tem um PIN. Apague para criar outro.' : 'Crie no chat: menu ⋯ → Bloquear com PIN.', hasPin ? '<button class="btn btn-white danger" style="padding:10px 18px;font-size:15px" id="rp">Apagar PIN</button>' : '<a class="btn btn-white" style="padding:10px 18px;font-size:15px" href="/chat">Ir ao chat</a>')
+      + row('Sair deste aparelho', 'Encerra a sessão neste navegador.', '<button class="btn btn-white" style="padding:10px 18px;font-size:15px" id="out2">Sair</button>');
+    const rp = b.querySelector('#rp'); if (rp) rp.onclick = () => { localStorage.removeItem('gn-pin'); toast('PIN apagado. As conversas bloqueadas pedirão um PIN novo.'); show('seg'); };
+    b.querySelector('#out2').onclick = async () => { await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }); toast('Sessão encerrada'); };
+  }
+  if (id === 'uso') {
+    const a = account || {}; const u = a.usage || {};
+    const bar = (x, y) => `<div style="width:min(460px,100%)"><b>${x} de ${y}</b><div class="ubar"><i style="width:${Math.min(100, x / y * 100)}%"></i></div></div>`;
+    b.innerHTML = a.isAdmin ? row('Seu plano', 'Você é o dono.', '<b>Sem limites ♾️</b>')
+      : row('Plano', 'Seu plano atual.', `<b>${escapeHtml(a.plan || 'Grátis')}</b>`)
+      + row('Mensagens hoje', 'Renova à meia-noite (Brasília).', bar(u.today ?? 0, u.dailyLimit ?? 3))
+      + row('Limite semanal', 'Renova toda segunda-feira.', bar(u.week ?? 0, u.weeklyLimit ?? 15))
+      + row('Janela de 5 horas', 'Nos planos pagos o limite renova a cada 5 horas.', '<span>Pro 50 · Turbo 150 · Empresa livre</span>')
+      + row('Créditos de voz', 'Leitura em voz alta das respostas.', '<span>Grátis: trechos curtos</span>')
+      + row('Fazer upgrade', 'Mais mensagens, voz e recursos.', '<a class="btn btn-lime" style="padding:10px 18px;font-size:15px" href="/conta#planos">⭐ Ver planos</a>');
+  }
+  if (id === 'priv') {
+    b.innerHTML = row('Onde ficam suas conversas', 'Neste aparelho (navegador). Não guardamos suas conversas em servidor.', '<b>No seu aparelho 🔒</b>')
+      + row('Exportar meus dados', 'Baixa conversas, projetos, espaço e tarefas.', '<button class="btn btn-white" style="padding:10px 18px;font-size:15px" id="exp">📦 Baixar</button>')
+      + row('Apagar tudo', 'Remove conversas, espaço e tarefas deste aparelho.', '<button class="btn btn-white danger" style="padding:10px 18px;font-size:15px" id="wipe">🗑 Apagar tudo</button>')
+      + row('Política de privacidade', 'Como tratamos seus dados.', '<a class="btn btn-white" style="padding:10px 18px;font-size:15px" href="/ajuda#politica">Ler</a>');
+    b.querySelector('#exp').onclick = () => {
+      const data = {}; ['gn-chats', 'gn-projects', 'gn-space', 'gn-tasks', 'gn-persona'].forEach(k => data[k] = store2.get(k, null));
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = 'greennird-meus-dados.json'; a.click(); toast('Arquivo baixado 📦');
+    };
+    b.querySelector('#wipe').onclick = () => {
+      const keys = ['gn-chats', 'gn-projects', 'gn-space', 'gn-tasks']; const bk = {}; keys.forEach(k => bk[k] = localStorage.getItem(k));
+      keys.forEach(k => localStorage.removeItem(k));
+      toast('Tudo apagado deste aparelho', { icon: '🗑', action: 'Desfazer', ms: 8000, onAction: () => { keys.forEach(k => bk[k] != null && localStorage.setItem(k, bk[k])); toast('Restaurado ✨'); } });
+    };
+  }
+  if (id === 'conex') {
+    const c = store2.get('gn-connections', { maps: true });
+    b.innerHTML = row('Conectadas', Object.keys(c).length ? Object.keys(c).join(', ') : 'Nenhuma ainda.', '<a class="btn btn-lime" style="padding:10px 18px;font-size:15px" href="/conexoes">🔌 Abrir Conexões</a>');
+  }
+}
+function preview() {
+  // aplica na hora para a pessoa ver
+  store2.set('gn-theme-preview', S.theme);
+  const r = document.documentElement; const t = S.theme;
+  const dark = t.mode === 'dark' || ((t.mode || 'system') === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  r.dataset.theme = dark ? 'dark' : 'light';
+  r.style.setProperty('--lime', t.accent || '#d4ff00');
+  dark || !t.bg ? r.style.removeProperty('--bg') : r.style.setProperty('--bg', t.bg);
+  dark || !t.text ? r.style.removeProperty('--ink') : r.style.setProperty('--ink', t.text);
+  r.style.fontSize = t.font === 'grande' ? '17.5px' : '';
+  r.dataset.motion = t.reduceMotion ? 'reduce' : '';
+}
+document.getElementById('save').onclick = () => {
+  const b = document.getElementById('body');
+  if (cur === 'apar') store2.set('gn-theme', S.theme);
+  if (cur === 'geral') { S.search = b.querySelector('#fSearch').checked; store2.set('gn-search-default', S.search); store2.set('gn-lang', b.querySelector('#fLang').value); if (window.fx && fx.enabled !== b.querySelector('#fSounds').checked) fx.toggleSound(); S.notify.sounds = b.querySelector('#fSounds').checked; store2.set('gn-notify', S.notify); }
+  if (cur === 'notif') { S.notify.tasks = b.querySelector('#nTasks').checked; S.notify.replies = b.querySelector('#nReplies').checked; store2.set('gn-notify', S.notify); }
+  if (cur === 'pers') {
+    S.persona = { tone: b.querySelector('#pTone .on')?.dataset.v || 'descontraido', length: b.querySelector('#pLen .on')?.dataset.v || 'normal',
+      profanity: b.querySelector('#pProf').checked, emojis: b.querySelector('#pEmo').checked,
+      nickname: b.querySelector('#pNick').value.trim(), about: b.querySelector('#pAbout').value.trim(), custom: b.querySelector('#pCustom').value.trim() };
+    store2.set('gn-persona', S.persona);
+  }
+  toast('Alterações salvas ✓'); window.fx && fx.done();
+};
+document.getElementById('find').oninput = e => nav(e.target.value.toLowerCase());
+document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
+show(cur);
+</script>
+</body>
+</html>

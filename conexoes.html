@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Conexões</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="manifest" href="/manifest.json">
+<script src="/assets/theme.js"></script>
+<script src="/assets/fx.js"></script>
+<style>
+  .pside .card-side { background: rgba(255,255,255,.85); }
+  .conn-side { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 12px; font-size: 15.5px; }
+  .conn-side .lg { width: 38px; height: 38px; border-radius: 10px; background: #fff; border: 1px solid #eef0e8; display: grid; place-items: center; }
+  .conn-side .lg svg, .conn-side .lg img { width: 22px; height: 22px; }
+  .conn-side i { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: #9bd400; box-shadow: 0 0 0 3px #eaffb0; }
+  .hsub { color: #555; font-size: 22px; margin: -10px 0 26px; }
+  .bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .bar .psearch { flex: 1; }
+  .cat { display: flex; align-items: center; gap: 8px; font-size: 28px; font-weight: 800; letter-spacing: -.02em; margin: 26px 0 16px; }
+  .cgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cc { position: relative; background: rgba(255,255,255,.95); border: 1px solid #eef0e8; border-radius: 22px; padding: 22px; box-shadow: var(--shadow); display: grid; grid-template-columns: auto 1fr; gap: 0 22px; }
+  .cc .lg { width: 78px; height: 78px; border-radius: 18px; background: #fff; border: 1px solid #eef0e8; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,.05); grid-row: span 2; }
+  .cc .lg svg { width: 44px; height: 44px; }
+  .cc h3 { font-size: 23px; letter-spacing: -.02em; }
+  .cc p { color: #444; font-size: 15.5px; line-height: 1.45; margin-top: 6px; }
+  .cc .act { grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 18px; }
+  .cbtn { display: inline-flex; align-items: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 11px 22px; font-weight: 700; font-size: 16px; transition: transform .12s; }
+  .cbtn.ok { background: var(--lime-soft); }
+  .cbtn:active { transform: scale(.95); }
+  .cbtn svg { width: 20px; height: 20px; }
+  .cc .pmore { position: absolute; top: 14px; right: 14px; background: none; }
+  .soon-tag { position: absolute; top: 18px; right: 52px; }
+  @media (max-width: 1150px) { .cgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px) { .cgrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body class="app">
+<div class="glow"></div>
+<nav id="rail"></nav>
+<aside class="pside" id="side">
+  <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <button class="pnav on" data-view="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0V7ZM12 17v5"/></svg>Conexões</button>
+  <button class="pnav" data-view="mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>Minhas conexões</button>
+  <hr class="psep">
+  <div class="plabel">Conectados</div>
+  <div id="connected"></div>
+</aside>
+<main class="pmain">
+  <button class="pmore menu-mobile" id="menuBtn" aria-label="Menu" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="spark" style="margin:0 0 -30px 40px;width:300px"><svg viewBox="0 0 24 24"><path fill="#d4ff00" d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0z"/></svg></div>
+  <h1 style="font-size:clamp(40px,6vw,72px);letter-spacing:-.04em;font-weight:800" id="title">Conexões</h1>
+  <p class="hsub">Conecte suas ferramentas à GreenNird.</p>
+  <div class="bar">
+    <label class="psearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Pesquisar conexões"></label>
+    <button class="pbtn" id="add" style="margin:0;padding:12px 24px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Adicionar conexão</button>
+  </div>
+  <div id="cats"></div>
+</main>
+<script src="/assets/pages.js"></script>
+<script>
+renderRail('conexoes');
+const L = {
+  drive: '<svg viewBox="0 0 48 48"><path fill="#1e88e5" d="M38.6 40H9.4l5.4-9.4h29.2z"/><path fill="#fbc02d" d="M29.4 8H18.6l14.6 25.3 5.4-9.4z"/><path fill="#43a047" d="M18.6 8 4 33.3l5.4 9.4L24 17.4z" transform="translate(0 -2.7)"/></svg>',
+  gmail: '<svg viewBox="0 0 48 48"><path fill="#4caf50" d="M45 16.2 37 21v20h6a2 2 0 0 0 2-2V16.2z"/><path fill="#1e88e5" d="M3 16.2V39a2 2 0 0 0 2 2h6V21l-8-4.8z"/><path fill="#e53935" d="M35 11.2 24 19.5l-11-8.3V21l11 8.2L35 21z"/><path fill="#c62828" d="M3 12.3v3.9l8 4.8V11.2L8.5 9.3A3.4 3.4 0 0 0 3 12.3z"/><path fill="#fbc02d" d="M45 12.3v3.9l-8 4.8V11.2l2.5-1.9A3.4 3.4 0 0 1 45 12.3z"/></svg>',
+  github: '<svg viewBox="0 0 24 24"><path fill="#111" d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>',
+  calendar: '<svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="5" fill="#fff" stroke="#1e88e5" stroke-width="3"/><path fill="#1e88e5" d="M6 11a5 5 0 0 1 5-5h26a5 5 0 0 1 5 5v5H6z"/><text x="24" y="36" font-size="16" font-weight="700" text-anchor="middle" fill="#1e88e5" font-family="system-ui">31</text></svg>',
+  canva: '<svg viewBox="0 0 48 48"><defs><linearGradient id="cv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00c4cc"/><stop offset=".5" stop-color="#6c4be6"/><stop offset="1" stop-color="#7d2ae8"/></linearGradient></defs><circle cx="24" cy="24" r="22" fill="url(#cv)"/><text x="24" y="29" font-size="12" font-style="italic" font-weight="700" text-anchor="middle" fill="#fff" font-family="Georgia,serif">Canva</text></svg>',
+  notion: '<svg viewBox="0 0 48 48"><rect x="7" y="6" width="34" height="36" rx="4" fill="#fff" stroke="#111" stroke-width="3"/><path d="M17 15v18M17 15l14 18M31 15v18" stroke="#111" stroke-width="3.4" fill="none" stroke-linecap="round"/></svg>',
+  maps: '<svg viewBox="0 0 48 48"><path fill="#4caf50" d="M24 4a14 14 0 0 0-14 14c0 10.5 14 26 14 26s14-15.5 14-26A14 14 0 0 0 24 4z"/><circle cx="24" cy="18" r="5.5" fill="#fff"/></svg>',
+  whatsapp: '<svg viewBox="0 0 48 48"><path fill="#25d366" d="M24 4a20 20 0 0 0-17.3 30L4 44l10.3-2.7A20 20 0 1 0 24 4z"/><path fill="#fff" d="M34.6 29.8c-.5 1.4-2.6 2.6-3.6 2.7-1 .1-1.9.5-6.4-1.3-5.4-2.1-8.8-7.7-9-8-.3-.4-2.2-2.9-2.2-5.5s1.4-3.9 1.9-4.4c.5-.5 1-.7 1.4-.7h1c.3 0 .8-.1 1.2.9l1.7 4c.1.3.2.7 0 1.1l-.6 1-.9 1c-.3.3-.6.6-.3 1.2.4.6 1.6 2.6 3.4 4.2 2.3 2.1 4.3 2.7 4.9 3 .6.3 1 .3 1.4-.2l1.9-2.3c.4-.6.8-.5 1.4-.3l3.8 1.8c.6.3 1 .4 1.1.7.2.2.2 1.4-.3 2.9z"/></svg>',
+  slack: '<svg viewBox="0 0 48 48"><path fill="#e01e5a" d="M14 28a4 4 0 1 1-4-4h4zm2 0a4 4 0 1 1 8 0v10a4 4 0 1 1-8 0z"/><path fill="#36c5f0" d="M20 14a4 4 0 1 1 4-4v4zm0 2a4 4 0 1 1 0 8H10a4 4 0 1 1 0-8z"/><path fill="#2eb67d" d="M34 20a4 4 0 1 1 4 4h-4zm-2 0a4 4 0 1 1-8 0V10a4 4 0 1 1 8 0z"/><path fill="#ecb22e" d="M28 34a4 4 0 1 1-4 4v-4zm0-2a4 4 0 1 1 0-8h10a4 4 0 1 1 0 8z"/></svg>',
+  instagram: '<svg viewBox="0 0 48 48"><defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#fd5"/><stop offset=".5" stop-color="#ff543e"/><stop offset="1" stop-color="#c837ab"/></linearGradient></defs><rect x="5" y="5" width="38" height="38" rx="11" fill="url(#ig)"/><circle cx="24" cy="24" r="8.5" fill="none" stroke="#fff" stroke-width="3.4"/><circle cx="34" cy="14" r="2.4" fill="#fff"/></svg>',
+};
+const APPS = [
+  { id: 'drive', cat: 'Populares', name: 'Google Drive', desc: 'Acesse, organize e compartilhe seus arquivos na nuvem.' },
+  { id: 'gmail', cat: 'Populares', name: 'Gmail', desc: 'Leia, envie e gerencie seus e-mails.' },
+  { id: 'github', cat: 'Populares', name: 'GitHub', desc: 'Conecte seus repositórios, issues e pull requests.' },
+  { id: 'calendar', cat: 'Produtividade', name: 'Google Agenda', desc: 'Gerencie seus compromissos, eventos e agendas.' },
+  { id: 'canva', cat: 'Produtividade', name: 'Canva', desc: 'Crie designs, apresentações e materiais visuais.' },
+  { id: 'notion', cat: 'Produtividade', name: 'Notion', desc: 'Organize projetos, anotações e conhecimentos em um só lugar.' },
+  { id: 'maps', cat: 'Mapas e comunicação', name: 'Google Maps', desc: 'Encontre lugares, rotas e endereços direto no chat.', live: true },
+  { id: 'whatsapp', cat: 'Mapas e comunicação', name: 'WhatsApp', desc: 'Robô que responde seus clientes 24h com a IA.', admin: true },
+  { id: 'slack', cat: 'Mapas e comunicação', name: 'Slack', desc: 'Receba resumos e converse com a IA no seu time.' },
+  { id: 'instagram', cat: 'Mapas e comunicação', name: 'Instagram e Facebook', desc: 'Poste fotos com descrição feita pela IA.' },
+];
+let connected = store2.get('gn-connections', { maps: true });
+let view = 'all', query = '';
+const PLUG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0V7ZM12 17v5"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>';
+const DOTS = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+
+function render() {
+  const side = document.getElementById('connected'); side.innerHTML = '';
+  APPS.filter(a => connected[a.id]).forEach(a => { const d = document.createElement('div'); d.className = 'conn-side'; d.innerHTML = `<span class="lg">${L[a.id]}</span>${a.name}<i></i>`; side.appendChild(d); });
+  if (!side.children.length) side.innerHTML = '<div class="plabel" style="font-weight:400">Nenhuma ainda</div>';
+  const box = document.getElementById('cats'); box.innerHTML = '';
+  const list = APPS.filter(a => (view === 'all' || connected[a.id]) && (a.name + a.desc).toLowerCase().includes(query));
+  document.getElementById('title').textContent = view === 'all' ? 'Conexões' : 'Minhas conexões';
+  [...new Set(list.map(a => a.cat))].forEach(cat => {
+    const h = document.createElement('div'); h.className = 'cat'; h.innerHTML = `${cat} <span style="font-weight:400">›</span>`; box.appendChild(h);
+    const g = document.createElement('div'); g.className = 'cgrid';
+    list.filter(a => a.cat === cat).forEach(a => {
+      const on = !!connected[a.id];
+      const c = document.createElement('div'); c.className = 'cc';
+      c.innerHTML = `<span class="lg">${L[a.id]}</span><div><h3>${a.name}</h3><p>${a.desc}</p></div>
+        <div class="act"><button class="cbtn ${on ? 'ok' : ''}">${on ? CHECK + 'Conectado' : PLUG + 'Conectar'}</button></div>
+        <button class="pmore" aria-label="Opções">${DOTS}</button>`;
+      c.querySelector('.cbtn').onclick = () => toggle(a);
+      c.querySelector('.pmore').onclick = e => popMenu(e.currentTarget, [
+        on ? { icon: '🔌', label: 'Desconectar', danger: true, run: () => toggle(a) } : { icon: '🔌', label: 'Conectar', run: () => toggle(a) },
+        { icon: 'ℹ️', label: 'O que a IA pode fazer', run: () => toast(a.desc, { icon: 'ℹ️', ms: 5000 }) },
+      ]);
+      g.appendChild(c);
+    });
+    box.appendChild(g);
+  });
+  if (!list.length) box.innerHTML = '<div class="empty">Nenhuma conexão encontrada.</div>';
+}
+function toggle(a) {
+  if (connected[a.id]) { delete connected[a.id]; store2.set('gn-connections', connected); render(); toast(a.name + ' desconectado'); return; }
+  if (a.live) { connected[a.id] = true; store2.set('gn-connections', connected); render(); toast(a.name + ' conectado ✅ — peça rotas e lugares no chat'); window.fx && fx.done(); return; }
+  if (a.admin) { location.href = '/admin#plugins'; return; }
+  toast(`A conexão com ${a.name} está chegando! Você será avisado quando liberar.`, { icon: '🔌', ms: 5000 });
+}
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-view]').forEach(x => x.classList.toggle('on', x === b)); view = b.dataset.view; document.getElementById('side').classList.remove('open'); render(); });
+document.getElementById('q').oninput = e => { query = e.target.value.toLowerCase(); render(); };
+document.getElementById('add').onclick = async () => {
+  const n = await askText('Qual ferramenta você quer conectar?', '', { ok: 'Pedir', placeholder: 'Ex.: Trello, Mercado Livre, Shopify…' });
+  if (n) { const w = store2.get('gn-conn-requests', []); w.push({ n, at: Date.now() }); store2.set('gn-conn-requests', w); toast('Pedido anotado: ' + n + ' 💚'); }
+};
+document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
+render();
+</script>
+</body>
+</html>

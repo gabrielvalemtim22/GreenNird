@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GreenNird — Conta e planos</title>
 <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<script src="/assets/theme.js"></script>
 <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/pages.css">
 <script src="/assets/fx.js" defer></script>
 <style>
   header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 24px clamp(16px, 6vw, 100px); }
@@ -38,6 +40,21 @@
   .plan li::before { content: "✓"; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--lime-soft); font-size: 12px; font-weight: 800; margin-right: 8px; }
   .plan .btn { justify-content: center; font-size: 15px; padding: 12px; }
   .current { outline: 3px solid var(--lime); }
+
+  .period { display: inline-flex; gap: 4px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin-top: 16px; }
+  .period button { padding: 8px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+  .period button.on { background: var(--lime); } .period b { color: #3b7a00; font-size: 12px; }
+  .pdesc { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .plan li b { font-weight: 800; }
+  .cmp-title { text-align: center; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.03em; margin: 60px 0 18px; }
+  .cmp-wrap { overflow-x: auto; background: #fff; border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+  .cmp { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 720px; }
+  .cmp th, .cmp td { padding: 13px 14px; border-bottom: 1px solid #f0f1ec; text-align: center; }
+  .cmp td:first-child, .cmp th:first-child { text-align: left; font-weight: 600; }
+  .cmp th { font-size: 16px; } .cmp .hl { background: var(--lime-tint); }
+  .faq { max-width: 760px; margin: 0 auto; display: grid; gap: 10px; }
+  .faq details { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; }
+  .faq summary { font-weight: 700; cursor: pointer; } .faq p { color: var(--muted); margin-top: 10px; line-height: 1.55; }
   @media (max-width: 980px) { .plans { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .plans { grid-template-columns: 1fr; } .plan.hot { transform: none; } .idshow { font-size: 26px; } .code-in { font-size: 20px; } }
 </style>
@@ -46,7 +63,7 @@
 <div class="glow"></div>
 <header>
   <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
-  <nav><a href="/chat">Chat</a><a href="#planos">Planos</a><a href="/admin" id="adminLink" hidden>Painel admin</a></nav>
+  <nav><a href="/chat">Chat</a><a href="#planos">Planos</a><a href="/configuracoes">Configurações</a><a href="/admin" id="adminLink" hidden>Painel admin</a></nav>
 </header>
 <main>
   <!-- sem conta -->
@@ -79,31 +96,66 @@
     </div>
   </section>
 
-  <div class="plans-head" id="planos"><h2>Escolha seu plano</h2><p>Comece grátis e evolua quando precisar.</p></div>
+  <div class="plans-head" id="planos"><h2>Escolha seu plano</h2><p>Comece grátis e evolua quando precisar. Cancele quando quiser.</p>
+    <div class="period"><button class="on" data-per="m">Mensal</button><button data-per="a">Anual <b>−20%</b></button></div></div>
   <div class="plans">
     <div class="plan" data-plan="Grátis">
-      <h3>Grátis</h3><div class="price">R$ 0<small>/mês</small></div>
-      <ul><li>3 mensagens por dia (renova todo dia)</li><li>Pesquisa na web</li><li>Histórico no seu aparelho</li></ul>
-      <a class="btn btn-white" href="/chat">Começar</a>
+      <h3>Grátis</h3><div class="price" data-m="0" data-a="0">R$ 0<small>/mês</small></div>
+      <p class="pdesc">Para conhecer a GreenNird.</p>
+      <ul><li><b>3 mensagens por dia</b> · 15 por semana</li><li>Modelo rápido</li><li>Pesquisa na web (2 buscas)</li><li>Leitura de PDF e arquivos</li><li>Voz: trechos curtos</li><li>1 projeto · Meu espaço básico</li><li>Lembretes agendados</li></ul>
+      <a class="btn btn-white" href="/chat">Começar grátis</a>
     </div>
     <div class="plan" data-plan="Pro">
-      <h3>Pro</h3><div class="price">R$ 69,99<small>/mês</small></div>
-      <ul><li>Mensagens ilimitadas</li><li>Modo Pensar</li><li>Anexos e respostas longas</li><li>Atendimento no WhatsApp</li></ul>
+      <h3>Pro</h3><div class="price" data-m="69,99" data-a="55,99">R$ 69,99<small>/mês</small></div>
+      <p class="pdesc">Para quem usa todo dia.</p>
+      <ul><li><b>50 mensagens a cada 5 horas</b></li><li>1.000 mensagens por semana</li><li>Modo <b>Pensar</b> (IA mais inteligente)</li><li>Voz completa (7 vozes, ~2 h/mês)</li><li>Anexos de até 15 MB · respostas longas</li><li>10 projetos · sites e planilhas com IA</li><li>5 tarefas agendadas com IA</li><li>Conexões: Gmail, Drive, Agenda, Maps</li><li>30 imagens/mês (quando lançar)</li></ul>
       <button class="btn btn-white buy">Assinar Pro</button>
     </div>
     <div class="plan hot" data-plan="Turbo">
       <span class="tag">MAIS POPULAR</span>
-      <h3>Turbo</h3><div class="price">R$ 149,99<small>/mês</small></div>
-      <ul><li>Tudo do Pro</li><li>Campanhas no Meta Ads</li><li>Postagens no Facebook e Instagram</li><li>Prioridade nas respostas</li></ul>
+      <h3>Turbo</h3><div class="price" data-m="149,99" data-a="119,99">R$ 149,99<small>/mês</small></div>
+      <p class="pdesc">Para negócios que vendem pelo WhatsApp.</p>
+      <ul><li><b>150 mensagens a cada 5 horas</b></li><li>3.000 mensagens por semana</li><li>Tudo do Pro</li><li><b>Robô de WhatsApp 24h</b> (1 número)</li><li>Postar no Instagram e Facebook</li><li>Voz completa (~6 h/mês)</li><li>Projetos ilimitados</li><li>30 tarefas agendadas com IA</li><li>Conexões: GitHub, Canva, Notion, Slack</li><li>150 imagens/mês · prioridade nas respostas</li></ul>
       <button class="btn btn-lime buy">Assinar Turbo</button>
     </div>
     <div class="plan" data-plan="Empresa">
-      <h3>Empresa</h3><div class="price">R$ 299,99<small>/mês</small></div>
-      <ul><li>Tudo do Turbo</li><li>Vários números de WhatsApp</li><li>Suporte dedicado</li><li>Relatórios avançados</li></ul>
+      <h3>Empresa</h3><div class="price" data-m="299,99" data-a="239,99">R$ 299,99<small>/mês</small></div>
+      <p class="pdesc">Para equipes e várias lojas.</p>
+      <ul><li><b>Uso livre</b> (política de uso justo)</li><li>Tudo do Turbo</li><li>Até <b>3 números de WhatsApp</b></li><li>5 usuários na equipe</li><li>Tarefas agendadas ilimitadas</li><li>500 imagens/mês</li><li>Relatórios de uso</li><li>Suporte dedicado no WhatsApp</li></ul>
       <button class="btn btn-white buy">Falar com vendas</button>
     </div>
   </div>
+
+  <h2 class="cmp-title">Compare os planos</h2>
+  <div class="cmp-wrap"><table class="cmp">
+    <tr><th></th><th>Grátis</th><th>Pro</th><th class="hl">Turbo</th><th>Empresa</th></tr>
+    <tr><td>Preço por mês</td><td>R$ 0</td><td>R$ 69,99</td><td class="hl">R$ 149,99</td><td>R$ 299,99</td></tr>
+    <tr><td>Mensagens</td><td>3/dia · 15/semana</td><td>50 a cada 5 h · 1.000/semana</td><td class="hl">150 a cada 5 h · 3.000/semana</td><td>Livre (uso justo)</td></tr>
+    <tr><td>Modo Pensar</td><td>—</td><td>✓</td><td class="hl">✓</td><td>✓</td></tr>
+    <tr><td>Pesquisa na web</td><td>2 por resposta</td><td>5 por resposta</td><td class="hl">5 por resposta</td><td>10 por resposta</td></tr>
+    <tr><td>Voz (ElevenLabs)</td><td>Trechos curtos</td><td>~2 h/mês</td><td class="hl">~6 h/mês</td><td>~15 h/mês</td></tr>
+    <tr><td>Modo voz com a bola</td><td>✓</td><td>✓</td><td class="hl">✓</td><td>✓</td></tr>
+    <tr><td>PDF e arquivos</td><td>✓</td><td>✓</td><td class="hl">✓</td><td>✓</td></tr>
+    <tr><td>Projetos</td><td>1</td><td>10</td><td class="hl">Ilimitados</td><td>Ilimitados</td></tr>
+    <tr><td>Meu espaço (docs, planilhas, sites)</td><td>Básico</td><td>✓</td><td class="hl">✓</td><td>✓</td></tr>
+    <tr><td>Tarefas agendadas com IA</td><td>Só lembretes</td><td>5</td><td class="hl">30</td><td>Ilimitadas</td></tr>
+    <tr><td>Imagens por mês (em breve)</td><td>—</td><td>30</td><td class="hl">150</td><td>500</td></tr>
+    <tr><td>Robô de WhatsApp 24h</td><td>—</td><td>—</td><td class="hl">1 número</td><td>3 números</td></tr>
+    <tr><td>Postar no Instagram/Facebook</td><td>—</td><td>—</td><td class="hl">✓</td><td>✓</td></tr>
+    <tr><td>Conexões</td><td>Google Maps</td><td>Gmail, Drive, Agenda, Maps</td><td class="hl">+ GitHub, Canva, Notion, Slack</td><td>Todas</td></tr>
+    <tr><td>Usuários</td><td>1</td><td>1</td><td class="hl">1</td><td>5</td></tr>
+    <tr><td>Suporte</td><td>Central de ajuda</td><td>E-mail</td><td class="hl">WhatsApp</td><td>Dedicado</td></tr>
+  </table></div>
+
+  <h2 class="cmp-title">Perguntas frequentes</h2>
+  <div class="faq">
+    <details><summary>Como funciona o limite de 5 horas?</summary><p>Nos planos pagos você tem um número de mensagens que renova a cada 5 horas, além de um limite semanal. Se acabar, é só esperar a próxima janela.</p></details>
+    <details><summary>Posso cancelar quando quiser?</summary><p>Sim. O plano fica ativo até o fim do período pago e depois volta para o Grátis.</p></details>
+    <details><summary>Minhas conversas ficam salvas?</summary><p>Ficam no seu aparelho. Você pode exportar ou apagar tudo em Configurações → Privacidade.</p></details>
+    <details><summary>Como pago?</summary><p>O pagamento online (Pix e cartão) está chegando. Por enquanto, fale com a gente para ativar seu plano.</p></details>
+  </div>
 </main>
+<script src="/assets/pages.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 async function api(body) {
@@ -134,12 +186,15 @@ $('create').onclick = async () => {
   try { show(await api({ action: 'create' }), true); } catch (x) { $('err').textContent = x.message; }
 };
 $('logout').onclick = async () => {
-  if (!confirm('Sair da conta? Você só volta com o seu código.')) return;
-  show(await api({ action: 'logout' }));
+  show(await api({ action: 'logout' })); toast('Você saiu. Para voltar, use seu código 🔒');
 };
 $('copy').onclick = () => { navigator.clipboard.writeText($('idshow').textContent.replace(/\s/g, '')); $('copy').textContent = 'Copiado ✓'; };
+document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-per]').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.price').forEach(p => { const v = p.dataset[b.dataset.per]; p.innerHTML = 'R$ ' + v + '<small>/mês' + (b.dataset.per === 'a' && v !== '0' ? ' no anual' : '') + '</small>'; });
+});
 document.querySelectorAll('.buy').forEach(b => b.onclick = () =>
-  alert('Pagamentos online chegam em breve. Por enquanto, fale com a gente para ativar o plano ' + b.closest('.plan').dataset.plan + '.'));
+  toast('Pagamento online chegando! Fale com a gente para ativar o plano ' + b.closest('.plan').dataset.plan + ' 💚', { ms: 6000 }));
 api().then(a => show(a)).catch(() => show({ loggedIn: false }));
 </script>
 </body>
