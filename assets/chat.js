@@ -168,6 +168,7 @@ async function send(textArg) {
     maybeAskSignup();
   } catch (err) {
     window.fx && fx.error();
+    maybeAskSignup();
     if (err.blocked) {
       ai.content = '🔒 **' + err.message + '**\n\n[Ver planos e assinar](/conta#planos)';
       // tira a pergunta bloqueada do histórico enviado à IA nas próximas vezes

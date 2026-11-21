@@ -130,11 +130,14 @@ async function streamGrok(res, history, unlimited, think) {
     if (!r.ok) {
       const detail = await r.text().catch(() => '');
       console.error('xAI', r.status, detail);
-      res.write('\n\n⚠️ ' + (r.status === 401 || r.status === 403
+      let why = '';
+      try { const j = JSON.parse(detail); why = String(j.error?.message || j.error || j.message || '').replace(/xai-[A-Za-z0-9*]+/g, 'xai-***').slice(0, 200); } catch {}
+      const badKey = /api key|apikey|unauthor|incorrect/i.test(why);
+      res.write('\n\n⚠️ ' + (r.status === 401 || r.status === 403 || badKey
         ? 'Chave do Grok inválida. Verifique XAI_API_KEY na Vercel.'
         : r.status === 429 ? 'Muitas solicitações agora. Tente de novo em instantes.'
         : r.status === 404 || r.status === 400 ? 'Modelo do Grok indisponível (' + r.status + '). Ajuste XAI_MODEL na Vercel.'
-        : 'Erro ao falar com o Grok (' + r.status + '). Tente novamente.'));
+        : 'Erro ao falar com o Grok (' + r.status + '). Tente novamente.') + (why ? ' Detalhe: ' + why : ''));
       return;
     }
     const reader = r.body.getReader();
