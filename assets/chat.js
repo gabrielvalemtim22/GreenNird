@@ -169,7 +169,7 @@ async function send(textArg) {
     window.fx && fx.done();
     const aiEl = body.closest('.msg');
     addActs(aiEl, ai);
-    if (voice.autoRead && voice.id) speak(ai.content, aiEl.querySelector('.listen'));
+    if (voice.autoRead && voice.id && !window.inVoiceMode) speak(ai.content, aiEl.querySelector('.listen'));
     maybeAskSignup();
   } catch (err) {
     window.fx && fx.error();
@@ -344,3 +344,5 @@ function renderVoices() {
 }
 voiceChip.onclick = () => { $('vpanel').hidden ? openVoices() : ($('vpanel').hidden = true); };
 $('vclose').onclick = () => { $('vpanel').hidden = true; if (preview) preview.pause(); };
+
+composer.querySelector('#voiceMode').onclick = () => { window.inVoiceMode = true; window.openVoiceMode && openVoiceMode(); };

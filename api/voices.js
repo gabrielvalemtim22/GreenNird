@@ -7,7 +7,11 @@ export default async function handler(req, res) {
     const r = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': key } });
     if (!r.ok) { res.status(502).json({ error: 'ElevenLabs recusou (' + r.status + '). Verifique ELEVENLABS_API_KEY.' }); return; }
     const data = await r.json();
-    const voices = (data.voices || []).map(v => ({
+    // até 7 vozes: as de VOICE_IDS (separadas por vírgula) ou as 7 primeiras da conta
+    const pick = (process.env.VOICE_IDS || '').split(',').map(x => x.trim()).filter(Boolean);
+    let all = data.voices || [];
+    if (pick.length) all = pick.map(id => all.find(v => v.voice_id === id)).filter(Boolean);
+    const voices = all.slice(0, 7).map(v => ({
       id: v.voice_id,
       name: v.name,
       preview: v.preview_url || null,
