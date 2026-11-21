@@ -79,6 +79,7 @@ function bubble(m) {
     d.className = 'msg ai';
     d.innerHTML = '<img src="/assets/logo.svg" alt=""><div class="body"></div>';
     d.querySelector('.body').innerHTML = m.content ? md(m.content) : '<div class="dots"><span></span><span></span><span></span></div>';
+    if (m.content && !m.blocked) addActs(d, m);
   }
   return d;
 }
@@ -166,6 +167,9 @@ async function send(textArg) {
     }
     if (!ai.content) ai.content = '_(sem resposta)_';
     window.fx && fx.done();
+    const aiEl = body.closest('.msg');
+    addActs(aiEl, ai);
+    if (voice.autoRead && voice.id) speak(ai.content, aiEl.querySelector('.listen'));
     maybeAskSignup();
   } catch (err) {
     window.fx && fx.error();
@@ -258,3 +262,85 @@ $('signupCopy').onclick = () => {
 $('signupDone').onclick = () => { $('signup').hidden = true; };
 $('soundBtn').onclick = () => { const on = window.fx && fx.toggleSound(); $('soundBtn').style.opacity = on ? 1 : .4; };
 if (window.fx && !fx.enabled) $('soundBtn').style.opacity = .4;
+
+// ---- voz com ElevenLabs ----
+const voice = { id: null, name: null, autoRead: false, list: null };
+try { Object.assign(voice, JSON.parse(localStorage.getItem('gn-voice') || '{}')); } catch {}
+const saveVoice = () => { try { localStorage.setItem('gn-voice', JSON.stringify({ id: voice.id, name: voice.name, autoRead: voice.autoRead })); } catch {} };
+const voiceChip = composer.querySelector('#voiceChip');
+function showVoiceName() {
+  composer.querySelector('#voiceName').textContent = voice.name ? voice.name.split(/\s|-/)[0] : 'Voz';
+  voiceChip.classList.toggle('on', !!voice.id);
+}
+showVoiceName();
+$('autoRead').checked = !!voice.autoRead;
+$('autoRead').onchange = e => { voice.autoRead = e.target.checked; saveVoice(); };
+
+let audio = null, audioBtn = null;
+function stopAudio() {
+  if (audio) { audio.pause(); audio = null; }
+  if (audioBtn) { audioBtn.classList.remove('playing'); audioBtn.innerHTML = '🔊 Ouvir'; audioBtn = null; }
+}
+async function speak(text, btn) {
+  if (!voice.id) { openVoices(); return; }
+  if (btn && btn === audioBtn) { stopAudio(); return; }
+  stopAudio();
+  audioBtn = btn || null;
+  if (btn) { btn.classList.add('playing'); btn.innerHTML = '⏳ Gerando voz…'; }
+  try {
+    const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || 'Erro na voz'); }
+    const url = URL.createObjectURL(await r.blob());
+    if (audioBtn !== (btn || null)) return; // usuário trocou no meio
+    audio = new Audio(url);
+    audio.onended = () => { URL.revokeObjectURL(url); stopAudio(); };
+    if (btn) btn.innerHTML = '⏸ Parar';
+    await audio.play();
+  } catch (e) {
+    stopAudio(); window.fx && fx.error();
+    alert(e.message);
+  }
+}
+function addActs(el, m) {
+  if (!el || el.querySelector('.acts')) return;
+  const acts = document.createElement('div'); acts.className = 'acts';
+  acts.innerHTML = '<button type="button" class="listen">🔊 Ouvir</button><button type="button" class="copy">📋 Copiar</button>';
+  acts.querySelector('.listen').onclick = e => speak(m.content, e.currentTarget);
+  acts.querySelector('.copy').onclick = e => { navigator.clipboard.writeText(m.content); e.currentTarget.textContent = '✓ Copiado'; };
+  el.querySelector('.body').after(acts);
+}
+
+async function openVoices() {
+  $('vpanel').hidden = false;
+  if (voice.list) return renderVoices();
+  try {
+    const r = await fetch('/api/voices'); const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Erro');
+    voice.list = j.voices; renderVoices();
+  } catch (e) { $('vlist').innerHTML = '<div class="vmsg"></div>'; $('vlist').firstChild.textContent = e.message; }
+}
+let preview = null;
+function renderVoices() {
+  const list = $('vlist'); list.innerHTML = '';
+  if (!voice.list.length) { list.innerHTML = '<div class="vmsg">Nenhuma voz na conta ElevenLabs.</div>'; return; }
+  voice.list.forEach(v => {
+    const it = document.createElement('div');
+    it.className = 'vitem' + (v.id === voice.id ? ' on' : '');
+    it.innerHTML = '<div><div class="vn"></div><div class="vt"></div></div><button type="button" class="vplay" title="Ouvir amostra">▶</button>';
+    it.querySelector('.vn').textContent = v.name; it.querySelector('.vt').textContent = v.tags || '';
+    it.onclick = () => {
+      voice.id = v.id; voice.name = v.name; saveVoice(); showVoiceName(); renderVoices();
+      window.fx && fx.done();
+    };
+    const pb = it.querySelector('.vplay');
+    if (!v.preview) pb.hidden = true;
+    pb.onclick = ev => {
+      ev.stopPropagation();
+      if (preview) preview.pause();
+      preview = new Audio(v.preview); preview.play();
+    };
+    list.appendChild(it);
+  });
+}
+voiceChip.onclick = () => { $('vpanel').hidden ? openVoices() : ($('vpanel').hidden = true); };
+$('vclose').onclick = () => { $('vpanel').hidden = true; if (preview) preview.pause(); };

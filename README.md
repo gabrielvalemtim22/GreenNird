@@ -12,6 +12,7 @@ Assistente de IA (chat com Claude), contas por código numérico e painel admini
 |---|---|
 | `XAI_API_KEY` | sua chave do Grok (console.x.ai). Opcional: `XAI_MODEL` (padrão `grok-4.7`) |
 | `ACCOUNT_SECRET` | um texto aleatório longo (40+ caracteres). Não mude depois: os códigos das contas dependem dele |
+| `ELEVENLABS_API_KEY` | chave da ElevenLabs para as vozes (opcional: `ELEVENLABS_MODEL`, padrão `eleven_flash_v2_5`) |
 | `ADMIN_ID` | o seu código de conta (12 números). Vários: separe por vírgula |
 
 Depois de mudar variáveis, faça um novo deploy (Deployments → Redeploy).
