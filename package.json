@@ -1,0 +1,11 @@
+{
+  "name": "greennird",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GreenNird — assistente de IA com painel administrativo",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  }
+}

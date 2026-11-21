@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenNird — Explore novas ideias</title>
+<meta name="description" content="GreenNird: assistente de IA para conversar, pensar e pesquisar.">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 28px clamp(16px, 7vw, 120px); }
+  .nav { display: flex; align-items: center; gap: 28px; font-weight: 600; font-size: 16px; }
+  .nav .sep { width: 1px; height: 28px; background: #d7d9d2; }
+  .lang { display: flex; background: #fff; border-radius: 999px; padding: 4px; box-shadow: var(--shadow); }
+  .lang button { padding: 8px 16px; border-radius: 999px; font-weight: 700; }
+  .lang button.on { background: var(--lime); }
+  main { position: relative; z-index: 1; max-width: 1110px; margin: 0 auto; padding: 50px 16px 60px; text-align: center; }
+  h1 { font-size: clamp(40px, 7vw, 82px); font-weight: 800; letter-spacing: -.04em; margin: 40px 0 60px; }
+  .ctas { display: flex; justify-content: center; gap: 36px; margin-top: 64px; flex-wrap: wrap; }
+  .composer { text-align: left; }
+  @media (max-width: 640px) { .nav .app, .nav .sep { display: none; } .ctas { gap: 14px; } }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<header>
+  <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
+  <nav class="nav">
+    <a class="app" href="/chat" data-i18n="app">Obter o aplicativo</a>
+    <span class="sep"></span>
+    <div class="lang"><button class="on" data-lang="pt">PT</button><button data-lang="en">EN</button></div>
+  </nav>
+</header>
+<main>
+  <div class="spark"><svg viewBox="0 0 24 24"><path fill="#d4ff00" d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0z"/></svg></div>
+  <h1 data-i18n="title">Explore novas ideias</h1>
+  <form class="composer" id="f">
+    <textarea id="q" rows="2" placeholder="Pergunte qualquer coisa" data-i18n-ph="ph" autofocus></textarea>
+    <div class="row">
+      <button type="button" class="chip" id="think"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v13"/></svg><span data-i18n="think">Pensar</span></button>
+      <button type="button" class="chip on" id="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span data-i18n="search">Pesquisar</span></button>
+      <span class="spacer"></span>
+      <button class="send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7.5 3L21 3Zm0 0-7.5 18-3-7.5"/></svg></button>
+    </div>
+  </form>
+  <div class="ctas">
+    <a class="btn btn-lime" href="/chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/></svg><span data-i18n="chat">Conversar com GreenNird</span></a>
+    <a class="btn btn-white" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg><span data-i18n="platform">Conheça a plataforma</span></a>
+  </div>
+</main>
+<script>
+const T = {
+  pt: { app: 'Obter o aplicativo', title: 'Explore novas ideias', ph: 'Pergunte qualquer coisa', think: 'Pensar', search: 'Pesquisar', chat: 'Conversar com GreenNird', platform: 'Conheça a plataforma' },
+  en: { app: 'Get the app', title: 'Explore new ideas', ph: 'Ask anything', think: 'Think', search: 'Search', chat: 'Chat with GreenNird', platform: 'Explore the platform' }
+};
+function setLang(l) {
+  document.documentElement.lang = l === 'pt' ? 'pt-BR' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(e => e.textContent = T[l][e.dataset.i18n]);
+  document.querySelectorAll('[data-i18n-ph]').forEach(e => e.placeholder = T[l][e.dataset.i18nPh]);
+  document.querySelectorAll('[data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === l));
+  try { localStorage.setItem('gn-lang', l); } catch {}
+}
+document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
+try { setLang(localStorage.getItem('gn-lang') || 'pt'); } catch {}
+const think = document.getElementById('think'), search = document.getElementById('search');
+think.onclick = () => think.classList.toggle('on');
+search.onclick = () => search.classList.toggle('on');
+const q = document.getElementById('q');
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('f').requestSubmit(); } });
+document.getElementById('f').onsubmit = e => {
+  e.preventDefault();
+  const text = q.value.trim(); if (!text) return;
+  const p = new URLSearchParams({ q: text });
+  if (think.classList.contains('on')) p.set('think', '1');
+  if (search.classList.contains('on')) p.set('search', '1');
+  location.href = '/chat?' + p;
+};
+</script>
+</body>
+</html>
