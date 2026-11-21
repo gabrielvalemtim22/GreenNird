@@ -133,6 +133,7 @@ async function send(textArg) {
   q.value = ''; q.style.height = 'auto';
   render(); scrollEnd();
   const body = $('thread').lastElementChild.querySelector('.body');
+  const slow = setTimeout(() => { if (!ai.content) body.insertAdjacentHTML('beforeend', '<div class="sub" style="color:var(--muted);font-size:13px;margin-top:6px">GreenNird está pensando… 💭</div>'); }, 5000);
 
   try {
     const res = await fetch('/api/chat', {
@@ -169,6 +170,7 @@ async function send(textArg) {
   } catch (err) {
     window.fx && fx.error();
     maybeAskSignup();
+    clearTimeout(slow);
     if (err.blocked) {
       ai.content = '🔒 **' + err.message + '**\n\n[Ver planos e assinar](/conta#planos)';
       // tira a pergunta bloqueada do histórico enviado à IA nas próximas vezes
@@ -180,6 +182,7 @@ async function send(textArg) {
     ai.content = '⚠️ ' + (err.message || 'Falha ao conectar com a IA.');
     body.innerHTML = '<p class="err"></p>'; body.firstChild.textContent = ai.content;
   }
+  clearTimeout(slow);
   body.innerHTML = md(ai.content);
   store.set(chats); renderList();
   busy = false; composer.querySelector('#sendBtn').disabled = false; q.focus();

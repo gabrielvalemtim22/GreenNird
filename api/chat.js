@@ -54,18 +54,23 @@ export default async function handler(req, res) {
     extraHeaders = { 'Set-Cookie': usageCookie(usage.day, used), 'X-GN-Remaining': String(FREE_DAILY - used) };
   }
 
-  res.writeHead(200, {
-    ...extraHeaders,
+  const base = {
     'Content-Type': 'text/plain; charset=utf-8',
     'Cache-Control': 'no-cache, no-transform',
     'X-Accel-Buffering': 'no',
-  });
+  };
 
   if (useGrok) {
-    await streamGrok(res, history, unlimited, think);
+    // só desconta a mensagem grátis se o Grok aceitar o pedido
+    await streamGrok(res, history, unlimited, think, ok => {
+      if (!res.headersSent) res.writeHead(200, ok ? { ...extraHeaders, ...base } : base);
+    });
+    if (!res.headersSent) res.writeHead(200, base);
     res.end();
     return;
   }
+
+  res.writeHead(200, { ...extraHeaders, ...base });
 
   const params = {
     model: 'claude-opus-5-5',
@@ -114,7 +119,7 @@ export default async function handler(req, res) {
 }
 
 // ---- Grok (xAI) — usado quando XAI_API_KEY está configurada ----
-async function streamGrok(res, history, unlimited, think) {
+async function streamGrok(res, history, unlimited, think, begin) {
   try {
     const r = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
@@ -133,6 +138,7 @@ async function streamGrok(res, history, unlimited, think) {
       let why = '';
       try { const j = JSON.parse(detail); why = String(j.error?.message || j.error || j.message || '').replace(/xai-[A-Za-z0-9*]+/g, 'xai-***').slice(0, 200); } catch {}
       const badKey = /api key|apikey|unauthor|incorrect/i.test(why);
+      begin(false);
       res.write('\n\n⚠️ ' + (r.status === 401 || r.status === 403 || badKey
         ? 'Chave do Grok inválida. Verifique XAI_API_KEY na Vercel.'
         : r.status === 429 ? 'Muitas solicitações agora. Tente de novo em instantes.'
@@ -140,6 +146,7 @@ async function streamGrok(res, history, unlimited, think) {
         : 'Erro ao falar com o Grok (' + r.status + '). Tente novamente.') + (why ? ' Detalhe: ' + why : ''));
       return;
     }
+    begin(true);
     const reader = r.body.getReader();
     const dec = new TextDecoder();
     let buf = '', finish = null;
@@ -168,6 +175,7 @@ async function streamGrok(res, history, unlimited, think) {
     }
   } catch (err) {
     console.error(err);
+    begin(false);
     res.write('\n\n⚠️ Erro ao falar com o Grok. Tente novamente.');
   }
 }
