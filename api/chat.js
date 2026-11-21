@@ -9,14 +9,15 @@ Seja conciso em conversas simples e detalhado quando a tarefa pedir.`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).send('Método não permitido'); return; }
-  const useGrok = !!process.env.XAI_API_KEY;
+  const siteMode = req.body?.mode === 'site';
+  const useGrok = !siteMode && !!process.env.XAI_API_KEY;
   if (!useGrok && !process.env.ANTHROPIC_API_KEY) {
-    res.status(500).send('Nenhuma chave de IA configurada na Vercel. Adicione XAI_API_KEY (Grok) em Settings → Environment Variables.');
+    res.status(503).send(siteMode ? 'A criação de sites precisa de ANTHROPIC_API_KEY configurada no servidor.' : 'Nenhuma chave de IA configurada no servidor.');
     return;
   }
 
   const { messages = [], think = false, search = false, persona = null } = req.body || {};
-  const system = SYSTEM + personaPrompt(persona);
+  const system = SYSTEM + personaPrompt(persona) + (siteMode ? '\nVocê é especialista em criar sites. Crie código funcional, responsivo e acessível. Quando adequado, entregue um arquivo HTML completo com CSS e JavaScript. Explique como salvar e executar. Não diga que publicou o site sem realmente publicar.' : '');
   const history = messages
     .filter(m => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
     .slice(-30)
