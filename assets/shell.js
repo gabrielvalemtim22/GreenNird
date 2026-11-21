@@ -182,11 +182,11 @@
         <form class="img-box"><textarea rows="2" placeholder="Descreva a imagem que você quer criar"></textarea>
           <div class="img-row">
             <button type="button" class="ib-plus" title="Enviar imagem de referência">+</button>
-            <label class="ib-sel">${SV('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>')}<select><option>Imagem</option><option>Vídeo (em breve)</option></select></label>
+            <div class="dd" data-dd="tipo"></div>
             <span class="ib-sep"></span>
-            <label class="ib-sel"><span class="lm sm"></span><select><option>GreenNird AI</option></select></label>
+            <div class="dd" data-dd="modelo"></div>
             <span class="ib-sep"></span>
-            <label class="ib-sel">${SV('<rect x="5" y="5" width="14" height="14" rx="2"/>')}<select><option>1:1</option><option>16:9</option><option>9:16</option><option>4:5</option></select></label>
+            <div class="dd" data-dd="formato"></div>
             <span class="spacer"></span>
             <button class="ib-go" aria-label="Criar">${SV('<path d="M12 3c.4 4.2 3.8 7.6 8 8-4.2.4-7.6 3.8-8 8-.4-4.2-3.8-7.6-8-8 4.2-.4 7.6-3.8 8-8Z" fill="currentColor"/>')}</button>
           </div></form>
@@ -197,6 +197,41 @@
           ['Logotipos', 'Desenvolva logos modernos e únicos', 'logo', 'Logotipo moderno e minimalista de uma folha verde, fundo preto'],
           ['Retratos', 'Gere retratos realistas e de alta qualidade', 'pt', 'Retrato realista de estúdio de uma pessoa sorrindo, luz suave'],
         ].map(([t, d, k, pr]) => `<button class="car-card img ${k}" data-p="${pr}" aria-label="${t}: ${d}"></button>`).join('')}</div>`;
+      // menus suspensos no estilo do design
+      const IMG = SV('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>');
+      const VID = SV('<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 9 5 3-5 3Z"/>');
+      const shape = (w, h) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="${12 - w / 2}" y="${12 - h / 2}" width="${w}" height="${h}" rx="2"/></svg>`;
+      const DD = {
+        tipo: { label: 'Tipo de criação', icon: SV('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>'), value: 'img', opts: [['img', 'Imagem', IMG], ['vid', 'Vídeo', VID, 'Em breve']] },
+        modelo: { label: 'Modelo de IA', icon: '<span class="lm sm"></span>', value: 'gn', opts: [['gn', 'GreenNird AI', '<span class="lm sm"></span>']] },
+        formato: { label: 'Formato', icon: shape(14, 14), value: '1:1', opts: [['1:1', '1:1 · Quadrado', shape(14, 14)], ['4:5', '4:5 · Feed', shape(13, 16)], ['9:16', '9:16 · Stories', shape(10, 17)], ['16:9', '16:9 · Paisagem', shape(17, 10)], ['3:4', '3:4 · Retrato', shape(12, 16)]] },
+      };
+      const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
+      const CHECK = '<svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+      function paintDD(el) {
+        const d = DD[el.dataset.dd]; const cur = d.opts.find(o => o[0] === d.value);
+        const short = el.dataset.dd === 'formato' ? cur[0] : cur[1];
+        el.innerHTML = `<button type="button" class="dd-btn">${cur[2]}<span>${short}</span>${CHEV}</button>`;
+        el.querySelector('.dd-btn').onclick = e => { e.stopPropagation(); openDD(el); };
+      }
+      function openDD(el) {
+        const wasOpen = el.classList.contains('open');
+        feat.querySelectorAll('.dd.open').forEach(x => { x.classList.remove('open'); x.querySelector('.dd-menu')?.remove(); });
+        if (wasOpen) return;
+        const d = DD[el.dataset.dd];
+        el.classList.add('open'); window.fx && fx.toggle();
+        const m = document.createElement('div'); m.className = 'dd-menu';
+        m.innerHTML = `<div class="dd-head">${d.icon}${d.label}</div>` + d.opts.map(([v, l, ic, badge]) =>
+          `<button type="button" class="dd-opt ${v === d.value ? 'on' : ''} ${badge ? 'off' : ''}" data-v="${v}">${ic}<span>${l}</span>${badge ? `<em>${badge}</em>` : (v === d.value ? CHECK : '')}</button>`).join('');
+        m.querySelectorAll('.dd-opt').forEach(b => b.onclick = e => {
+          e.stopPropagation();
+          if (b.classList.contains('off')) { soon('A criação de vídeos')(); return; }
+          d.value = b.dataset.v; el.classList.remove('open'); m.remove(); paintDD(el); window.fx && fx.boop();
+        });
+        el.appendChild(m);
+      }
+      feat.querySelectorAll('.dd').forEach(paintDD);
+      document.addEventListener('click', () => feat.querySelectorAll('.dd.open').forEach(x => { x.classList.remove('open'); x.querySelector('.dd-menu')?.remove(); }));
       const ta = feat.querySelector('textarea');
       feat.querySelectorAll('.car-card').forEach(c => c.onclick = () => { ta.value = c.dataset.p; ta.focus(); window.fx && fx.toggle(); });
       feat.querySelectorAll('.car-btn').forEach(b => b.onclick = () => feat.querySelector('.car').scrollBy({ left: b.dataset.d * 340, behavior: 'smooth' }));
