@@ -132,7 +132,7 @@ function show(id) {
   document.querySelector('.savebar').hidden = !['apar', 'geral', 'notif', 'pers'].includes(id);
 
   if (id === 'apar') {
-    const mode = t.mode || 'system';
+    const mode = t.mode || 'dark';
     const BG = [['', '#ffffff'], ['#fbfcf7', '#fbfcf7'], ['#eceef0', '#eceef0'], ['#f3fbe1', '#f3fbe1'], ['#eaffb2', '#eaffb2']];
     const TX = ['#0d0d0d', '#555555', '#8a8a8a', '#c4c4c4'];
     const ACC = [['#d4ff00', 'Verde-limão'], ['#ff6a00', 'Laranja'], ['#8b2cf5', 'Roxo'], ['#ff1f8f', 'Rosa'], ['#1f6bff', 'Azul']];

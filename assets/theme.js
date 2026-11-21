@@ -4,7 +4,7 @@
     let t = {};
     try { t = JSON.parse(localStorage.getItem('gn-theme') || '{}'); } catch {}
     const root = document.documentElement;
-    const mode = t.mode || 'system';
+    const mode = t.mode || 'dark';
     const dark = mode === 'dark' || (mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
     root.dataset.theme = dark ? 'dark' : 'light';
     const acc = t.accent || '#d4ff00';

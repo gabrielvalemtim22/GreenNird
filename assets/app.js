@@ -142,6 +142,7 @@
   };
   window.GN_ICONS = MI;
   // menu flutuante
+  window.gnPopMenu = (a, e) => popMenu(a, e);
   function popMenu(anchorEvent, entries) {
     document.querySelectorAll('.pmenu').forEach(x => x.remove());
     const m = document.createElement('div'); m.className = 'pmenu big';
