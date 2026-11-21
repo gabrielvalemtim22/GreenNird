@@ -32,6 +32,14 @@
     tick() { tone(2200 + Math.random() * 400, 0.025, { type: 'square', vol: 0.012 }); },
     done() { [784, 988, 1319].forEach((f, i) => tone(f, 0.18, { vol: 0.08, delay: i * 0.07 })); buzz([10, 40, 10]); },
     error() { tone(300, 0.2, { type: 'sawtooth', vol: 0.05, to: 180 }); buzz(60); },
+    boop() {
+      // "bloop" fofo: sobe o tom rápido + um pinguinho agudo, com leve variação a cada toque
+      const v = 0.9 + Math.random() * 0.25;
+      tone(420 * v, 0.12, { vol: 0.14, to: 980 * v });
+      tone(1250 * v, 0.07, { type: 'triangle', vol: 0.05, delay: 0.09, to: 1700 * v });
+      tone(1900 * v, 0.05, { vol: 0.03, delay: 0.15 });
+      buzz([8, 30, 8]);
+    },
     win() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, { vol: 0.08, delay: i * 0.08 })); buzz([20, 50, 20, 50, 40]); },
   };
 

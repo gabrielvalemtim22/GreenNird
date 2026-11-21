@@ -62,6 +62,11 @@
     const dt = Math.min(0.05, (now - (draw.last || now)) / 1000); draw.last = now;
     jelly.v += (-jelly.k * jelly.x - jelly.d * jelly.v) * dt;
     jelly.x += jelly.v * dt;
+    tilt.vx += (-120 * tilt.x - 7 * tilt.vx) * dt; tilt.x += tilt.vx * dt;
+    tilt.vy += (-120 * tilt.y - 7 * tilt.vy) * dt; tilt.y += tilt.vy * dt;
+    const hover = Math.sin(t * 1.3) * 6;           // flutua um pouquinho (px)
+    cv.style.transform = `perspective(700px) translateY(${hover - jelly.x * 30}px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`;
+    if (shadowEl) { const k = 1 - hover / 60 + jelly.x * 0.8; shadowEl.style.transform = `scale(${k}, ${0.9 + jelly.x})`; shadowEl.style.opacity = String(0.55 - hover / 40); }
 
     // entrada/saída (abrir e fechar)
     let appear = 1;
@@ -102,6 +107,21 @@
   const blobImg = new Image();
   blobImg.src = '/assets/blob-black.png';
   const jelly = { x: 0, v: 0, k: 260, d: 9 };
+  const tilt = { x: 0, y: 0, vx: 0, vy: 0 };
+  const shadowEl = document.getElementById('vshadow');
+  const hearts = ['💚', '✨', '💖', '⭐'];
+  function sparkle(e) {
+    const r = cv.getBoundingClientRect();
+    for (let i = 0; i < 6; i++) {
+      const h = document.createElement('span');
+      h.textContent = hearts[(Math.random() * hearts.length) | 0];
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.2, d = 50 + Math.random() * 70;
+      h.style.cssText = `position:fixed;left:${e.clientX || r.left + r.width / 2}px;top:${e.clientY || r.top + r.height / 2}px;font-size:${16 + Math.random() * 12}px;pointer-events:none;z-index:99;transition:transform .9s cubic-bezier(.2,.8,.3,1),opacity .9s;transform:translate(-50%,-50%)`;
+      document.body.appendChild(h);
+      requestAnimationFrame(() => { h.style.transform = `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(1.3) rotate(${(Math.random() - .5) * 60}deg)`; h.style.opacity = '0'; });
+      setTimeout(() => h.remove(), 950);
+    }
+  }
   const anim = { mode: null, start: 0, dur: 500 };
   const easeOutBack = p => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
   const easeInBack = p => { const c = 1.7; return (c + 1) * p * p * p - c * p * p; };
@@ -228,8 +248,12 @@
   $('vmenu').onclick = closeVoiceMode;
   $('vsettings').onclick = () => openVoices();
   $('vplus').onclick = () => { $('new').click(); tr.textContent = ''; setState(state, 'Nova conversa — pode falar'); };
-  cv.onclick = () => {
-    poke(); window.fx && fx.click();
+  cv.onclick = e => {
+    // inclina para o lado onde tocou (efeito 3D), amassa e solta coraçõezinhos
+    const r = cv.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width - 0.5) * 2, py = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    tilt.vx += px * 260; tilt.vy -= py * 260;
+    poke(); sparkle(e); window.fx && fx.boop();
     if (state === 'speaking' && player) { player.pause(); player.onended && player.onended(); }
   };
   $('vform').onsubmit = e => {

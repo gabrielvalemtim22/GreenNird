@@ -120,7 +120,9 @@
   .vround { width: 50px; height: 50px; border-radius: 50%; background: #f0f1ee; display: grid; place-items: center; }
   .vround svg { width: 24px; height: 24px; }
   .vcenter { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 0 20px; text-align: center; }
-  #blob { cursor: pointer; mix-blend-mode: multiply; }
+  .bstage { position: relative; display: grid; place-items: center; perspective: 700px; }
+  #blob { cursor: pointer; mix-blend-mode: multiply; transform-style: preserve-3d; will-change: transform; position: relative; z-index: 1; -webkit-tap-highlight-color: transparent; }
+  .vshadow { position: absolute; bottom: -18px; width: 55%; height: 22px; border-radius: 50%; background: radial-gradient(rgba(0,0,0,.32), rgba(0,0,0,0) 70%); filter: blur(2px); }
   .vstatus { font-weight: 700; color: #3b4a00; min-height: 22px; }
   .vtranscript { max-width: 640px; color: var(--muted); font-size: 15px; line-height: 1.5; min-height: 44px; }
   .vbar { margin: 0 auto 22px; width: min(720px, calc(100% - 32px)); display: flex; align-items: center; gap: 10px; background: #f1f2ef; border-radius: 999px; padding: 8px 8px 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
@@ -203,7 +205,7 @@
     <button class="vround" id="vsettings" aria-label="Escolher voz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/><circle cx="9" cy="8" r="2.4" fill="#d4ff00"/><circle cx="15" cy="16" r="2.4" fill="#d4ff00"/></svg></button>
   </div>
   <div class="vcenter">
-    <canvas id="blob" aria-label="Animação da voz da IA"></canvas>
+    <div class="bstage"><canvas id="blob" aria-label="Animação da voz da IA — toque nela"></canvas><div class="vshadow" id="vshadow"></div></div>
     <div class="vstatus" id="vstatus"></div>
     <div class="vtranscript" id="vtranscript"></div>
   </div>
