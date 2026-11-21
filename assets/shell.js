@@ -196,8 +196,7 @@
           ['Anúncios', 'Crie imagens de alto impacto para campanhas', 'ad', 'Anúncio impactante de um tênis esportivo em cima de uma pedra, luz verde neon'],
           ['Logotipos', 'Desenvolva logos modernos e únicos', 'logo', 'Logotipo moderno e minimalista de uma folha verde, fundo preto'],
           ['Retratos', 'Gere retratos realistas e de alta qualidade', 'pt', 'Retrato realista de estúdio de uma pessoa sorrindo, luz suave'],
-          ['Posts', 'Artes prontas para Instagram e WhatsApp', 'post', 'Post de Instagram de promoção com fundo verde-limão e texto grande'],
-        ].map(([t, d, k, pr]) => `<button class="car-card ${k}" data-p="${pr}"><b>${t}</b><small>${d}</small><i></i></button>`).join('')}</div>`;
+        ].map(([t, d, k, pr]) => `<button class="car-card img ${k}" data-p="${pr}" aria-label="${t}: ${d}"></button>`).join('')}</div>`;
       const ta = feat.querySelector('textarea');
       feat.querySelectorAll('.car-card').forEach(c => c.onclick = () => { ta.value = c.dataset.p; ta.focus(); window.fx && fx.toggle(); });
       feat.querySelectorAll('.car-btn').forEach(b => b.onclick = () => feat.querySelector('.car').scrollBy({ left: b.dataset.d * 340, behavior: 'smooth' }));
@@ -230,9 +229,10 @@
       feat.innerHTML = `<div class="meta-head"><span class="meta-bar"></span><div><h1>Campanha Meta Ads</h1><p>Gerencie suas campanhas em um navegador na nuvem.</p></div></div>
         <div class="meta-grid">
           <div class="cloud">
-            <div class="cl-top">${SV('<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18Z"/>')}<b>Navegador na nuvem</b><span class="cl-dot"></span><span class="cl-st">Aguardando conexão</span><span class="spacer"></span><button class="cl-b" title="Tela cheia">${SV('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>')}</button></div>
-            <div class="cl-url"><span>←</span><span>→</span><span>⟳</span><div class="cl-addr">🔒 adsmanager.facebook.com</div></div>
-            <div class="cl-body"><div class="cl-empty">${SV('<path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1Z"/><path d="M15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>')}<h3>Conecte sua conta do Meta Ads</h3><p>Suas campanhas vão aparecer aqui, num navegador seguro na nuvem que a IA pode operar por você.</p><button class="opt-btn" id="metaConn">Conectar Meta Ads</button></div></div>
+            <div class="cl-top">${SV('<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18Z"/>')}<b>Navegador na nuvem</b><span class="cl-dot"></span><span class="cl-st">Prévia</span><span class="spacer"></span><button class="cl-b" title="Tela cheia">${SV('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>')}</button></div>
+            <div class="cl-url"><span>←</span><span>→</span><span>⟳</span><div class="cl-addr">🔒 https://adsmanager.facebook.com/adsmanager/manage/campaigns <span class="star">☆</span></div></div>
+            <div class="cl-body prev"><div class="meta-prev" role="img" aria-label="Prévia do Gerenciador de Anúncios"></div>
+              <div class="prev-tag"><span>Prévia de exemplo</span><button class="opt-btn" id="metaConn">Conectar Meta Ads</button></div></div>
           </div>
           <aside class="meta-ai"><h3>${SV('<path d="M12 3c.4 4.2 3.8 7.6 8 8-4.2.4-7.6 3.8-8 8-.4-4.2-3.8-7.6-8-8 4.2-.4 7.6-3.8 8-8Z" fill="var(--lime)" stroke="none"/>')}Assistente da GreenNird</h3><p class="ma-sub">Tire dúvidas, planeje ajustes ou peça sugestões para sua campanha Meta Ads.</p>
             <div class="ma-log" id="maLog"><span class="lm huge"></span></div>

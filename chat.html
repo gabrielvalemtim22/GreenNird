@@ -239,6 +239,23 @@
   .ma-ask textarea { flex: 1; border: 0; outline: 0; resize: none; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; }
   .ma-ask button { width: 42px; height: 42px; border-radius: 12px; }
   @media (max-width: 1000px) { .meta-grid { grid-template-columns: 1fr; height: auto; } .cloud { min-height: 420px; } .opt-grid { grid-template-columns: 1fr; } }
+
+  /* cartões e prévia iguais ao design */
+  .car-card.img { flex: 0 0 300px; height: 142px; padding: 0; border: 1px solid #262829; background-image: url(/assets/designs/imagens.png); background-repeat: no-repeat; background-color: #121314; }
+  .car-card.img.prod { background-size: 544.6% auto; background-position: 28.0% 80.6%; }
+  .car-card.img.ad { background-size: 557.3% auto; background-position: 50.8% 80.6%; }
+  .car-card.img.logo { background-size: 561.1% auto; background-position: 73.7% 80.6%; }
+  .car-card.img.pt { background-size: 555.5% auto; background-position: 96.6% 80.6%; }
+  .car { gap: 16px; }
+  .cl-body.prev { position: relative; display: block; background: #fff; overflow: hidden; }
+  .meta-prev { width: 100%; aspect-ratio: 1048 / 633; background: url(/assets/designs/meta.webp) no-repeat; background-size: 159.5% auto; background-position: 46.8% 81.8%; }
+  .prev-tag { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 10px; background: rgba(15,16,17,.88); color: #fff; border-radius: 999px; padding: 6px 6px 6px 16px; font-size: 13px; font-weight: 600; backdrop-filter: blur(6px); }
+  .prev-tag .opt-btn { width: auto; margin: 0; padding: 9px 16px; font-size: 14px; }
+  .cl-st { color: var(--lime) !important; } .cl-dot { background: var(--lime) !important; }
+  .cl-addr { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cl-addr .star { margin-left: auto; font-size: 18px; }
+  .cl-url { min-width: 0; }
+  .cl-top b { font-size: 18px; }
+  .meta-ai .ma-log .lm.huge { width: 190px; height: 190px; opacity: .1; }
   /* ===== app: avisos, menus, configurações ===== */
   .toasts { position: fixed; z-index: 100; left: 50%; bottom: 24px; transform: translateX(-50%); display: grid; gap: 8px; width: min(420px, calc(100vw - 32px)); }
   .toast { display: flex; align-items: center; gap: 10px; background: #111; color: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 14px 40px rgba(0,0,0,.25); animation: pop .35s cubic-bezier(.2,1.3,.4,1) both; font-size: 14.5px; cursor: pointer; }
