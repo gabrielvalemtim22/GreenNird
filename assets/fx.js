@@ -68,10 +68,28 @@
     b.classList.contains('chip') ? sounds.toggle() : sounds.click();
   }, true);
 
+  // voz reserva do navegador (quando a ElevenLabs falha ou acaba o crédito)
+  function browserSpeak(text) {
+    return new Promise(res => {
+      try {
+        const synth = window.speechSynthesis; if (!synth) return res(false);
+        synth.cancel();
+        const clean = String(text).replace(/```[\s\S]*?```/g, ' ').replace(/[*_#>`~|]/g, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').slice(0, 1500);
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = 'pt-BR'; u.rate = 1.05;
+        const v = synth.getVoices().find(v => /pt[-_]BR/i.test(v.lang)) || synth.getVoices().find(v => /^pt/i.test(v.lang));
+        if (v) u.voice = v;
+        u.onend = () => res(true); u.onerror = () => res(false);
+        synth.speak(u);
+      } catch { res(false); }
+    });
+  }
   let lastTick = 0;
   window.fx = {
     ...sounds,
     burst,
+    browserSpeak,
+    stopBrowserSpeak() { try { speechSynthesis.cancel(); } catch {} },
     typing() { const n = performance.now(); if (n - lastTick > 70) { lastTick = n; sounds.tick(); } },
     get enabled() { return on; },
     toggleSound() {

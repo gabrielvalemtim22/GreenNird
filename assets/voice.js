@@ -161,7 +161,15 @@
     if (!(await ensureVoice())) return;
     setState('speaking', 'Falando… toque na bola para interromper');
     const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
-    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || 'Erro na voz'); }
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      // sem crédito / erro na ElevenLabs: fala com a voz do navegador
+      setState('speaking', (j.error || 'Erro na voz') + ' Usando a voz do navegador.');
+      level = 0.5;
+      const ok = window.fx && await fx.browserSpeak(text);
+      if (!ok) throw new Error(j.error || 'Erro na voz');
+      return;
+    }
     const url = URL.createObjectURL(await r.blob());
     player = new Audio(url);
     try { useAnalyser(audioCtx().createMediaElementSource(player)).connect(audioCtx().destination); } catch {}
@@ -221,6 +229,7 @@
   function stopAll() {
     running = false; stopListening();
     if (player) { player.pause(); player = null; }
+    window.fx && fx.stopBrowserSpeak();
     if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
     analyser = null;
   }

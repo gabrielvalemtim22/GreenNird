@@ -30,7 +30,16 @@ export default async function handler(req, res) {
     if (!r.ok) {
       const detail = await r.text().catch(() => '');
       console.error('ElevenLabs', r.status, detail);
-      res.status(502).json({ error: r.status === 401 ? 'Chave da ElevenLabs inválida.' : r.status === 429 || /quota|credit/i.test(detail) ? 'Créditos de voz da ElevenLabs acabaram.' : 'Erro na voz (' + r.status + ').' });
+      let st = '', msg = '';
+      try { const j = JSON.parse(detail); st = j.detail?.status || ''; msg = j.detail?.message || ''; } catch {}
+      const quota = /quota|credit|limit/i.test(st + ' ' + msg + ' ' + detail);
+      res.status(502).json({
+        code: quota ? 'quota' : r.status === 401 ? 'key' : 'error',
+        error: quota ? 'Os créditos de voz da ElevenLabs acabaram.'
+          : r.status === 401 ? 'A ElevenLabs recusou o pedido (' + (st || 'permissão') + ').'
+          : r.status === 429 ? 'Muitos pedidos de voz agora. Tente de novo.'
+          : 'Erro na voz (' + r.status + ').',
+      });
       return;
     }
     res.setHeader('Content-Type', 'audio/mpeg');

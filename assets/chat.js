@@ -280,6 +280,7 @@ $('autoRead').onchange = e => { voice.autoRead = e.target.checked; saveVoice(); 
 
 let audio = null, audioBtn = null;
 function stopAudio() {
+  window.fx && fx.stopBrowserSpeak();
   if (audio) { audio.pause(); audio = null; }
   if (audioBtn) { audioBtn.classList.remove('playing'); audioBtn.innerHTML = '🔊 Ouvir'; audioBtn = null; }
 }
@@ -291,7 +292,13 @@ async function speak(text, btn) {
   if (btn) { btn.classList.add('playing'); btn.innerHTML = '⏳ Gerando voz…'; }
   try {
     const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
-    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || 'Erro na voz'); }
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      if (btn) btn.innerHTML = '⏸ Parar (voz do navegador)';
+      const ok = window.fx && await fx.browserSpeak(text);
+      if (!ok) throw new Error(j.error || 'Erro na voz');
+      stopAudio(); return;
+    }
     const url = URL.createObjectURL(await r.blob());
     if (audioBtn !== (btn || null)) return; // usuário trocou no meio
     audio = new Audio(url);
