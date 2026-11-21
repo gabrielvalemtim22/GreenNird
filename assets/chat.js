@@ -16,6 +16,7 @@ const think = composer.querySelector('#think');
 const search = composer.querySelector('#search');
 think.onclick = () => think.classList.toggle('on');
 search.onclick = () => search.classList.toggle('on');
+try { if (localStorage.getItem('gn-search-default') === 'false') search.classList.remove('on'); } catch {}
 q.addEventListener('input', () => { q.style.height = 'auto'; q.style.height = Math.min(q.scrollHeight, 220) + 'px'; });
 q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); composer.requestSubmit(); } });
 composer.querySelector('#attach').onclick = () => composer.querySelector('#file').click();
@@ -142,7 +143,8 @@ async function send(textArg) {
       body: JSON.stringify({
         messages: current.messages.slice(0, -1).filter((m, i, arr) => !m.blocked && !(arr[i + 1] && arr[i + 1].blocked)).map(m => ({ role: m.role, content: m.content })),
         think: think.classList.contains('on'),
-        search: search.classList.contains('on')
+        search: search.classList.contains('on'),
+        persona: window.getPersona ? getPersona() : null
       })
     });
     if (res.status === 402) {
@@ -195,7 +197,7 @@ async function send(textArg) {
 $('new').onclick = () => { if (busy) return; current = null; render(); q.focus(); closeOnMobile(); };
 $('toggle').onclick = () => $('side').classList.add('closed');
 $('open').onclick = () => $('side').classList.remove('closed');
-$('findBtn').onclick = () => { const t = prompt('Buscar conversas:', filter); if (t !== null) { filter = t.toLowerCase(); renderList(); } };
+
 if (innerWidth < 860) $('side').classList.add('closed');
 
 render(); q.focus();

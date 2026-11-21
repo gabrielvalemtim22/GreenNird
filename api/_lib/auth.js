@@ -53,30 +53,45 @@ export function isAdmin(id) {
   return (process.env.ADMIN_ID || '').split(',').map(cleanId).filter(Boolean).includes(id);
 }
 
-// ---- Limite diário do plano grátis (cookie assinado, renova todo dia) ----
+// ---- Limites do plano grátis (cookie assinado): 3 por dia e 15 por semana ----
 const USAGE = 'gn_usage';
 export const FREE_DAILY = 3;
+export const FREE_WEEKLY = 15;
 
 export function today() {
   // dia no horário de Brasília
   return new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
 }
+export function weekKey() {
+  // segunda-feira da semana atual (horário de Brasília)
+  const d = new Date(Date.now() - 3 * 3600e3);
+  const dow = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - dow);
+  return d.toISOString().slice(0, 10);
+}
 
 export function readUsage(req) {
   const raw = (req.headers.cookie || '').split(/;\s*/).find(c => c.startsWith(USAGE + '='));
-  const day = today();
-  if (!raw) return { day, used: 0 };
-  const [d, used, sig] = raw.slice(USAGE.length + 1).split('.');
-  const good = hmac(`usage:${d}.${used}`).toString('base64url');
+  const day = today(), week = weekKey();
+  const fresh = { day, used: 0, week, weekUsed: 0 };
+  if (!raw) return fresh;
+  const parts = raw.slice(USAGE.length + 1).split('.');
+  const sig = parts.pop();
+  const payload = parts.join('.');
+  const good = hmac('usage:' + payload).toString('base64url');
   if (!sig || good.length !== sig.length || !crypto.timingSafeEqual(Buffer.from(good), Buffer.from(sig))) {
-    return { day, used: FREE_DAILY }; // cookie adulterado: sem mensagens hoje
+    return { day, used: FREE_DAILY, week, weekUsed: FREE_WEEKLY }; // cookie adulterado
   }
-  if (d !== day) return { day, used: 0 }; // novo dia: renova
-  return { day, used: Math.min(Number(used) || 0, FREE_DAILY) };
+  const [d, used, w, weekUsed] = parts;
+  return {
+    day, week,
+    used: d === day ? Math.min(Number(used) || 0, FREE_DAILY) : 0,
+    weekUsed: w === week ? Math.min(Number(weekUsed) || 0, FREE_WEEKLY) : 0,
+  };
 }
 
-export function usageCookie(day, used) {
-  const payload = `${day}.${used}`;
+export function usageCookie(u) {
+  const payload = `${u.day}.${u.used}.${u.week}.${u.weekUsed}`;
   const sig = hmac('usage:' + payload).toString('base64url');
-  return `${USAGE}=${payload}.${sig}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${3 * 86400}`;
+  return `${USAGE}=${payload}.${sig}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${8 * 86400}`;
 }

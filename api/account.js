@@ -1,4 +1,4 @@
-import { newId, cleanId, validId, sessionCookie, clearCookie, readSession, isAdmin } from './_lib/auth.js';
+import { newId, cleanId, validId, sessionCookie, clearCookie, readSession, isAdmin, readUsage, FREE_DAILY, FREE_WEEKLY } from './_lib/auth.js';
 
 const fmtId = id => id.replace(/(\d{4})(?=\d)/g, '$1 ');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -8,9 +8,11 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const id = readSession(req);
+      const u = readUsage(req);
+      const usage = { today: u.used, dailyLimit: FREE_DAILY, week: u.weekUsed, weeklyLimit: FREE_WEEKLY };
       res.status(200).json(id
-        ? { loggedIn: true, id: fmtId(id), plan: 'Grátis', isAdmin: isAdmin(id) }
-        : { loggedIn: false });
+        ? { loggedIn: true, id: fmtId(id), plan: isAdmin(id) ? 'Dono' : 'Grátis', isAdmin: isAdmin(id), usage }
+        : { loggedIn: false, usage });
       return;
     }
     if (req.method !== 'POST') { res.status(405).json({ error: 'Método não permitido' }); return; }

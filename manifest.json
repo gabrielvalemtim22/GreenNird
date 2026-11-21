@@ -1,0 +1,11 @@
+{
+  "name": "GreenNird",
+  "short_name": "GreenNird",
+  "description": "Assistente de IA GreenNird",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#d4ff00",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/assets/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -159,7 +159,9 @@
 
   async function speakText(text) {
     if (!(await ensureVoice())) return;
-    setState('speaking', 'Falando… toque na bola para interromper');
+    interrupted = false;
+    setState('speaking', 'Falando… fale por cima ou toque na bola para interromper');
+    if (SR && running) { await ensureMic(); watchBargeIn(); }
     const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
@@ -192,45 +194,99 @@
     }
     tr.textContent = last.content.replace(/[*_#`>]/g, '').slice(0, 220) + (last.content.length > 220 ? '…' : '');
     try { await speakText(last.content); } catch (e) { setState('idle', e.message); return; }
-    if (open && running) startListening(); else if (open) setState('idle', 'Toque no microfone para falar');
+    clearInterval(bargeTimer);
+    if (open && running) startListening(); else if (open) setState('idle', interrupted ? 'Pode falar' : 'Toque no microfone para falar');
   }
 
   // ---------- reconhecimento de fala ----------
+  // Ouve em modo contínuo e só envia depois de ~1,4 s de silêncio (não corta no meio da frase).
+  // Enquanto a IA fala, fica de olho no microfone: se a pessoa falar, a IA para e passa a ouvir.
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let micAn = null, micBuf = null, bargeTimer = null, silenceTimer = null;
+
+  async function ensureMic() {
+    if (micStream) return true;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      const src = audioCtx().createMediaStreamSource(micStream);
+      micAn = audioCtx().createAnalyser(); micAn.fftSize = 1024; micBuf = new Float32Array(micAn.fftSize);
+      src.connect(micAn);
+      return true;
+    } catch { return false; }
+  }
+  function micLevel() {
+    if (!micAn) return 0;
+    micAn.getFloatTimeDomainData(micBuf);
+    let s = 0; for (let i = 0; i < micBuf.length; i++) s += micBuf[i] * micBuf[i];
+    return Math.sqrt(s / micBuf.length);
+  }
+
+  // interromper a IA quando a pessoa fala por cima
+  function watchBargeIn() {
+    clearInterval(bargeTimer);
+    let loud = 0;
+    bargeTimer = setInterval(() => {
+      if (state !== 'speaking') { clearInterval(bargeTimer); return; }
+      loud = micLevel() > 0.06 ? loud + 1 : Math.max(0, loud - 1);
+      if (loud >= 4) {                       // ~250 ms de voz contínua
+        clearInterval(bargeTimer);
+        interrupted = true;
+        if (player) { player.pause(); player.onended && player.onended(); }
+        window.fx && fx.stopBrowserSpeak();
+      }
+    }, 60);
+  }
+  let interrupted = false;
+
   async function startListening() {
     if (!SR) { setState('idle', 'Seu navegador não reconhece voz. Use o Chrome ou digite abaixo.'); return; }
     running = true;
-    try {
-      if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      useAnalyser(audioCtx().createMediaStreamSource(micStream));
-    } catch { setState('idle', 'Permita o uso do microfone para falar.'); running = false; return; }
-    rec = new SR();
-    rec.lang = 'pt-BR'; rec.interimResults = true; rec.continuous = false;
-    let finalText = '';
-    rec.onresult = e => {
-      let interim = '';
-      for (const r of e.results) (r.isFinal ? (finalText += r[0].transcript) : (interim += r[0].transcript));
-      tr.textContent = finalText + interim;
+    if (!(await ensureMic())) { setState('idle', 'Permita o uso do microfone para falar (cadeado ao lado do endereço).'); running = false; return; }
+    analyser = micAn; data = new Uint8Array(micAn.frequencyBinCount);
+    stopListening();
+    const r = new SR();
+    rec = r;
+    r.lang = 'pt-BR'; r.interimResults = true; r.continuous = true; r.maxAlternatives = 1;
+    let finalText = '', interim = '';
+    const send = () => {
+      clearTimeout(silenceTimer);
+      const text = (finalText + ' ' + interim).replace(/\s+/g, ' ').trim();
+      if (!text || rec !== r) return;
+      rec = null; try { r.stop(); } catch {}
+      ask(text);
     };
-    rec.onerror = e => { if (e.error !== 'no-speech' && e.error !== 'aborted') setState('idle', 'Erro no microfone: ' + e.error); };
-    rec.onend = () => {
+    r.onresult = e => {
+      interim = '';
+      finalText = '';
+      for (const res of e.results) (res.isFinal ? (finalText += res[0].transcript + ' ') : (interim += res[0].transcript));
+      tr.textContent = (finalText + interim).trim();
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(send, 1400);   // espera a pessoa terminar de falar
+    };
+    r.onerror = e => {
+      if (e.error === 'not-allowed') { setState('idle', 'Permita o uso do microfone para falar.'); running = false; }
+      else if (e.error !== 'no-speech' && e.error !== 'aborted') setState('idle', 'Erro no microfone: ' + e.error);
+    };
+    r.onend = () => {
+      if (rec !== r) return;                    // já enviado ou trocado
       rec = null;
-      if (state !== 'listening') return;
-      if (finalText.trim()) ask(finalText);
-      else if (open && running) startListening();   // continua ouvindo
+      const text = (finalText + ' ' + interim).trim();
+      if (text) return ask(text);
+      if (open && running && state === 'listening') startListening();   // continua ouvindo
     };
     setState('listening', 'Ouvindo… pode falar');
     window.fx && fx.toggle();
-    rec.start();
+    try { r.start(); } catch {}
   }
   function stopListening() {
+    clearTimeout(silenceTimer);
     if (rec) { const r = rec; rec = null; try { r.abort(); } catch {} }
   }
   function stopAll() {
-    running = false; stopListening();
+    running = false; stopListening(); clearInterval(bargeTimer);
     if (player) { player.pause(); player = null; }
     window.fx && fx.stopBrowserSpeak();
-    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; micAn = null; }
     analyser = null;
   }
 

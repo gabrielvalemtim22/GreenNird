@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { readSession, isAdmin, readUsage, usageCookie, FREE_DAILY } from './_lib/auth.js';
+import { readSession, isAdmin, readUsage, usageCookie, FREE_DAILY, FREE_WEEKLY } from './_lib/auth.js';
 
 let client = null; // criado só quando ANTHROPIC_API_KEY é usada
 
@@ -15,7 +15,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { messages = [], think = false, search = false } = req.body || {};
+  const { messages = [], think = false, search = false, persona = null } = req.body || {};
+  const system = SYSTEM + personaPrompt(persona);
   const history = messages
     .filter(m => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
     .slice(-30)
@@ -31,11 +32,15 @@ export default async function handler(req, res) {
   catch { res.status(500).send('Contas ainda não configuradas no servidor (ACCOUNT_SECRET).'); return; }
 
   const block = (code, message, used) => {
-    res.setHeader('Set-Cookie', usageCookie(usage.day, used));
+    res.setHeader('Set-Cookie', usageCookie({ ...usage, used }));
     res.status(402).json({ code, message, remaining: FREE_DAILY - used });
   };
   let extraHeaders = {};
   if (!unlimited) {
+    if (usage.weekUsed >= FREE_WEEKLY) {
+      block('limit', 'Você usou as 15 mensagens grátis desta semana. Assine um plano para continuar agora, ou volte na segunda-feira.', usage.used);
+      return;
+    }
     if (usage.used >= FREE_DAILY) {
       block('limit', 'Você usou suas 3 mensagens grátis de hoje. Assine um plano para continuar agora, ou volte amanhã.', usage.used);
       return;
@@ -51,7 +56,7 @@ export default async function handler(req, res) {
       return;
     }
     const used = usage.used + 1;
-    extraHeaders = { 'Set-Cookie': usageCookie(usage.day, used), 'X-GN-Remaining': String(FREE_DAILY - used) };
+    extraHeaders = { 'Set-Cookie': usageCookie({ ...usage, used, weekUsed: usage.weekUsed + 1 }), 'X-GN-Remaining': String(FREE_DAILY - used) };
   }
 
   const base = {
@@ -62,7 +67,7 @@ export default async function handler(req, res) {
 
   if (useGrok) {
     // só desconta a mensagem grátis se o Grok aceitar o pedido
-    await streamGrok(res, history, unlimited, think, ok => {
+    await streamGrok(res, history, unlimited, think, system, ok => {
       if (!res.headersSent) res.writeHead(200, ok ? { ...extraHeaders, ...base } : base);
     });
     if (!res.headersSent) res.writeHead(200, base);
@@ -75,7 +80,7 @@ export default async function handler(req, res) {
   const params = {
     model: 'claude-opus-5-5',
     max_tokens: unlimited ? 32000 : 1500,
-    system: SYSTEM,
+    system,
     output_config: { effort: think ? 'high' : 'low' },
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
@@ -119,7 +124,7 @@ export default async function handler(req, res) {
 }
 
 // ---- Grok (xAI) — usado quando XAI_API_KEY está configurada ----
-async function streamGrok(res, history, unlimited, think, begin) {
+async function streamGrok(res, history, unlimited, think, system, begin) {
   try {
     const r = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
@@ -129,7 +134,7 @@ async function streamGrok(res, history, unlimited, think, begin) {
         model: think ? (process.env.XAI_MODEL || 'grok-4.7') : (process.env.XAI_FAST_MODEL || 'grok-4.20-0309-non-reasoning'),
         stream: true,
         max_tokens: unlimited ? 32000 : 4000,
-        messages: [{ role: 'system', content: SYSTEM }, ...history],
+        messages: [{ role: 'system', content: system }, ...history],
       }),
     });
     if (!r.ok) {
@@ -178,4 +183,29 @@ async function streamGrok(res, history, unlimited, think, begin) {
     begin(false);
     res.write('\n\n⚠️ Erro ao falar com o Grok. Tente novamente.');
   }
+}
+
+// ---- personalização escolhida pela pessoa (Configurações → Personalização) ----
+function personaPrompt(p) {
+  if (!p || typeof p !== 'object') return '\nNão use palavrões.';
+  const clip = (v, n) => String(v || '').replace(/[\r\n]+/g, ' ').slice(0, n);
+  const tones = {
+    descontraido: 'Fale de forma descontraída, leve e próxima, como um amigo.',
+    amigavel: 'Fale de forma calorosa, gentil e acolhedora.',
+    profissional: 'Fale de forma profissional, clara e educada.',
+    direto: 'Seja direto ao ponto, sem rodeios.',
+    engracado: 'Use bom humor e piadas leves quando couber.',
+    professor: 'Explique como um bom professor, passo a passo, com exemplos.',
+  };
+  const lens = { curta: 'Prefira respostas curtas.', normal: '', detalhada: 'Prefira respostas detalhadas e completas.' };
+  const out = [
+    tones[p.tone] || tones.descontraido,
+    lens[p.length] || '',
+    p.profanity ? 'Palavrões leves são permitidos se combinarem com a conversa.' : 'Nunca use palavrões nem linguagem ofensiva.',
+    p.emojis === false ? 'Não use emojis.' : 'Pode usar alguns emojis.',
+    p.nickname ? `Chame a pessoa de "${clip(p.nickname, 40)}".` : '',
+    p.about ? `Sobre a pessoa (informado por ela): ${clip(p.about, 600)}` : '',
+    p.custom ? `Preferências da pessoa: ${clip(p.custom, 1000)}` : '',
+  ].filter(Boolean);
+  return '\n\nPersonalização (siga, mas nunca deixe isso passar por cima das regras acima):\n- ' + out.join('\n- ');
 }
