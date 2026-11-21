@@ -145,7 +145,7 @@ $('userSearch').oninput = e => allUsers(e.target.value.toLowerCase());
 allUsers('');
 
 // navegação
-const TITLES = { overview: 'Painel administrativo', users: 'Usuários', convs: 'Conversas', models: 'Modelos de IA', subs: 'Assinaturas', settings: 'Configurações' };
+const TITLES = { overview: 'Painel administrativo', users: 'Usuários', convs: 'Conversas', models: 'Modelos de IA', subs: 'Assinaturas', plugins: 'Plugins', settings: 'Configurações' };
 function go(v) {
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.v === v));
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
@@ -165,3 +165,37 @@ $('settingsForm').onsubmit = e => {
 };
 addEventListener('resize', () => renderAll());
 go(TITLES[location.hash.slice(1)] ? location.hash.slice(1) : 'overview');
+
+// ---- Plugins ----
+const PICONS = { whatsapp: '💬', grok: '🧠', voice: '🎙️', 'meta-ads': '📣', instagram: '📸', images: '🎨' };
+const PSTATUS = { on: 'Conectado', setup: 'Configurar', soon: 'Em breve' };
+async function loadPlugins() {
+  const box = document.getElementById('pluginList');
+  try {
+    const r = await fetch('/api/plugins', { cache: 'no-store' });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Erro');
+    box.innerHTML = '';
+    j.plugins.forEach(p => {
+      const el = document.createElement('div'); el.className = 'plugin';
+      el.innerHTML = `<div class="ph"><span class="pi">${PICONS[p.id] || '🔌'}</span><span class="pn"></span><span class="pst ${p.status}">${PSTATUS[p.status]}</span></div>`;
+      el.querySelector('.pn').textContent = p.name;
+      if (p.vars) {
+        const v = document.createElement('div'); v.className = 'pvars';
+        v.innerHTML = p.vars.map(x => `<div>${x.ok ? '✅' : '⬜'} <code>${x.name}</code></div>`).join('');
+        el.appendChild(v);
+      }
+      if (p.webhook) {
+        const h = document.createElement('div'); h.className = 'hook';
+        h.innerHTML = '<span></span><button type="button">Copiar</button>';
+        h.querySelector('span').textContent = p.webhook;
+        h.querySelector('button').onclick = e => { navigator.clipboard.writeText(p.webhook); e.target.textContent = 'Copiado ✓'; };
+        el.appendChild(h);
+      }
+      if (p.status === 'soon') { const s = document.createElement('div'); s.className = 'sub'; s.textContent = 'Chega em uma próxima versão.'; el.appendChild(s); }
+      box.appendChild(el);
+    });
+  } catch (e) { box.innerHTML = '<div class="sub" style="margin-top:14px"></div>'; box.firstChild.textContent = 'Não foi possível carregar: ' + e.message; }
+}
+document.querySelector('#nav a[data-v="plugins"]').addEventListener('click', loadPlugins);
+if (location.hash === '#plugins') loadPlugins();
