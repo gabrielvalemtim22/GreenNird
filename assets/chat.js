@@ -14,6 +14,13 @@ const composer = $('composerTpl').content.firstElementChild.cloneNode(true);
 const q = composer.querySelector('#q');
 const think = composer.querySelector('#think');
 const search = composer.querySelector('#search');
+const siteChip = composer.querySelector('#siteChip');
+siteChip.onclick = () => {
+  const active = siteChip.classList.toggle('on');
+  siteChip.setAttribute('aria-pressed', String(active));
+  q.placeholder = active ? 'Descreva o site que você quer criar' : 'Mensagem para GreenNird';
+  q.focus();
+};
 think.onclick = () => think.classList.toggle('on');
 search.onclick = () => search.classList.toggle('on');
 try { if (localStorage.getItem('gn-search-default') === 'false') search.classList.remove('on'); } catch {}
@@ -143,6 +150,7 @@ async function send(textArg) {
       body: JSON.stringify({
         messages: current.messages.slice(0, -1).filter((m, i, arr) => !m.blocked && !(arr[i + 1] && arr[i + 1].blocked)).map(m => ({ role: m.role, content: m.content })),
         think: think.classList.contains('on'),
+        mode: siteChip.classList.contains('on') ? 'site' : 'chat',
         search: search.classList.contains('on'),
         persona: window.getPersona ? getPersona() : null
       })
