@@ -152,7 +152,7 @@
     if (voice.id) return true;
     try {
       const r = await fetch('/api/voices'); const j = await r.json();
-      if (r.ok && j.voices && j.voices.length) { voice.id = j.voices[0].id; voice.name = j.voices[0].name; saveVoice(); showVoiceName(); return true; }
+      if (r.ok && j.voices && j.voices.length) { voice.id = j.voices[0].id; voice.name = j.voices[0].name; voice.owner = j.voices[0].owner; saveVoice(); showVoiceName(); return true; }
     } catch {}
     return false;
   }
@@ -162,7 +162,7 @@
     interrupted = false;
     setState('speaking', 'Falando… fale por cima ou toque na bola para interromper');
     if (SR && running) { await ensureMic(); watchBargeIn(); }
-    const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
+    const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id, owner: voice.owner || '' }) });
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       // sem crédito / erro na ElevenLabs: fala com a voz do navegador

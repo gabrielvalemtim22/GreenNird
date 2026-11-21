@@ -266,7 +266,8 @@ if (window.fx && !fx.enabled) $('soundBtn').style.opacity = .4;
 // ---- voz com ElevenLabs ----
 const voice = { id: null, name: null, autoRead: false, list: null };
 try { Object.assign(voice, JSON.parse(localStorage.getItem('gn-voice') || '{}')); } catch {}
-const saveVoice = () => { try { localStorage.setItem('gn-voice', JSON.stringify({ id: voice.id, name: voice.name, autoRead: voice.autoRead })); } catch {} };
+if (voice.id && !voice.br) { voice.id = null; voice.name = null; } // vozes antigas (americanas) saem
+const saveVoice = () => { try { localStorage.setItem('gn-voice', JSON.stringify({ id: voice.id, name: voice.name, owner: voice.owner || null, br: true, autoRead: voice.autoRead })); } catch {} };
 const voiceChip = composer.querySelector('#voiceChip');
 function showVoiceName() {
   const short = voice.name ? voice.name.split(/\s|-/)[0] : null;
@@ -291,7 +292,7 @@ async function speak(text, btn) {
   audioBtn = btn || null;
   if (btn) { btn.classList.add('playing'); btn.innerHTML = '⏳ Gerando voz…'; }
   try {
-    const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id }) });
+    const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice: voice.id, owner: voice.owner || '' }) });
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       if (btn) btn.innerHTML = '⏸ Parar (voz do navegador)';
@@ -338,7 +339,7 @@ function renderVoices() {
     it.innerHTML = '<div><div class="vn"></div><div class="vt"></div></div><button type="button" class="vplay" title="Ouvir amostra">▶</button>';
     it.querySelector('.vn').textContent = v.name; it.querySelector('.vt').textContent = v.tags || '';
     it.onclick = () => {
-      voice.id = v.id; voice.name = v.name; saveVoice(); showVoiceName(); renderVoices();
+      voice.id = v.id; voice.name = v.name; voice.owner = v.owner; saveVoice(); showVoiceName(); renderVoices();
       window.fx && fx.done();
       if (v.preview) { if (preview) preview.pause(); preview = new Audio(v.preview); preview.play().catch(() => {}); }
     };

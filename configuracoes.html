@@ -186,7 +186,7 @@ function show(id) {
         const it = document.createElement('div'); it.className = 'vi' + (S.voice.id === v.id ? ' on' : '');
         it.innerHTML = `<span><b></b><small></small></span>${v.preview ? '<button class="pl">▶</button>' : ''}`;
         it.querySelector('b').textContent = v.name; it.querySelector('small').textContent = v.tags || '';
-        it.onclick = () => { S.voice.id = v.id; S.voice.name = v.name; store2.set('gn-voice', S.voice); toast('Voz escolhida: ' + v.name.split(' ')[0] + ' 🎙'); show('voz'); };
+        it.onclick = () => { S.voice.id = v.id; S.voice.name = v.name; S.voice.owner = v.owner; S.voice.br = true; store2.set('gn-voice', S.voice); toast('Voz escolhida: ' + v.name.split(' ')[0] + ' 🎙'); show('voz'); };
         const pl = it.querySelector('.pl'); if (pl) pl.onclick = e => { e.stopPropagation(); if (au) au.pause(); au = new Audio(v.preview); au.play(); };
         vl.appendChild(it);
       });
