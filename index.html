@@ -27,6 +27,7 @@
   <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
   <nav class="nav">
     <a class="app" href="/chat" data-i18n="app">Obter o aplicativo</a>
+    <a href="/conta" data-i18n="login">Entrar</a>
     <span class="sep"></span>
     <div class="lang"><button class="on" data-lang="pt">PT</button><button data-lang="en">EN</button></div>
   </nav>
@@ -45,13 +46,13 @@
   </form>
   <div class="ctas">
     <a class="btn btn-lime" href="/chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/></svg><span data-i18n="chat">Conversar com GreenNird</span></a>
-    <a class="btn btn-white" href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg><span data-i18n="platform">Conheça a plataforma</span></a>
+    <a class="btn btn-white" href="/conta#planos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg><span data-i18n="platform">Conheça a plataforma</span></a>
   </div>
 </main>
 <script>
 const T = {
-  pt: { app: 'Obter o aplicativo', title: 'Explore novas ideias', ph: 'Pergunte qualquer coisa', think: 'Pensar', search: 'Pesquisar', chat: 'Conversar com GreenNird', platform: 'Conheça a plataforma' },
-  en: { app: 'Get the app', title: 'Explore new ideas', ph: 'Ask anything', think: 'Think', search: 'Search', chat: 'Chat with GreenNird', platform: 'Explore the platform' }
+  pt: { app: 'Obter o aplicativo', title: 'Explore novas ideias', ph: 'Pergunte qualquer coisa', think: 'Pensar', search: 'Pesquisar', chat: 'Conversar com GreenNird', platform: 'Conheça a plataforma', login: 'Entrar' },
+  en: { app: 'Get the app', title: 'Explore new ideas', ph: 'Ask anything', think: 'Think', search: 'Search', chat: 'Chat with GreenNird', platform: 'Explore the platform', login: 'Sign in' }
 };
 function setLang(l) {
   document.documentElement.lang = l === 'pt' ? 'pt-BR' : 'en';

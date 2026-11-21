@@ -137,3 +137,11 @@ if (params.get('q')) {
   history.replaceState(null, '', '/chat');
   send(params.get('q'));
 }
+
+// conta do usuário no rodapé da barra lateral
+fetch('/api/account').then(r => r.ok ? r.json() : null).then(a => {
+  if (!a || !a.loggedIn) return;
+  document.querySelector('#acct .avatar').textContent = 'G';
+  $('acctName').textContent = 'Conta ' + a.id.slice(-4);
+  $('acctPlan').textContent = a.plan;
+}).catch(() => {});

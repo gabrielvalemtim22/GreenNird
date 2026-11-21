@@ -75,6 +75,38 @@
   .form { display: grid; gap: 16px; max-width: 520px; margin-top: 16px; }
   .form label { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
   .form input, .form select, .form textarea { border: 1px solid #e3e5de; border-radius: 12px; padding: 10px 14px; font: inherit; }
+
+  /* ===== versão 3D ===== */
+  .floor { position: fixed; left: -50%; right: -50%; bottom: -40vh; height: 80vh; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(150,200,0,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(150,200,0,.22) 1px, transparent 1px);
+    background-size: 70px 70px; transform: perspective(500px) rotateX(70deg); transform-origin: top;
+    -webkit-mask: linear-gradient(transparent, #000 40%); mask: linear-gradient(transparent, #000 40%); animation: floor 6s linear infinite; }
+  @keyframes floor { to { background-position: 0 70px, 0 0; } }
+  main { perspective: 1400px; }
+  .card { transform-style: preserve-3d; transition: transform .25s ease, box-shadow .25s ease; will-change: transform;
+    box-shadow: 0 1px 0 #fff inset, 0 18px 40px rgba(120,160,0,.14), 0 4px 0 #e3e9cf, 0 6px 12px rgba(0,0,0,.05); }
+  .card:hover { box-shadow: 0 1px 0 #fff inset, 0 30px 60px rgba(120,160,0,.22), 0 6px 0 #dbe4bf, 0 10px 18px rgba(0,0,0,.06); }
+  .card > * { transform: translateZ(18px); }
+  .kpi .ic { background: linear-gradient(145deg, #eaff7a, #c3ee00); box-shadow: 0 6px 0 #9fc400, 0 12px 18px rgba(130,180,0,.45), inset 0 2px 0 rgba(255,255,255,.7); transform: translateZ(36px); }
+  .kpi .val { transform: translateZ(30px); text-shadow: 0 3px 0 rgba(0,0,0,.06); }
+  .nav a.on { box-shadow: 0 5px 0 #9fc400, 0 12px 20px rgba(150,200,0,.45), inset 0 2px 0 rgba(255,255,255,.6); }
+  svg.line path[stroke] { filter: drop-shadow(0 10px 6px rgba(130,180,0,.45)); }
+  .donut3d { position: relative; width: 190px; height: 170px; }
+  .donut3d .stack { position: absolute; inset: 0; transform: perspective(500px) rotateX(52deg); transform-style: preserve-3d; }
+  .donut3d .stack svg { position: absolute; left: 10px; top: 0; }
+  .donut3d .label { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; transform: translateY(-14px); }
+  .donut3d .label b { font-size: 17px; font-weight: 800; line-height: 1; } .donut3d .label span { font-size: 11px; color: #555; }
+  .promo { transform-style: preserve-3d; }
+  .promo img { animation: float 5s ease-in-out infinite; transform-style: preserve-3d; }
+  .promo::after { content: ""; position: absolute; right: 30px; bottom: 18px; width: 150px; height: 22px; border-radius: 50%; background: radial-gradient(rgba(0,0,0,.28), transparent 70%); animation: shadow 5s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(-58%) rotateY(-18deg) rotateZ(-8deg); } 50% { transform: translateY(-42%) rotateY(18deg) rotateZ(4deg); } }
+  @keyframes shadow { 0%,100% { transform: scale(.75); opacity: .6; } 50% { transform: scale(1); opacity: 1; } }
+  .bars { perspective: 600px; gap: 26px; padding-right: 26px; }
+  .bars div { position: relative; overflow: visible; border-radius: 4px 4px 2px 2px; background: linear-gradient(180deg, #dcff3a, #a6dc00); box-shadow: 0 16px 24px rgba(130,180,0,.35); }
+  .bars div::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; background: linear-gradient(90deg, #f1ff9e, #e2ff5c); transform: skewX(-45deg); transform-origin: bottom; border-radius: 3px 3px 0 0; }
+  .bars div::after { content: ""; position: absolute; top: 0; bottom: 0; right: -14px; width: 14px; background: linear-gradient(180deg, #a3d400, #6f9600); transform: skewY(-45deg); transform-origin: left; }
+  .big { box-shadow: 0 5px 0 #d9ef8c, 0 12px 20px rgba(150,200,0,.25); }
+  @media (hover: none) { .card > * { transform: none; } }
   .menu-btn { display: none; }
   @media (max-width: 1250px) { .grid4 { grid-template-columns: repeat(2, 1fr); } .row2 { grid-template-columns: 1fr 1fr; } .row2 .promo { grid-column: span 2; min-height: 220px; } .row3 { grid-template-columns: 1fr; } }
   @media (max-width: 860px) {
@@ -89,6 +121,7 @@
 </head>
 <body>
 <div class="glow"></div>
+<div class="floor"></div>
 <aside id="side">
   <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
   <nav class="nav" id="nav">
@@ -127,7 +160,7 @@
       </div>
       <div class="card">
         <h3>Uso da IA por modelo</h3>
-        <div class="donut-wrap"><svg width="170" height="170" viewBox="0 0 170 170" id="donut"></svg><div class="legend" id="legend"></div></div>
+        <div class="donut-wrap"><div class="donut3d"><div class="stack" id="donut"></div><div class="label"><b id="donutVal">18,6 M</b><span>tokens</span></div></div><div class="legend" id="legend"></div></div>
       </div>
       <div class="card promo">
         <h3>GreenNird mais inteligente, segura e escalável.</h3>
@@ -189,6 +222,6 @@
     </div>
   </section>
 </main>
-<script src="/assets/admin.js"></script>
+<script src="/api/_admin/admin.js"></script>
 </body>
 </html>

@@ -74,15 +74,40 @@ function lineChart(el, data, labels) {
 }
 
 function donut() {
-  const el = $('donut'), r = 66, c = 2 * Math.PI * r; let off = 0, s = '';
-  MODELS.forEach(([, p, col]) => {
-    const len = c * p / 100;
-    s += `<circle cx="85" cy="85" r="${r}" fill="none" stroke="${col}" stroke-width="26" stroke-dasharray="${len} ${c - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"/>`;
-    off += len;
-  });
-  el.innerHTML = s + `<text x="85" y="84" text-anchor="middle" font-size="24" font-weight="800">${String(cur.tok).replace('.', ',')} M</text><text x="85" y="104" text-anchor="middle" font-size="13" fill="#555">tokens</text>`;
-  $('legend').innerHTML = MODELS.map(([n, p, col]) => `<div><i style="background:${col}"></i><span>${n}</span><span>${p.toLocaleString('pt-BR')}%</span></div>`).join('');
+  // anel 3D: várias camadas escuras empilhadas + a camada de cima colorida
+  const r = 62, c = 2 * Math.PI * r;
+  const ring = (dark) => {
+    let off = 0, out = '';
+    MODELS.forEach(([, p, col]) => {
+      const len = c * p / 100;
+      out += `<circle cx="85" cy="85" r="${r}" fill="none" stroke="${dark ? shade(col) : col}" stroke-width="30" stroke-dasharray="${len} ${c - len}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)"/>`;
+      off += len;
+    });
+    return out;
+  };
+  let html = '';
+  for (let k = 14; k >= 1; k--) html += `<svg width="170" height="170" viewBox="0 0 170 170" style="transform:translateZ(${-k * 1.6}px)">${ring(true)}</svg>`;
+  html += `<svg width="170" height="170" viewBox="0 0 170 170" style="transform:translateZ(1px)">${ring(false)}</svg>`;
+  $('donut').innerHTML = html;
+  $('donutVal').textContent = String(cur.tok).replace('.', ',') + ' M';
+  $('legend').innerHTML = MODELS.map(([n, p, col]) => `<div><i style="background:${col};box-shadow:0 3px 0 ${shade(col)}"></i><span>${n}</span><span>${p.toLocaleString('pt-BR')}%</span></div>`).join('');
 }
+function shade(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.round(v * .68).toString(16).padStart(2, '0');
+  return '#' + f(n >> 16) + f((n >> 8) & 255) + f(n & 255);
+}
+
+// inclinação 3D dos cards seguindo o mouse
+document.addEventListener('mousemove', e => {
+  const card = e.target.closest && e.target.closest('.card');
+  document.querySelectorAll('.card.tilt').forEach(c => { if (c !== card) { c.classList.remove('tilt'); c.style.transform = ''; } });
+  if (!card) return;
+  const b = card.getBoundingClientRect();
+  const x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5;
+  card.classList.add('tilt');
+  card.style.transform = `rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg) translateZ(6px)`;
+});
 
 function userRows(list) {
   return '<tr><th>Usuário</th><th>E-mail</th><th>Plano</th><th>Último acesso</th><th>Conversas</th><th>Uso da IA</th><th></th></tr>' +
@@ -113,7 +138,7 @@ function renderAll() {
 $('modelsTbl').innerHTML = '<tr><th>Modelo</th><th>Status</th><th>Participação</th><th>Tokens no período</th></tr>' +
   MODELS.map(([n, p, col]) => `<tr><td><span class="ini" style="background:${col}">AI</span><b>${n}</b></td><td><span class="plan">Ativo</span></td><td>${p.toLocaleString('pt-BR')}%</td><td>${(18.6 * p / 100).toFixed(1).replace('.', ',')} M</td></tr>`).join('');
 $('plansTbl').innerHTML = '<tr><th>Plano</th><th>Preço</th><th>Limite</th><th>Recursos</th></tr>' +
-  [['Lite', 'Grátis', '50 msgs/dia', 'Chat, pesquisa'], ['Pro', 'R$ 39,90/mês', 'Ilimitado', 'Pensar, pesquisa, anexos'], ['Turbo', 'R$ 89,90/mês', 'Ilimitado + prioridade', 'Tudo do Pro + API']]
+  [['Lite', 'Grátis', '50 msgs/dia', 'Chat, pesquisa'], ['Pro', 'R$ 69,99/mês', 'Ilimitado', 'Pensar, anexos, WhatsApp'], ['Turbo', 'R$ 149,99/mês', 'Ilimitado + prioridade', 'Meta Ads, posts FB/Instagram'], ['Empresa', 'R$ 299,99/mês', 'Vários números', 'Suporte dedicado, relatórios']]
     .map(([n, p, l, r]) => `<tr><td><span class="plan ${n}">${n}</span></td><td>${p}</td><td>${l}</td><td>${r}</td></tr>`).join('');
 const allUsers = q => { $('allUsers').innerHTML = userRows(USERS.filter(u => (u[0] + u[1]).toLowerCase().includes(q))); };
 $('userSearch').oninput = e => allUsers(e.target.value.toLowerCase());

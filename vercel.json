@@ -1,4 +1,11 @@
 {
   "cleanUrls": true,
-  "functions": { "api/chat.js": { "maxDuration": 120 } }
+  "rewrites": [
+    { "source": "/admin", "destination": "/api/admin" },
+    { "source": "/planos", "destination": "/conta" }
+  ],
+  "functions": {
+    "api/chat.js": { "maxDuration": 120 },
+    "api/admin.js": { "includeFiles": "api/_admin/**" }
+  }
 }

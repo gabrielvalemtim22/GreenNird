@@ -28,7 +28,7 @@
   .user { border-top: 1px solid #e4e6df; padding-top: 16px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 15px; }
   .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; font-weight: 800; font-size: 17px; }
   .user { white-space: nowrap; }
-  .user a.adm { margin-left: auto; font-size: 12px; font-weight: 700; background: var(--lime-soft); padding: 6px 10px; border-radius: 999px; }
+  .user .adm { margin-left: auto; font-size: 12px; font-weight: 700; background: var(--lime-soft); padding: 6px 10px; border-radius: 999px; }
 
   .main { position: relative; flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .topbar { position: absolute; z-index: 3; top: 18px; left: 18px; display: none; }
@@ -83,7 +83,7 @@
   </div>
   <button class="new" id="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Nova conversa</button>
   <div class="list" id="list"></div>
-  <div class="user"><div class="avatar">G</div>Gabriel Valentim<a href="/admin" class="adm">Painel admin</a></div>
+  <a class="user" href="/conta" id="acct"><div class="avatar">?</div><span id="acctName">Entrar / Criar conta</span><span class="adm" id="acctPlan">Planos</span></a>
 </aside>
 
 <div class="main empty" id="main">
