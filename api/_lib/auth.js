@@ -52,3 +52,31 @@ export function isAdmin(id) {
   if (!id) return false;
   return (process.env.ADMIN_ID || '').split(',').map(cleanId).filter(Boolean).includes(id);
 }
+
+// ---- Limite diário do plano grátis (cookie assinado, renova todo dia) ----
+const USAGE = 'gn_usage';
+export const FREE_DAILY = 3;
+
+export function today() {
+  // dia no horário de Brasília
+  return new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+}
+
+export function readUsage(req) {
+  const raw = (req.headers.cookie || '').split(/;\s*/).find(c => c.startsWith(USAGE + '='));
+  const day = today();
+  if (!raw) return { day, used: 0 };
+  const [d, used, sig] = raw.slice(USAGE.length + 1).split('.');
+  const good = hmac(`usage:${d}.${used}`).toString('base64url');
+  if (!sig || good.length !== sig.length || !crypto.timingSafeEqual(Buffer.from(good), Buffer.from(sig))) {
+    return { day, used: FREE_DAILY }; // cookie adulterado: sem mensagens hoje
+  }
+  if (d !== day) return { day, used: 0 }; // novo dia: renova
+  return { day, used: Math.min(Number(used) || 0, FREE_DAILY) };
+}
+
+export function usageCookie(day, used) {
+  const payload = `${day}.${used}`;
+  const sig = hmac('usage:' + payload).toString('base64url');
+  return `${USAGE}=${payload}.${sig}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${3 * 86400}`;
+}

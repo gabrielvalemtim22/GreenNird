@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { readSession, isAdmin, readUsage, usageCookie, FREE_DAILY } from './_lib/auth.js';
 
 const client = new Anthropic(); // usa ANTHROPIC_API_KEY das variáveis de ambiente da Vercel
 
@@ -23,7 +24,37 @@ export default async function handler(req, res) {
     return;
   }
 
+  // ---- plano grátis: 3 mensagens por dia, sem pedidos pesados ----
+  let session = null, usage = null, unlimited = false;
+  try { session = readSession(req); usage = readUsage(req); unlimited = isAdmin(session); }
+  catch { res.status(500).send('Contas ainda não configuradas no servidor (ACCOUNT_SECRET).'); return; }
+
+  const block = (code, message, used) => {
+    res.setHeader('Set-Cookie', usageCookie(usage.day, used));
+    res.status(402).json({ code, message, remaining: FREE_DAILY - used });
+  };
+  let extraHeaders = {};
+  if (!unlimited) {
+    if (usage.used >= FREE_DAILY) {
+      block('limit', 'Você usou suas 3 mensagens grátis de hoje. Assine um plano para continuar agora, ou volte amanhã.', usage.used);
+      return;
+    }
+    if (think) {
+      block('pro', 'O modo Pensar é exclusivo dos planos pagos. Desative o Pensar ou assine um plano.', usage.used);
+      return;
+    }
+    const last = history[history.length - 1].content.length;
+    const total = history.reduce((n, m) => n + m.content.length, 0);
+    if (last > 3000 || total > 12000) {
+      block('credits', 'Esse pedido é muito grande para o plano grátis. Acabaram seus créditos de hoje — volte amanhã ou assine um plano.', FREE_DAILY);
+      return;
+    }
+    const used = usage.used + 1;
+    extraHeaders = { 'Set-Cookie': usageCookie(usage.day, used), 'X-GN-Remaining': String(FREE_DAILY - used) };
+  }
+
   res.writeHead(200, {
+    ...extraHeaders,
     'Content-Type': 'text/plain; charset=utf-8',
     'Cache-Control': 'no-cache, no-transform',
     'X-Accel-Buffering': 'no',
@@ -31,12 +62,12 @@ export default async function handler(req, res) {
 
   const params = {
     model: 'claude-opus-5-5',
-    max_tokens: 32000,
+    max_tokens: unlimited ? 32000 : 1500,
     system: SYSTEM,
     output_config: { effort: think ? 'high' : 'low' },
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
-    ...(search ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }] } : {}),
+    ...(search ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: unlimited ? 5 : 2 }] } : {}),
   };
 
   try {
@@ -55,7 +86,9 @@ export default async function handler(req, res) {
       if (final.stop_reason === 'refusal') {
         res.write('\n\nDesculpe, não posso ajudar com esse pedido.');
       } else if (final.stop_reason === 'max_tokens') {
-        res.write('\n\n_(resposta interrompida por tamanho)_');
+        res.write(unlimited
+          ? '\n\n_(resposta interrompida por tamanho)_'
+          : '\n\n**⚠️ Resposta cortada: pedidos longos gastam muitos créditos no plano grátis. [Assine um plano](/conta#planos) para respostas completas.**');
       }
       if (final.stop_reason !== 'pause_turn') break;
       convo = [...history, { role: 'assistant', content: final.content }];

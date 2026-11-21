@@ -96,11 +96,19 @@ async function send(textArg) {
     const res = await fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: current.messages.slice(0, -1).map(m => ({ role: m.role, content: m.content })),
+        messages: current.messages.slice(0, -1).filter((m, i, arr) => !m.blocked && !(arr[i + 1] && arr[i + 1].blocked)).map(m => ({ role: m.role, content: m.content })),
         think: think.classList.contains('on'),
         search: search.classList.contains('on')
       })
     });
+    if (res.status === 402) {
+      const info = await res.json().catch(() => ({}));
+      ai.content = '';
+      ai.blocked = info.message || 'Limite do plano grátis atingido.';
+      setRemaining(info.remaining ?? 0);
+      throw Object.assign(new Error(ai.blocked), { blocked: true });
+    }
+    if (res.headers.get('X-GN-Remaining') !== null) setRemaining(Number(res.headers.get('X-GN-Remaining')));
     if (!res.ok || !res.body) {
       const plain = (res.headers.get('content-type') || '').includes('text/plain');
       throw new Error((plain && await res.text()) || 'O servidor de IA não respondeu (erro ' + res.status + '). Ele só funciona depois do deploy na Vercel.');
@@ -113,6 +121,14 @@ async function send(textArg) {
     }
     if (!ai.content) ai.content = '_(sem resposta)_';
   } catch (err) {
+    if (err.blocked) {
+      ai.content = '🔒 **' + err.message + '**\n\n[Ver planos e assinar](/conta#planos)';
+      // tira a pergunta bloqueada do histórico enviado à IA nas próximas vezes
+      current.messages.splice(current.messages.length - 2, 2, { role: 'user', content: text }, { role: 'assistant', content: ai.content, blocked: true });
+      body.innerHTML = md(ai.content); store.set(chats); renderList();
+      busy = false; composer.querySelector('#sendBtn').disabled = false;
+      return;
+    }
     ai.content = '⚠️ ' + (err.message || 'Falha ao conectar com a IA.');
     body.innerHTML = '<p class="err"></p>'; body.firstChild.textContent = ai.content;
   }
@@ -145,3 +161,12 @@ fetch('/api/account').then(r => r.ok ? r.json() : null).then(a => {
   $('acctName').textContent = 'Conta ' + a.id.slice(-4);
   $('acctPlan').textContent = a.plan;
 }).catch(() => {});
+
+// contador de mensagens grátis do dia
+function setRemaining(n) {
+  const hint = document.querySelector('.hint');
+  if (!hint || isNaN(n)) return;
+  hint.innerHTML = n > 0
+    ? `Plano grátis: <b>${n}</b> ${n === 1 ? 'mensagem restante' : 'mensagens restantes'} hoje · <a href="/conta#planos" style="text-decoration:underline">Assinar</a>`
+    : 'Suas mensagens grátis de hoje acabaram · renovam amanhã · <a href="/conta#planos" style="text-decoration:underline">Assinar agora</a>';
+}
