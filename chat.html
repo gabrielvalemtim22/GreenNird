@@ -83,6 +83,7 @@
   .mcard { position: relative; width: min(440px, 100%); background: #fff; border-radius: 26px; padding: 30px 26px 24px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.25); animation: pop .4s cubic-bezier(.2,1.4,.4,1); }
   .mcard h2 { font-size: 26px; letter-spacing: -.02em; margin: 6px 0 8px; }
   .mcard p { color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+  .mavatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 4px #eaffb0, 0 14px 30px rgba(0,0,0,.15); animation: bump .6s cubic-bezier(.2,1.6,.4,1); }
   .mlogo { width: 64px; height: 64px; animation: wiggle 2s ease-in-out infinite; }
   @keyframes wiggle { 50% { transform: rotate(-8deg) translateY(-4px); } }
   .mbtn { justify-content: center; width: 100%; font-size: 16px; padding: 14px; }
@@ -91,6 +92,65 @@
   .mcode { font-size: 30px; font-weight: 800; letter-spacing: .08em; background: var(--lime-tint); border: 2px dashed #c9ec3a; border-radius: 16px; padding: 14px; margin-bottom: 14px; user-select: all; }
   .mwarn { background: #fff7d6; border: 1px solid #f3df8a; color: #5c4700; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; text-align: left; line-height: 1.45; margin-bottom: 16px; }
   .mrow { display: flex; gap: 10px; }
+
+  /* ===== barra lateral no estilo do design ===== */
+  .sidenav { gap: 4px; margin: 4px 0 2px; }
+  .snav { gap: 14px; padding: 11px 14px; border-radius: 14px; font-size: 16px; font-weight: 600; width: 100%; }
+  .snav svg { width: 22px; height: 22px; flex-shrink: 0; }
+  .snav.on { background: var(--lime-soft); }
+  .snav em { font-size: 11.5px; padding: 3px 9px; }
+  .snsep { border: 0; border-top: 1px solid #e4e6df; margin: 10px 6px 2px; }
+  .item { gap: 12px; padding: 10px 12px; font-size: 15px; }
+  .item .bub { width: 20px; height: 20px; flex-shrink: 0; color: #333; }
+  .group { font-size: 14px; padding: 14px 10px 6px; }
+  .avatar.img { color: transparent; cursor: pointer; box-shadow: 0 0 0 3px #eaffb0; transition: transform .15s; }
+  .avatar.img:hover { transform: scale(1.08) rotate(-4deg); }
+  .user .adm { background: var(--lime-soft); }
+  /* janela personalizar perfil */
+  .profile-pop { position: fixed; z-index: 80; left: 20px; bottom: 88px; width: 250px; background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.18); animation: pop .3s cubic-bezier(.2,1.3,.4,1) both; }
+  .pp-head { display: flex; align-items: center; justify-content: space-between; font-size: 17px; }
+  .pp-x { font-size: 22px; color: #333; }
+  .pp-big { width: 160px; height: 160px; margin: 12px auto 10px; border-radius: 50%; overflow: hidden; background: #f1f1f1; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  .pp-big img { width: 100%; height: 100%; object-fit: cover; }
+  .pp-big.bump { animation: bump .45s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes bump { 0% { transform: scale(.85) rotateY(70deg); } 100% { transform: none; } }
+  .pp-label { font-size: 13.5px; font-weight: 600; margin: 4px 2px 8px; }
+  .pp-colors { display: flex; gap: 10px; margin-bottom: 14px; }
+  .pp-colors button { width: 32px; height: 32px; border-radius: 50%; position: relative; transition: transform .12s; }
+  .pp-colors button:hover { transform: scale(1.12); }
+  .pp-colors button.on { outline: 2.5px solid #9bd400; outline-offset: 2px; }
+  .pp-colors button.on::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: #111; }
+  .pp-save { width: 100%; justify-content: center; font-size: 16px; padding: 11px; }
+  /* transição 3D entre telas */
+  .main { perspective: 1400px; }
+  .main.t3d-out > .scroll, .main.t3d-out > .dock, .main.t3d-out > .agenda-view { animation: out3d .38s ease-in forwards; }
+  .main.t3d-in > .scroll, .main.t3d-in > .dock, .main.t3d-in > .agenda-view { animation: in3d .52s cubic-bezier(.2,1.1,.3,1) both; }
+  @keyframes out3d { to { opacity: 0; filter: blur(10px); transform: perspective(1200px) translateZ(-180px) rotateY(-14deg) scale(.96); } }
+  @keyframes in3d { from { opacity: 0; filter: blur(10px); transform: perspective(1200px) translateZ(-160px) rotateY(14deg) scale(.96); } }
+  .main.in-agenda > .scroll, .main.in-agenda > .dock { display: none; }
+  /* Agendamentos dentro do chat */
+  .agenda-view { position: relative; z-index: 1; flex: 1; overflow-y: auto; padding: 60px clamp(18px, 5vw, 70px) 40px; }
+  .ag-spark { margin: -30px auto 0; width: 300px; }
+  .ag-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .ag-head h1 { display: flex; align-items: center; gap: 14px; font-size: clamp(28px, 3.6vw, 42px); letter-spacing: -.03em; }
+  .ag-head h1 svg { width: 40px; height: 40px; }
+  .ag-new { display: inline-flex; align-items: center; gap: 8px; background: var(--lime); border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 16px; box-shadow: 0 8px 20px rgba(190,230,0,.4); transition: transform .12s; }
+  .ag-new:active { transform: scale(.95); } .ag-new svg { width: 20px; height: 20px; }
+  .ag-sub { color: #555; font-size: 17px; margin: 8px 0 30px; }
+  .ag-label { font-weight: 700; color: #444; margin: 0 0 14px; }
+  .ag-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 30px; }
+  .ag-card { display: flex; align-items: center; gap: 18px; text-align: left; background: #fff; border: 1px solid #eef0e8; border-radius: 20px; padding: 20px; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; transform-style: preserve-3d; }
+  .ag-card:hover { transform: translateY(-3px) rotateX(4deg); box-shadow: 0 18px 40px rgba(120,160,0,.18); }
+  .ag-ic { width: 54px; height: 54px; border-radius: 16px; background: var(--lime-soft); display: grid; place-items: center; flex-shrink: 0; }
+  .ag-ic svg { width: 26px; height: 26px; }
+  .ag-tx b { display: block; font-size: 17px; } .ag-tx small { color: #555; font-size: 14px; }
+  .ag-go { margin-left: auto; font-size: 26px; color: #555; }
+  .ag-list { display: grid; gap: 8px; margin-bottom: 16px; }
+  .ag-task { display: grid; grid-template-columns: 30px 1fr; gap: 0 10px; align-items: center; background: #fff; border: 1px solid #eef0e8; border-radius: 14px; padding: 12px 14px; }
+  .ag-task span { grid-row: span 2; font-size: 20px; } .ag-task small { color: var(--muted); }
+  .ag-empty { color: var(--muted); padding: 10px 2px; }
+  .ag-all { font-weight: 700; color: #3b5a00; }
+  @media (max-width: 760px) { .ag-grid { grid-template-columns: 1fr; } }
   /* ===== app: avisos, menus, configurações ===== */
   .toasts { position: fixed; z-index: 100; left: 50%; bottom: 24px; transform: translateX(-50%); display: grid; gap: 8px; width: min(420px, calc(100vw - 32px)); }
   .toast { display: flex; align-items: center; gap: 10px; background: #111; color: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 14px 40px rgba(0,0,0,.25); animation: pop .35s cubic-bezier(.2,1.3,.4,1) both; font-size: 14.5px; cursor: pointer; }
@@ -304,6 +364,7 @@
       <button class="mlink" id="signupLater">Agora não</button>
     </div>
     <div class="step2" hidden>
+      <img class="mavatar" src="/assets/avatars/verde.webp" alt="Seu avatar">
       <h2>Conta criada! 🎉</h2>
       <p>Este é o seu código de acesso:</p>
       <div class="mcode" id="signupCode"></div>
@@ -317,5 +378,6 @@
 <script src="/assets/voice.js"></script>
 <script src="/assets/app.js"></script>
 <script src="/assets/tasks.js"></script>
+<script src="/assets/shell.js"></script>
 </body>
 </html>

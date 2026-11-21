@@ -26,6 +26,11 @@
   .warn { background: #fff7d6; border: 1px solid #f3df8a; color: #5c4700; border-radius: 14px; padding: 12px 14px; font-size: 14px; text-align: left; line-height: 1.5; }
   .row-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
   .small { padding: 10px 18px !important; font-size: 14px !important; }
+  .cav { width: 130px; height: 130px; margin: -8px auto 10px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 5px #eaffb0, 0 16px 36px rgba(0,0,0,.15); animation: pop .5s cubic-bezier(.2,1.5,.4,1); }
+  .cav img { width: 100%; height: 100%; object-fit: cover; }
+  .cav-colors { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; }
+  .cav-colors button { width: 28px; height: 28px; border-radius: 50%; }
+  .cav-colors button.on { outline: 2.5px solid #9bd400; outline-offset: 2px; }
   .plans-head { text-align: center; margin: 60px 0 26px; }
   .plans-head h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.03em; }
   .plans-head p { color: var(--muted); margin-top: 6px; }
@@ -83,6 +88,8 @@
 
   <!-- com conta -->
   <section class="box" id="in" hidden>
+    <div class="cav"><img id="cavImg" alt="Seu avatar"></div>
+    <div class="cav-colors" id="cavColors"></div>
     <h1>Sua conta</h1>
     <p id="newMsg" hidden><b>Conta criada!</b> Este é o seu código de acesso:</p>
     <p id="oldMsg">Seu código de acesso:</p>
@@ -196,6 +203,15 @@ document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => {
 document.querySelectorAll('.buy').forEach(b => b.onclick = () =>
   toast('Pagamento online chegando! Fale com a gente para ativar o plano ' + b.closest('.plan').dataset.plan + ' 💚', { ms: 6000 }));
 api().then(a => show(a)).catch(() => show({ loggedIn: false }));
+// avatar: todo mundo ganha o boneco, com 5 cores
+const AV = [['verde', '#c6f500'], ['azul', '#2f9bff'], ['roxo', '#8b3dff'], ['rosa', '#ff3d9a'], ['laranja', '#ff7a1a']];
+function paintAv() {
+  const c = store2.get('gn-avatar', 'verde');
+  $('cavImg').src = '/assets/avatars/' + c + '.webp';
+  $('cavColors').innerHTML = AV.map(([n, h]) => `<button data-c="${n}" class="${n === c ? 'on' : ''}" style="background:${h}" aria-label="${n}"></button>`).join('');
+  $('cavColors').querySelectorAll('button').forEach(b => b.onclick = () => { store2.set('gn-avatar', b.dataset.c); paintAv(); window.fx && fx.boop(); toast('Avatar atualizado ✨'); });
+}
+paintAv();
 </script>
 </body>
 </html>

@@ -168,7 +168,16 @@ function render() {
 document.getElementById('newTask').onclick = () => taskForm({});
 document.getElementById('menuBtn').onclick = () => document.getElementById('side').classList.toggle('open');
 addEventListener('gn-tasks', render);
+const QUICK = {
+  reuniao: { icon: '📅', title: 'Reunião', kind: 'reminder', freq: 'once', time: '14:00' },
+  lembrete: { icon: '🔔', title: '', kind: 'reminder', freq: 'once', time: '09:00' },
+  recorrente: { icon: '🔁', title: '', kind: 'ai', freq: 'weekly', days: [1, 3, 5], time: '08:00', prompt: '' },
+  agenda: TEMPLATES[3], novo: {},
+};
+const hp = new URLSearchParams(location.hash.slice(1));
+if (hp.get('t')) selected = hp.get('t');
 render();
+if (hp.get('novo')) { history.replaceState(null, '', '/agendamentos'); setTimeout(() => taskForm(QUICK[hp.get('novo')] || {}), 400); }
 </script>
 </body>
 </html>

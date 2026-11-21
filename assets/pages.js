@@ -13,7 +13,7 @@
     r.className = 'rail' + (dark ? ' dark' : '');
     const links = [['chat', '/chat', 'Chat'], ['espaco', '/espaco', 'Meu espaço'], ['agenda', '/agendamentos', 'Agendamentos'], ['conexoes', '/conexoes', 'Conexões']];
     r.innerHTML = links.map(([k, h, t]) => `<a href="${h}" title="${t}" class="${k === active ? 'on' : ''}">${ICONS[k]}</a>`).join('') +
-      `<span class="sp"></span><a href="/conta#planos" title="Planos">${ICONS.planos}</a><a href="/ajuda" title="Ajuda">${ICONS.ajuda}</a>`;
+      `<span class="sp"></span><a href="/conta#planos" title="Planos">${ICONS.planos}</a><a href="/ajuda" title="Ajuda">${ICONS.ajuda}</a><a href="/configuracoes#conta" title="Perfil"><span class="rail-av" style="background-image:url(/assets/avatars/${(localStorage.getItem('gn-avatar') || '"verde"').replace(/\W/g, '')}.webp)"></span></a>`;
   };
 
   const toasts = document.createElement('div'); toasts.className = 'toasts';
@@ -61,6 +61,23 @@
     m.style.left = x + 'px'; m.style.top = y + 'px';
     setTimeout(() => document.addEventListener('click', function off(e) { if (!m.contains(e.target)) { m.remove(); document.removeEventListener('click', off); } }), 0);
   };
+
+  // transição 3D: entra animando e sai animando ao trocar de página
+  document.addEventListener('DOMContentLoaded', () => {
+    const main = document.querySelector('.pmain');
+    if (!main) return;
+    let flag = null; try { flag = sessionStorage.getItem('gn-enter3d'); sessionStorage.removeItem('gn-enter3d'); } catch {}
+    if (flag) main.classList.add('enter3d');
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href^="/"]');
+      if (!a || a.target || e.ctrlKey || e.metaKey || a.getAttribute('href').startsWith('/#') || a.closest('.pside') && a.getAttribute('href').includes('#')) return;
+      if (a.pathname === location.pathname) return;
+      e.preventDefault();
+      try { sessionStorage.setItem('gn-enter3d', '1'); } catch {}
+      main.classList.add('leave3d'); window.fx && fx.toggle();
+      setTimeout(() => { location.href = a.href; }, 340);
+    });
+  });
 
   window.store2 = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },

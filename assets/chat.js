@@ -216,7 +216,6 @@ let account = null;
 fetch('/api/account').then(r => r.ok ? r.json() : null).then(a => {
   account = a;
   if (!a || !a.loggedIn) return;
-  document.querySelector('#acct .avatar').textContent = 'G';
   $('acctName').textContent = 'Conta ' + a.id.slice(-4);
   $('acctPlan').textContent = a.plan;
 }).catch(() => {});
@@ -252,8 +251,7 @@ $('signupCreate').onclick = async () => {
     $('signupCode').textContent = a.id;
     $('signup').querySelector('.step1').hidden = true; $('signup').querySelector('.step2').hidden = false;
     $('acctName').textContent = 'Conta ' + a.id.slice(-4); $('acctPlan').textContent = a.plan;
-    document.querySelector('#acct .avatar').textContent = 'G';
-    window.fx && (fx.win(), fx.burst($('signupCode'), 40));
+      window.fx && (fx.win(), fx.burst($('signupCode'), 40));
   } catch (x) { alert(x.message); window.fx && fx.error(); }
   btn.disabled = false; btn.textContent = 'Criar minha conta grátis';
 };

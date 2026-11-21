@@ -104,7 +104,7 @@
   function item(c) {
     const it = document.createElement('div');
     it.className = 'item' + (current && c.id === current.id ? ' on' : '');
-    it.innerHTML = `<span></span><button class="more" title="Opções">${ICON.dots}</button>`;
+    it.innerHTML = `<svg class="bub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/></svg><span></span><button class="more" title="Opções">${ICON.dots}</button>`;
     it.querySelector('span').textContent = (c.locked ? '🔒 ' : '') + (c.locked && !unlocked.has(c.id) ? 'Conversa bloqueada' : c.title);
     it.onclick = async () => {
       if (busy) return;
@@ -202,13 +202,15 @@
   const side = $('side');
   const newBtn = $('new');
   const extra = document.createElement('div'); extra.className = 'sidenav';
+  const SV = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
   extra.innerHTML = `
     <div class="sbox" id="sbox" hidden><input id="sinput" placeholder="Buscar conversas…"></div>
-    <a class="snav" href="/agendamentos"><span>🗓</span>Agendamentos</a>
-    <a class="snav" href="/espaco"><span>🗂</span>Meu espaço</a>
-    <a class="snav" href="/conexoes"><span>🔌</span>Conexões</a>
-    <button class="snav" id="navImages"><span>🖼</span>Imagens <em>em breve</em></button>
-    <button class="snav" id="navNewProject"><span>📁</span>Novo projeto</button>`;
+    <button class="snav" id="navAgenda" data-go="agenda">${SV('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')}Agendamentos</button>
+    <button class="snav" id="navSpace" data-go="/espaco">${SV('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>')}Meu espaço</button>
+    <button class="snav" id="navConn" data-go="/conexoes">${SV('<path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0V7ZM12 17v5"/>')}Conexões</button>
+    <button class="snav" id="navImages">${SV('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>')}Imagens <em>Em breve</em></button>
+    <button class="snav" id="navNewProject">${SV('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>')}Novo projeto</button>
+    <hr class="snsep">`;
   newBtn.after(extra);
   $('findBtn').onclick = () => { const b = $('sbox'); b.hidden = !b.hidden; if (!b.hidden) $('sinput').focus(); else { filter = ''; $('sinput').value = ''; renderList(); } };
   $('sinput').oninput = e => { filter = e.target.value.toLowerCase(); renderList(); };
