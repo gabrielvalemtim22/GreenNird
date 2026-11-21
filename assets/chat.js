@@ -364,3 +364,5 @@ if (new URLSearchParams(location.search).get('voz') === '1') {
   window.inVoiceMode = true;
   window.pendingVoice = true; // voice.js abre quando carregar
 }
+
+composer.querySelector('#videoChip').onclick = () => { window.toast && toast('Criar vídeos com IA está chegando! 🎬', { icon: '🎬' }); window.fx && fx.boop(); };

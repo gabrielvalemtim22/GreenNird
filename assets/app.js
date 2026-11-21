@@ -115,10 +115,36 @@
     return it;
   }
 
+  // ícones de linha com detalhe na cor do tema
+  const LI = (d) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const A = 'stroke="var(--lime)"', F = 'fill="var(--lime)" stroke="none"';
+  const MI = {
+    pin: LI(`<path d="M14.5 3.5 20.5 9.5l-2.2.8-3.4 3.4.3 3.8-1.4 1.4-3.6-3.6L5 20.5M8.6 12.6 5.2 9.2l1.4-1.4 3.8.3 3.4-3.4z" ${A}/><path d="M10.2 15.3 5 20.5"/>`),
+    edit: LI(`<path d="m15 4 5 5L9 20H4v-5L15 4Z"/><path d="M4 15v5h5" ${A} stroke-width="2.4"/>`),
+    link: LI(`<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" ${A}/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>`),
+    lock: LI(`<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.5" ${F}/><path d="M12 16v2" ${A} stroke-width="2"/>`),
+    unlock: LI(`<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/><circle cx="12" cy="15" r="1.5" ${F}/>`),
+    folder: LI(`<path d="M3 8V6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2" ${A}/><rect x="3" y="8" width="18" height="12" rx="2.5"/>`),
+    archive: LI(`<rect x="3.5" y="4" width="17" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 13h4" ${A} stroke-width="2.4"/>`),
+    trash: LI(`<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>`),
+    layers: LI(`<path d="m12 3 9 5-9 5-9-5 9-5Z" ${A}/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/>`),
+    wa: LI(`<path d="M4 20l1.3-3.8A8 8 0 1 1 8 19Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.4-2-1-1 .8a4 4 0 0 1-2.1-2.1l.8-1-1-2Z" ${A}/>`),
+    shield: LI(`<path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><circle cx="12" cy="11" r="1.6" ${F}/><path d="M12 12v3" ${A} stroke-width="2"/>`),
+    notes: LI(`<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5" ${A}/>`),
+    phone: LI(`<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M12 7v6m-2.5-2.5L12 13l2.5-2.5" ${A}/><path d="M11 18.5h2"/>`),
+    keyboard: LI(`<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M9 10h.01M12 10h.01M15 10h.01M18 10h.01M8 14h8" ${A} stroke-width="2.2"/>`),
+    doc: LI(`<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16.5h4" ${A}/>`),
+    plock: LI(`<rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.5" ${F}/>`),
+    bug: LI(`<rect x="8" y="7" width="8" height="12" rx="4" ${F} opacity=".35"/><rect x="8" y="7" width="8" height="12" rx="4"/><path d="M12 7v12M8 11H4M16 11h4M8 15H5M16 15h3M9 7 7 4M15 7l2-3"/>`),
+    plus: LI(`<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" ${A}/>`),
+    check: LI(`<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6" ${A} stroke-width="2.2"/>`),
+    back: LI(`<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2" ${A}/>`),
+  };
+  window.GN_ICONS = MI;
   // menu flutuante
   function popMenu(anchorEvent, entries) {
     document.querySelectorAll('.pmenu').forEach(x => x.remove());
-    const m = document.createElement('div'); m.className = 'pmenu' + (anchorEvent.currentTarget && anchorEvent.currentTarget.id === 'acct' ? ' big' : '');
+    const m = document.createElement('div'); m.className = 'pmenu big';
     entries.forEach(en => {
       if (en === '-') { const s = document.createElement('hr'); m.appendChild(s); return; }
       const b = document.createElement('button'); b.className = (en.danger ? 'danger ' : '') + (en.hl ? 'hl' : '');
@@ -139,25 +165,25 @@
   function chatMenu(e, c) {
     const save = () => { store.set(chats); renderList(); };
     popMenu(e, [
-      { icon: '📌', label: c.pinned ? 'Desafixar' : 'Fixar', run: () => { c.pinned = !c.pinned; save(); toast(c.pinned ? 'Conversa fixada 📌' : 'Conversa desafixada'); } },
-      { icon: '✏️', label: 'Renomear', run: async () => { const n = await ask('Renomear conversa', c.title); if (n) { c.title = n.slice(0, 80); save(); toast('Conversa renomeada ✏️'); } } },
-      { icon: '🔗', label: 'Compartilhar', run: () => shareChat(c) },
-      { icon: c.locked ? '🔓' : '🔒', label: c.locked ? 'Desbloquear' : 'Bloquear com PIN', run: async () => {
+      { icon: MI.pin, label: c.pinned ? 'Desafixar' : 'Fixar', run: () => { c.pinned = !c.pinned; save(); toast(c.pinned ? 'Conversa fixada 📌' : 'Conversa desafixada'); } },
+      { icon: MI.edit, label: 'Renomear', run: async () => { const n = await ask('Renomear conversa', c.title); if (n) { c.title = n.slice(0, 80); save(); toast('Conversa renomeada ✏️'); } } },
+      { icon: MI.link, label: 'Compartilhar', run: () => shareChat(c) },
+      { icon: c.locked ? MI.unlock : MI.lock, label: c.locked ? 'Desbloquear' : 'Bloquear com PIN', run: async () => {
         if (!(await checkPin())) return;
         c.locked = !c.locked; if (!c.locked) unlocked.delete(c.id); else { unlocked.delete(c.id); if (current && current.id === c.id) { current = null; render(); } }
         save(); toast(c.locked ? 'Conversa bloqueada 🔒' : 'Conversa desbloqueada 🔓');
       } },
-      { icon: '📁', label: 'Mover para projeto', sub: [
-        ...projects.map(p => ({ icon: c.projectId === p.id ? '✅' : '📁', label: p.name, run: () => { c.projectId = p.id; save(); toast('Movida para ' + p.name); } })),
-        ...(c.projectId ? [{ icon: '↩️', label: 'Tirar do projeto', run: () => { delete c.projectId; save(); toast('Removida do projeto'); } }] : []),
-        { icon: '➕', label: 'Novo projeto…', run: async () => { const p = await newProject(); if (p) { c.projectId = p.id; save(); } } },
+      { icon: MI.folder, label: 'Mover para projeto', sub: [
+        ...projects.map(p => ({ icon: c.projectId === p.id ? MI.check : MI.folder, label: p.name, run: () => { c.projectId = p.id; save(); toast('Movida para ' + p.name); } })),
+        ...(c.projectId ? [{ icon: MI.back, label: 'Tirar do projeto', run: () => { delete c.projectId; save(); toast('Removida do projeto'); } }] : []),
+        { icon: MI.plus, label: 'Novo projeto…', run: async () => { const p = await newProject(); if (p) { c.projectId = p.id; save(); } } },
       ] },
-      { icon: '🗄', label: c.archived ? 'Desarquivar' : 'Arquivar', run: () => {
+      { icon: MI.archive, label: c.archived ? 'Desarquivar' : 'Arquivar', run: () => {
         c.archived = !c.archived; if (c.archived && current && current.id === c.id) { current = null; render(); }
         save(); toast(c.archived ? 'Conversa arquivada 🗄' : 'Conversa desarquivada', c.archived ? { action: 'Desfazer', onAction: () => { c.archived = false; save(); } } : {});
       } },
       '-',
-      { icon: '🗑', label: 'Excluir', danger: true, run: () => deleteChat(c) },
+      { icon: MI.trash, label: 'Excluir', danger: true, run: () => deleteChat(c) },
     ]);
   }
 
@@ -208,13 +234,15 @@
     <button class="snav" id="navAgenda" data-go="agenda">${SV('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')}Agendamentos</button>
     <button class="snav" id="navSpace" data-go="/espaco">${SV('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>')}Meu espaço</button>
     <button class="snav" id="navConn" data-go="/conexoes">${SV('<path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0V7ZM12 17v5"/>')}Conexões</button>
-    <button class="snav" id="navImages">${SV('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>')}Imagens <em>Em breve</em></button>
+    <button class="snav sub" data-go="ligar">${SV('<path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>')}Ligar para clientes</button>
+    <button class="snav sub" data-go="pedidos">${SV('<path d="M5 8h14l-1.2 11.2A2 2 0 0 1 15.8 21H8.2a2 2 0 0 1-2-1.8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>')}Fechar pedidos</button>
+    <button class="snav sub" data-go="meta">${SV('<path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1Z"/><path d="M15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>')}Campanha Meta Ads</button>
+    <button class="snav" id="navImages" data-go="imagens">${SV('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>')}Imagens <em>Em breve</em></button>
     <button class="snav" id="navNewProject">${SV('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>')}Novo projeto</button>
     <hr class="snsep">`;
   newBtn.after(extra);
   $('findBtn').onclick = () => { const b = $('sbox'); b.hidden = !b.hidden; if (!b.hidden) $('sinput').focus(); else { filter = ''; $('sinput').value = ''; renderList(); } };
   $('sinput').oninput = e => { filter = e.target.value.toLowerCase(); renderList(); };
-  $('navImages').onclick = () => toast('Criação de imagens chega em breve 🎨', { icon: '🖼' });
   $('navNewProject').onclick = () => newProject();
 
   // ---------- menu da conta (rodapé) ----------
@@ -240,15 +268,15 @@
       { icon: IC.palette, label: 'Personalização', run: () => openSettings('persona') },
       { icon: IC.gear, label: 'Configurações', run: () => openSettings('apar') },
       { icon: IC.help, label: 'Ajuda', sub: [
-        { icon: '📚', label: 'Central de ajuda', run: () => location.href = '/ajuda#central' },
-        { icon: '💬', label: 'Falar no WhatsApp', run: () => location.href = '/ajuda#contato' },
-        { icon: '🛡', label: 'Central de privacidade', run: () => location.href = '/ajuda#privacidade' },
-        { icon: '🆕', label: 'Notas de versão', run: () => location.href = '/ajuda#notas' },
-        { icon: '📲', label: 'Baixar aplicativo', run: installApp },
-        { icon: '⌨️', label: 'Atalhos de teclado', run: showShortcuts },
-        { icon: '📄', label: 'Termos de serviço', run: () => location.href = '/ajuda#termos' },
-        { icon: '🔏', label: 'Política de privacidade', run: () => location.href = '/ajuda#politica' },
-        { icon: '🐞', label: 'Relatar um bug', run: reportBug },
+        { icon: MI.layers, label: 'Central de ajuda', run: () => location.href = '/ajuda#central' },
+        { icon: MI.wa, label: 'Falar no WhatsApp', run: () => location.href = '/ajuda#contato' },
+        { icon: MI.shield, label: 'Central de privacidade', run: () => location.href = '/ajuda#privacidade' },
+        { icon: MI.notes, label: 'Notas de versão', run: () => location.href = '/ajuda#notas' },
+        { icon: MI.phone, label: 'Baixar aplicativo', run: installApp },
+        { icon: MI.keyboard, label: 'Atalhos de teclado', run: showShortcuts },
+        { icon: MI.doc, label: 'Termos de serviço', run: () => location.href = '/ajuda#termos' },
+        { icon: MI.plock, label: 'Política de privacidade', run: () => location.href = '/ajuda#politica' },
+        { icon: MI.bug, label: 'Relatar um bug', run: reportBug },
       ] },
       ...(logged ? ['-', { icon: IC.out, label: 'Sair', danger: true, run: async () => {
         await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) });
