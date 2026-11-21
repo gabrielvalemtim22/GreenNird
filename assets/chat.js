@@ -19,12 +19,44 @@ search.onclick = () => search.classList.toggle('on');
 q.addEventListener('input', () => { q.style.height = 'auto'; q.style.height = Math.min(q.scrollHeight, 220) + 'px'; });
 q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); composer.requestSubmit(); } });
 composer.querySelector('#attach').onclick = () => composer.querySelector('#file').click();
+let attachments = [];
+const MAX_CHARS = 60000;
+async function readPdf(file) {
+  const pdfjs = window.pdfjsLib;
+  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  let out = '';
+  for (let p = 1; p <= doc.numPages && out.length < MAX_CHARS; p++) {
+    const page = await doc.getPage(p);
+    const tc = await page.getTextContent();
+    out += `\n[Página ${p}]\n` + tc.items.map(t => t.str).join(' ');
+  }
+  return out;
+}
+function renderChips() {
+  const box = composer.querySelector('#chips');
+  box.innerHTML = '';
+  attachments.forEach((a, k) => {
+    const c = document.createElement('span'); c.className = 'fchip';
+    c.innerHTML = '<b>📄</b><span></span><button type="button" title="Remover">×</button>';
+    c.querySelector('span').textContent = a.name + (a.loading ? ' · lendo…' : '');
+    c.querySelector('button').onclick = () => { attachments.splice(k, 1); renderChips(); };
+    box.appendChild(c);
+  });
+}
 composer.querySelector('#file').onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  if (f.size > 200000) { alert('Arquivo muito grande (máx. 200 KB).'); return; }
-  const text = await f.text();
-  q.value = (q.value ? q.value + '\n\n' : '') + `Arquivo "${f.name}":\n\`\`\`\n${text}\n\`\`\``;
-  q.dispatchEvent(new Event('input')); e.target.value = '';
+  for (const f of [...e.target.files]) {
+    if (f.size > 15 * 1024 * 1024) { window.fx && fx.error(); alert(`"${f.name}" é muito grande (máx. 15 MB).`); continue; }
+    const a = { name: f.name, text: '', loading: true };
+    attachments.push(a); renderChips();
+    try {
+      a.text = /\.pdf$/i.test(f.name) || f.type === 'application/pdf' ? await readPdf(f) : await f.text();
+      a.text = a.text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').slice(0, MAX_CHARS);
+      if (!a.text.trim()) a.text = '(não foi possível extrair texto deste arquivo — pode ser imagem escaneada)';
+    } catch { a.text = '(erro ao ler o arquivo)'; }
+    a.loading = false; renderChips(); window.fx && fx.toggle();
+  }
+  e.target.value = '';
 };
 composer.onsubmit = e => { e.preventDefault(); send(); };
 
@@ -39,7 +71,10 @@ function render() {
 function md(text) { return DOMPurify.sanitize(marked.parse(text || '')); }
 function bubble(m) {
   const d = document.createElement('div');
-  if (m.role === 'user') { d.className = 'msg user'; d.textContent = m.content; }
+  if (m.role === 'user') {
+    d.className = 'msg user'; d.textContent = m.display ?? m.content;
+    (m.files || []).forEach(n => { const c = document.createElement('div'); c.className = 'ufile'; c.textContent = '📄 ' + n; d.appendChild(c); });
+  }
   else {
     d.className = 'msg ai';
     d.innerHTML = '<img src="/assets/logo.svg" alt=""><div class="body"></div>';
@@ -77,14 +112,21 @@ function scrollEnd() { const s = $('scroll'); s.scrollTop = s.scrollHeight; }
 function closeOnMobile() { if (innerWidth < 860) $('side').classList.add('closed'); }
 
 async function send(textArg) {
-  const text = (textArg ?? q.value).trim();
-  if (!text || busy) return;
+  let text = (textArg ?? q.value).trim();
+  if ((!text && !attachments.length) || busy || attachments.some(a => a.loading)) return;
+  const display = text || 'Analise o arquivo.';
+  const files = attachments.map(a => a.name);
+  if (attachments.length) {
+    text = display + '\n\n' + attachments.map(a => `=== Arquivo: ${a.name} ===\n${a.text}`).join('\n\n');
+    attachments = []; renderChips();
+  }
+  window.fx && (fx.send(), fx.burst(composer.querySelector('#sendBtn')));
   busy = true; composer.querySelector('#sendBtn').disabled = true;
   if (!current) {
-    current = { id: crypto.randomUUID(), title: text.slice(0, 48), messages: [], updated: Date.now() };
+    current = { id: crypto.randomUUID(), title: display.slice(0, 48), messages: [], updated: Date.now() };
     chats.push(current);
   }
-  current.messages.push({ role: 'user', content: text });
+  current.messages.push({ role: 'user', content: text, display, files });
   const ai = { role: 'assistant', content: '' };
   current.messages.push(ai);
   current.updated = Date.now();
@@ -116,15 +158,20 @@ async function send(textArg) {
     const reader = res.body.getReader(); const dec = new TextDecoder();
     for (;;) {
       const { value, done } = await reader.read(); if (done) break;
+      if (!ai.content && window.fx) fx.first();
       ai.content += dec.decode(value, { stream: true });
-      body.innerHTML = md(ai.content); scrollEnd();
+      body.innerHTML = md(ai.content) + '<span class="caret"></span>'; scrollEnd();
+      window.fx && fx.typing();
     }
     if (!ai.content) ai.content = '_(sem resposta)_';
+    window.fx && fx.done();
+    maybeAskSignup();
   } catch (err) {
+    window.fx && fx.error();
     if (err.blocked) {
       ai.content = '🔒 **' + err.message + '**\n\n[Ver planos e assinar](/conta#planos)';
       // tira a pergunta bloqueada do histórico enviado à IA nas próximas vezes
-      current.messages.splice(current.messages.length - 2, 2, { role: 'user', content: text }, { role: 'assistant', content: ai.content, blocked: true });
+      current.messages[current.messages.length - 1].blocked = true; current.messages[current.messages.length - 1].content = ai.content;
       body.innerHTML = md(ai.content); store.set(chats); renderList();
       busy = false; composer.querySelector('#sendBtn').disabled = false;
       return;
@@ -155,7 +202,9 @@ if (params.get('q')) {
 }
 
 // conta do usuário no rodapé da barra lateral
+let account = null;
 fetch('/api/account').then(r => r.ok ? r.json() : null).then(a => {
+  account = a;
   if (!a || !a.loggedIn) return;
   document.querySelector('#acct .avatar').textContent = 'G';
   $('acctName').textContent = 'Conta ' + a.id.slice(-4);
@@ -170,3 +219,38 @@ function setRemaining(n) {
     ? `Plano grátis: <b>${n}</b> ${n === 1 ? 'mensagem restante' : 'mensagens restantes'} hoje · <a href="/conta#planos" style="text-decoration:underline">Assinar</a>`
     : 'Suas mensagens grátis de hoje acabaram · renovam amanhã · <a href="/conta#planos" style="text-decoration:underline">Assinar agora</a>';
 }
+
+// ---- criar conta em 1 clique dentro do chat ----
+function maybeAskSignup() {
+  if (!account || account.loggedIn) return;
+  try { if (sessionStorage.getItem('gn-signup-dismiss')) return; } catch {}
+  setTimeout(() => openSignup(), 900);
+}
+function openSignup() {
+  const m = $('signup'); m.hidden = false; m.querySelector('.step1').hidden = false; m.querySelector('.step2').hidden = true;
+}
+$('signupClose').onclick = $('signupLater').onclick = () => {
+  $('signup').hidden = true; try { sessionStorage.setItem('gn-signup-dismiss', '1'); } catch {}
+};
+$('signupCreate').onclick = async () => {
+  const btn = $('signupCreate'); btn.disabled = true; btn.textContent = 'Criando…';
+  try {
+    const r = await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create' }) });
+    const a = await r.json();
+    if (!r.ok) throw new Error(a.error || 'Erro');
+    account = a;
+    $('signupCode').textContent = a.id;
+    $('signup').querySelector('.step1').hidden = true; $('signup').querySelector('.step2').hidden = false;
+    $('acctName').textContent = 'Conta ' + a.id.slice(-4); $('acctPlan').textContent = a.plan;
+    document.querySelector('#acct .avatar').textContent = 'G';
+    window.fx && (fx.win(), fx.burst($('signupCode'), 40));
+  } catch (x) { alert(x.message); window.fx && fx.error(); }
+  btn.disabled = false; btn.textContent = 'Criar minha conta grátis';
+};
+$('signupCopy').onclick = () => {
+  navigator.clipboard.writeText($('signupCode').textContent.replace(/\s/g, ''));
+  $('signupCopy').textContent = 'Copiado ✓'; window.fx && fx.done();
+};
+$('signupDone').onclick = () => { $('signup').hidden = true; };
+$('soundBtn').onclick = () => { const on = window.fx && fx.toggleSound(); $('soundBtn').style.opacity = on ? 1 : .4; };
+if (window.fx && !fx.enabled) $('soundBtn').style.opacity = .4;

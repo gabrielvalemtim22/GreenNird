@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="/assets/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="/assets/fx.js"></script>
 <style>
   body { display: flex; height: 100vh; overflow: hidden; }
   aside { position: relative; z-index: 3; width: 300px; flex-shrink: 0; background: #f7f8f6; border-right: 1px solid #eceee8; display: flex; flex-direction: column; padding: 20px 18px; transition: margin .25s; }
@@ -58,6 +60,34 @@
   .body a { color: #5a7a00; text-decoration: underline; }
   .body table { border-collapse: collapse; } .body td, .body th { border: 1px solid #e3e5de; padding: 6px 10px; }
   .err { color: #b42318; }
+  /* dopamina: animações */
+  .msg { animation: pop .35s cubic-bezier(.2,1.3,.4,1) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+  .caret { display: inline-block; width: 8px; height: 17px; background: #b9e000; border-radius: 2px; margin-left: 3px; vertical-align: -3px; animation: blink .8s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .send:active, .chip:active, .new:active, .icon-btn:active { transform: scale(.9); }
+  .chip, .new, .icon-btn { transition: transform .12s, background .15s; }
+  .send { animation: breathe 2.6s ease-in-out infinite; }
+  @keyframes breathe { 50% { box-shadow: 0 6px 26px rgba(190,230,0,.85); } }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips:not(:empty) { margin-bottom: 8px; }
+  .fchip { display: inline-flex; align-items: center; gap: 6px; background: var(--lime-tint); border: 1px solid #e4f5a0; border-radius: 10px; padding: 6px 8px 6px 10px; font-size: 13px; font-weight: 600; animation: pop .3s both; }
+  .fchip button { font-size: 16px; color: var(--muted); padding: 0 4px; }
+  .ufile { margin-top: 8px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,.7); border-radius: 8px; padding: 5px 9px; display: inline-block; margin-right: 6px; }
+  .modal { position: fixed; inset: 0; z-index: 50; background: rgba(20,25,0,.35); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; animation: fade .2s; }
+  .modal[hidden] { display: none; }
+  @keyframes fade { from { opacity: 0; } }
+  .mcard { position: relative; width: min(440px, 100%); background: #fff; border-radius: 26px; padding: 30px 26px 24px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.25); animation: pop .4s cubic-bezier(.2,1.4,.4,1); }
+  .mcard h2 { font-size: 26px; letter-spacing: -.02em; margin: 6px 0 8px; }
+  .mcard p { color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+  .mlogo { width: 64px; height: 64px; animation: wiggle 2s ease-in-out infinite; }
+  @keyframes wiggle { 50% { transform: rotate(-8deg) translateY(-4px); } }
+  .mbtn { justify-content: center; width: 100%; font-size: 16px; padding: 14px; }
+  .mlink { margin-top: 12px; color: var(--muted); font-weight: 600; font-size: 14px; }
+  .mclose { position: absolute; top: 12px; right: 16px; font-size: 24px; color: var(--muted); }
+  .mcode { font-size: 30px; font-weight: 800; letter-spacing: .08em; background: var(--lime-tint); border: 2px dashed #c9ec3a; border-radius: 16px; padding: 14px; margin-bottom: 14px; user-select: all; }
+  .mwarn { background: #fff7d6; border: 1px solid #f3df8a; color: #5c4700; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; text-align: left; line-height: 1.45; margin-bottom: 16px; }
+  .mrow { display: flex; gap: 10px; }
   .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b9e000; margin-right: 4px; animation: b 1s infinite; }
   .dots span:nth-child(2) { animation-delay: .15s } .dots span:nth-child(3) { animation-delay: .3s }
   @keyframes b { 0%,80%,100% { opacity: .3 } 40% { opacity: 1 } }
@@ -79,6 +109,7 @@
   <div class="side-top">
     <a class="logo" href="/"><img src="/assets/logo.svg" alt="">GreenNird</a>
     <button class="icon-btn" id="findBtn" title="Buscar conversas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <button class="icon-btn" id="soundBtn" title="Som ligado/desligado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
     <button class="icon-btn" id="toggle" title="Fechar barra lateral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
   </div>
   <button class="new" id="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Nova conversa</button>
@@ -103,18 +134,39 @@
 
 <template id="composerTpl">
   <form class="composer" id="f">
+    <div id="chips" class="chips"></div>
     <textarea id="q" rows="2" placeholder="Mensagem para GreenNird"></textarea>
     <div class="row">
       <button type="button" class="chip" id="think"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v13"/></svg>Pensar</button>
       <button type="button" class="chip on" id="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Pesquisar</button>
       <span class="spacer"></span>
-      <button type="button" class="icon-btn" id="attach" title="Anexar arquivo de texto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 12V6a4 4 0 0 1 8 0v10a6 6 0 0 1-12 0V8"/><path d="M12 7v9"/></svg></button>
-      <input type="file" id="file" accept=".txt,.md,.csv,.json,.html,.js,.css,.py" hidden>
+      <button type="button" class="icon-btn" id="attach" title="Anexar PDF ou arquivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 12V6a4 4 0 0 1 8 0v10a6 6 0 0 1-12 0V8"/><path d="M12 7v9"/></svg></button>
+      <input type="file" id="file" multiple accept=".pdf,.txt,.md,.csv,.json,.html,.xml,.js,.ts,.css,.py,.java,.c,.cpp,.sql,.log,.yaml,.yml" hidden>
       <span class="vsep"></span>
       <button class="send" id="sendBtn" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7.5 3L21 3Zm0 0-7.5 18-3-7.5"/></svg></button>
     </div>
   </form>
 </template>
+
+<div class="modal" id="signup" hidden>
+  <div class="mcard">
+    <button class="mclose" id="signupClose" aria-label="Fechar">×</button>
+    <div class="step1">
+      <img src="/assets/logo.svg" alt="" class="mlogo">
+      <h2>Curtiu o GreenNird? 💚</h2>
+      <p>Crie sua conta grátis em <b>1 clique</b>. Sem e-mail, sem senha — você recebe um código de 12 números.</p>
+      <button class="btn btn-lime mbtn" id="signupCreate">Criar minha conta grátis</button>
+      <button class="mlink" id="signupLater">Agora não</button>
+    </div>
+    <div class="step2" hidden>
+      <h2>Conta criada! 🎉</h2>
+      <p>Este é o seu código de acesso:</p>
+      <div class="mcode" id="signupCode"></div>
+      <div class="mwarn">🔒 <b>Guarde este código.</b> É a única forma de entrar na sua conta. Se perder, não dá para recuperar.</div>
+      <div class="mrow"><button class="btn btn-lime mbtn" id="signupCopy">Copiar código</button><button class="btn btn-white mbtn" id="signupDone">Continuar</button></div>
+    </div>
+  </div>
+</div>
 
 <script src="/assets/chat.js"></script>
 </body>

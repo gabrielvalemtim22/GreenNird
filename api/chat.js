@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     }
     const last = history[history.length - 1].content.length;
     const total = history.reduce((n, m) => n + m.content.length, 0);
-    if (last > 3000 || total > 12000) {
+    if (last > 25000 || total > 40000) {
       block('credits', 'Esse pedido é muito grande para o plano grátis. Acabaram seus créditos de hoje — volte amanhã ou assine um plano.', FREE_DAILY);
       return;
     }
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
   });
 
   if (useGrok) {
-    await streamGrok(res, history, unlimited);
+    await streamGrok(res, history, unlimited, think);
     res.end();
     return;
   }
@@ -114,13 +114,14 @@ export default async function handler(req, res) {
 }
 
 // ---- Grok (xAI) — usado quando XAI_API_KEY está configurada ----
-async function streamGrok(res, history, unlimited) {
+async function streamGrok(res, history, unlimited, think) {
   try {
     const r = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
       body: JSON.stringify({
-        model: process.env.XAI_MODEL || 'grok-4.7',
+        // rápido por padrão; modo Pensar usa o modelo mais inteligente
+        model: think ? (process.env.XAI_MODEL || 'grok-4.7') : (process.env.XAI_FAST_MODEL || 'grok-4.20-0309-non-reasoning'),
         stream: true,
         max_tokens: unlimited ? 32000 : 4000,
         messages: [{ role: 'system', content: SYSTEM }, ...history],
