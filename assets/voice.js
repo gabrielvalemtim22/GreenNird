@@ -50,66 +50,26 @@
       target = Math.min(1, (sum / data.length) / 70);
     } else if (state === 'thinking') {
       target = 0.35 + Math.sin(t * 6) * 0.15;
-    } else target = 0.32 + Math.sin(t * 1.6) * 0.12; // respirando mesmo parada
-    level += (target - level) * 0.12;
+    } else target = 0; // parada
+    level += (target - level) * 0.15;
 
+    // a bola é a própria imagem (assets/blob-source.webp), recortada e desenhada no canvas
     const W = cv.width, H = cv.height;
-    // flutua levemente
-    const cx = W / 2 + Math.sin(t * 0.8) * W * 0.02, cy = H / 2 + Math.cos(t * 1.1) * H * 0.03;
-    const r = W * 0.37 * (1 + level * 0.1);
-    const speed = state === 'thinking' ? 2.6 : 1.4 + level * 2.5;
-    const tt = t * speed;
     ctx2d.clearRect(0, 0, W, H);
-
-    const path = blobPath(cx, cy, r, tt, level);
-    // brilho externo
+    if (!blobImg.complete || !blobImg.naturalWidth) return;
+    const breathe = 1 + Math.sin(t * 1.4) * 0.012;            // respiração bem leve
+    const scale = breathe * (1 + level * 0.14);               // cresce com a voz
+    const rot = state === 'thinking' ? Math.sin(t * 2.2) * 0.08 : Math.sin(t * 0.5) * 0.015 + level * Math.sin(t * 9) * 0.03;
     ctx2d.save();
-    ctx2d.shadowColor = `rgba(150, 255, 0, ${0.55 + level * 0.35})`;
-    ctx2d.shadowBlur = W * (0.12 + level * 0.08);
-    const g = ctx2d.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-    g.addColorStop(0, '#2fae00');
-    g.addColorStop(0.45, '#7ae000');
-    g.addColorStop(0.8, '#d6ff6a');
-    g.addColorStop(1, '#f4ffd8');
-    ctx2d.fillStyle = g;
-    ctx2d.fill(path);
-    ctx2d.restore();
-
-    // reflexos internos (faixas brancas girando)
-    ctx2d.save();
-    ctx2d.clip(path);
-    ctx2d.globalCompositeOperation = 'lighter';
-    for (let k = 0; k < 3; k++) {
-      const a = tt * (0.35 + k * 0.12) + k * 2.1;
-      ctx2d.save();
-      ctx2d.translate(cx, cy); ctx2d.rotate(a);
-      ctx2d.filter = `blur(${W * 0.012}px)`;
-      ctx2d.strokeStyle = `rgba(255,255,255,${0.32 - k * 0.07})`;
-      ctx2d.lineWidth = W * (0.05 - k * 0.012);
-      ctx2d.beginPath();
-      ctx2d.moveTo(-r * 0.95, r * (0.15 + k * 0.12));
-      ctx2d.bezierCurveTo(-r * 0.3, -r * (0.35 - k * 0.1), r * 0.2, r * (0.55 - k * 0.15), r * 0.95, -r * (0.05 + k * 0.1));
-      ctx2d.stroke();
-      ctx2d.restore();
-    }
-    // sombra verde escura no topo e brilho branco embaixo
-    ctx2d.filter = 'none';
-    ctx2d.globalCompositeOperation = 'source-over';
-    const sh = ctx2d.createRadialGradient(cx - r * 0.1, cy - r * 0.55, 0, cx - r * 0.1, cy - r * 0.55, r * 0.9);
-    sh.addColorStop(0, 'rgba(20,120,0,.55)'); sh.addColorStop(1, 'rgba(20,120,0,0)');
-    ctx2d.fillStyle = sh; ctx2d.fillRect(0, 0, W, H);
-    const hl = ctx2d.createRadialGradient(cx - r * 0.2, cy + r * 0.45, 0, cx - r * 0.2, cy + r * 0.45, r * 0.55);
-    hl.addColorStop(0, 'rgba(255,255,255,.85)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx2d.fillStyle = hl; ctx2d.fillRect(0, 0, W, H);
-    ctx2d.restore();
-
-    // borda de vidro
-    ctx2d.save();
-    ctx2d.strokeStyle = 'rgba(255,255,255,.7)';
-    ctx2d.lineWidth = W * 0.004;
-    ctx2d.stroke(path);
+    ctx2d.translate(W / 2, H / 2);
+    ctx2d.rotate(rot);
+    ctx2d.scale(scale, scale);
+    ctx2d.drawImage(blobImg, CROP.x, CROP.y, CROP.s, CROP.s, -W / 2, -H / 2, W, H);
     ctx2d.restore();
   }
+  const CROP = { x: 106, y: 586, s: 600 };
+  const blobImg = new Image();
+  blobImg.src = '/assets/blob-source.webp';
 
   // ---------- áudio ----------
   function audioCtx() {
