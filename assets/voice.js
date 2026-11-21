@@ -22,10 +22,10 @@
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
       const k = 1
-        + Math.sin(a * 2 + t * 0.9) * (0.06 + amp * 0.08)
-        + Math.sin(a * 3 - t * 1.3 + 1.7) * (0.045 + amp * 0.07)
-        + Math.cos(a * 5 + t * 0.7) * (0.02 + amp * 0.05);
-      pts.push([cx + Math.cos(a + t * 0.15) * r * k, cy + Math.sin(a + t * 0.15) * r * k]);
+        + Math.sin(a * 2 + t * 0.9) * (0.08 + amp * 0.08)
+        + Math.sin(a * 3 - t * 1.3 + 1.7) * (0.06 + amp * 0.07)
+        + Math.cos(a * 5 + t * 0.7) * (0.025 + amp * 0.05);
+      pts.push([cx + Math.cos(a + t * 0.3) * r * k, cy + Math.sin(a + t * 0.3) * r * k]);
     }
     const p = new Path2D();
     const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
@@ -50,12 +50,14 @@
       target = Math.min(1, (sum / data.length) / 70);
     } else if (state === 'thinking') {
       target = 0.35 + Math.sin(t * 6) * 0.15;
-    } else target = 0.08;
+    } else target = 0.32 + Math.sin(t * 1.6) * 0.12; // respirando mesmo parada
     level += (target - level) * 0.12;
 
-    const W = cv.width, H = cv.height, cx = W / 2, cy = H / 2;
+    const W = cv.width, H = cv.height;
+    // flutua levemente
+    const cx = W / 2 + Math.sin(t * 0.8) * W * 0.02, cy = H / 2 + Math.cos(t * 1.1) * H * 0.03;
     const r = W * 0.37 * (1 + level * 0.1);
-    const speed = state === 'thinking' ? 2.4 : 1 + level * 2.5;
+    const speed = state === 'thinking' ? 2.6 : 1.4 + level * 2.5;
     const tt = t * speed;
     ctx2d.clearRect(0, 0, W, H);
 
