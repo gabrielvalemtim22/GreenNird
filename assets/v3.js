@@ -314,8 +314,8 @@
   // ---------------- tela: Computador do Green Nird ----------------
   function openComputer() {
     const now = new Date();
-    const m = modal(`<div class="pc-top"><img src="/assets/bot-lime.svg" alt=""><span class="bar"></span>Computador do <b>Green Nird</b><span class="spacer"></span></div>
-      <div class="pc-screen"><div class="pc-wall"><img src="/assets/bot-lime.svg" alt=""></div>
+    const m = modal(`<div class="pc-top"><span class="pc-bot">${GNBot()}</span><span class="bar"></span>Computador do <b>Green Nird</b><span class="spacer"></span></div>
+      <div class="pc-screen"><div class="pc-wall"><span class="pc-bot big">${GNBot()}</span></div>
         <div class="pc-dock"><span class="pc-ic chrome"></span><span class="pc-ic files"></span><span class="pc-ic term">&gt;_</span>
           <span class="pc-st"><i></i>Em repouso <span>|</span> ${now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })} ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></div></div>
       <div class="pc-ctrl">${SV('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>')}<span>O computador na nuvem está chegando</span><button class="pc-done">Fechar</button></div>`, 'pc');

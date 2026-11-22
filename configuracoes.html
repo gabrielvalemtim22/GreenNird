@@ -6,6 +6,7 @@
 <title>GreenNird — Configurações</title>
 <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
 <script src="/assets/theme.js"></script>
+<script src="/assets/gnbot.js"></script>
 <link rel="stylesheet" href="/assets/style.css">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="manifest" href="/manifest.json">
@@ -95,6 +96,7 @@
   .gchart { width: 100%; height: auto; color: var(--ink); } .gchart text { fill: var(--muted); font-size: 12px; }
   .gpc { display: flex; align-items: center; gap: 18px; } .gpc img, .gpc > svg { width: 54px; height: 54px; flex-shrink: 0; } .gpc span:nth-child(2) { flex: 1; } .gpc b { display: block; font-size: 18px; } .gpc small { color: var(--muted); }
 
+  .gpc-bot { width: 54px; height: 54px; flex-shrink: 0; }
   .gtag { font-size: 14px; color: var(--muted); background: color-mix(in srgb, var(--ink) 7%, transparent); padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
   .gnotes div { padding: 10px 0; color: var(--muted); line-height: 1.5; } .gnotes div + div { border-top: 1px solid var(--line); } .gnotes b { color: var(--ink); margin-right: 8px; }
   .pside .pnav.on { background: color-mix(in srgb, var(--lime) 14%, #141414); position: relative; }
@@ -245,7 +247,7 @@ function show(id) {
     b.querySelectorAll('.soonb').forEach(x => x.onclick = () => toast('Pagamentos e créditos estão chegando 💳', { icon: '💳' }));
   }
   if (id === 'comp') {
-    b.innerHTML = `<div class="gcard gpc"><img src="/assets/bot-lime.svg" alt=""><span><b>Computador do Green Nird</b><small>Em repouso · o computador na nuvem que a IA usa para navegar, preencher e publicar por você está chegando.</small></span><button class="gbtn" id="gPc">Abrir</button></div>
+    b.innerHTML = `<div class="gcard gpc"><span class="gpc-bot">${window.GNBot ? GNBot() : ''}</span><span><b>Computador do Green Nird</b><small>Em repouso · o computador na nuvem que a IA usa para navegar, preencher e publicar por você está chegando.</small></span><button class="gbtn" id="gPc">Abrir</button></div>
       <div class="glabel">Quando ligar</div><div class="gcard">${grow('Pedir permissão antes de agir', 'O Green Nird sempre confirma antes de publicar, comprar ou enviar.', tog('gAsk', true))}${grow('Mostrar a tela enquanto trabalha', '', tog('gShow', true))}</div>`;
     b.querySelector('#gPc').onclick = () => { if (window.top && window.top.openComputer) { window.top.openComputer(); } else toast('Abra pelo chat'); };
   }
