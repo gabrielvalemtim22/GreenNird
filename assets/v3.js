@@ -402,4 +402,28 @@
     const r = hero.getBoundingClientRect(); tip.style.left = (r.right + 8) + 'px'; tip.style.top = (r.top + 6) + 'px'; tip.hidden = false;
   });
   hero.addEventListener('mouseleave', () => { tip.hidden = true; });
+
+  // ---------------- site criado pelo Claude: botão "Ver site" ----------------
+  function addSiteButtons() {
+    if (typeof busy !== 'undefined' && busy) return;
+    document.querySelectorAll('#thread .msg.ai pre > code').forEach(code => {
+      const pre = code.parentElement; if (pre.dataset.site) return;
+      const html = code.textContent;
+      if (!/language-html/.test(code.className) && !/^\s*<!doctype html|^\s*<html/i.test(html)) return;
+      pre.dataset.site = '1';
+      const bar = document.createElement('div'); bar.className = 'v4-sitebar';
+      bar.innerHTML = '<button class="v4-site-open">▶ Ver site</button><button class="v4-site-dl">Baixar .html</button>';
+      pre.before(bar);
+      bar.querySelector('.v4-site-open').onclick = () => {
+        const m = modal(`<h2>Prévia do site</h2><iframe class="v4-site-frame" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer"></iframe>`, 'site');
+        m.querySelector('iframe').srcdoc = html;
+      };
+      bar.querySelector('.v4-site-dl').onclick = () => {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'site-green-nird.html'; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      };
+    });
+  }
+  new MutationObserver(() => addSiteButtons()).observe($('thread'), { childList: true, subtree: true });
+  setInterval(addSiteButtons, 1500);
 })();

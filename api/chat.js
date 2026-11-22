@@ -9,14 +9,14 @@ Seja conciso em conversas simples e detalhado quando a tarefa pedir.`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).send('Método não permitido'); return; }
-  const useGrok = !!process.env.XAI_API_KEY;
-  if (!useGrok && !process.env.ANTHROPIC_API_KEY) {
+  const hasGrok = !!process.env.XAI_API_KEY, hasClaude = !!process.env.ANTHROPIC_API_KEY;
+  if (!hasGrok && !hasClaude) {
     res.status(500).send('Nenhuma chave de IA configurada na Vercel. Adicione XAI_API_KEY (Grok) em Settings → Environment Variables.');
     return;
   }
 
-  const { messages = [], think = false, search = false, persona = null } = req.body || {};
-  const system = SYSTEM + personaPrompt(persona);
+  const { messages = [], think = false, search = false, persona = null, engine: askEngine = 'auto' } = req.body || {};
+  let system = SYSTEM + personaPrompt(persona);
   const history = messages
     .filter(m => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
     .slice(-30)
@@ -59,13 +59,32 @@ export default async function handler(req, res) {
     extraHeaders = { 'Set-Cookie': usageCookie({ ...usage, used, weekUsed: usage.weekUsed + 1 }), 'X-GN-Remaining': String(FREE_DAILY - used) };
   }
 
+  // ---- quem responde: Grok (rápido) · Claude (sites e atendimento) · Grok Imagine (imagens) ----
+  const lastText = history[history.length - 1].content.slice(0, 2000);
+  const wantsImage = hasGrok && (/^\/imagem\b/i.test(lastText) || /\b(gera|gere|gerar|gerando|cria|crie|criar|faz|fa[çc]a|fazer|desenha|desenhe|desenhar|quero)\b[^.\n]{0,40}\b(imagem|imagens|foto|figura|ilustra[çc][ãa]o|logo|logotipo|desenho|arte|banner|capa)\b/i.test(lastText));
+  const wantsSite = /\b(site|landing ?page|p[áa]gina (web|de vendas|de captura)|html|css|loja virtual|c[óo]digo|programa[rç])/i.test(lastText);
+  const support = /atendente|atendimento|atender clientes?/i.test(lastText + ' ' + ((persona && persona.custom) || ''));
+  const engine = wantsImage ? 'image'
+    : askEngine === 'grok' && hasGrok ? 'grok'
+    : askEngine === 'claude' && hasClaude ? 'claude'
+    : hasClaude && (wantsSite || support || !hasGrok) ? 'claude' : 'grok';
+  if (engine === 'claude' && wantsSite) system += '\n\nQuando pedirem um site ou página, entregue UM arquivo HTML completo (CSS e JavaScript embutidos, responsivo, bonito, em português) dentro de um único bloco ```html, e antes dele explique em 1–2 frases o que fez.';
+  if (engine === 'claude' && support) system += '\n\nVocê está atendendo clientes: seja educado, rápido e resolva; quando não souber algo da loja, diga que vai verificar com a equipe em vez de inventar.';
+
   const base = {
     'Content-Type': 'text/plain; charset=utf-8',
     'Cache-Control': 'no-cache, no-transform',
     'X-Accel-Buffering': 'no',
   };
 
-  if (useGrok) {
+  if (engine === 'image') {
+    await grokImage(res, lastText, ok => { if (!res.headersSent) res.writeHead(200, ok ? { ...extraHeaders, ...base } : base); });
+    if (!res.headersSent) res.writeHead(200, base);
+    res.end();
+    return;
+  }
+
+  if (engine === 'grok') {
     // só desconta a mensagem grátis se o Grok aceitar o pedido
     await streamGrok(res, history, unlimited, think, system, ok => {
       if (!res.headersSent) res.writeHead(200, ok ? { ...extraHeaders, ...base } : base);
@@ -75,13 +94,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  res.writeHead(200, { ...extraHeaders, ...base });
+  // Claude: o cabeçalho só sai quando o primeiro texto chega (erro não gasta a mensagem grátis)
+  const begin = ok => { if (!res.headersSent) res.writeHead(200, ok ? { ...extraHeaders, ...base } : base); };
 
   const params = {
-    model: 'claude-opus-5-5',
-    max_tokens: unlimited ? 32000 : 1500,
+    model: process.env.CLAUDE_MODEL || 'claude-opus-5-5',
+    max_tokens: unlimited ? 32000 : wantsSite ? 12000 : 2000,
     system,
-    output_config: { effort: think ? 'high' : 'low' },
+    output_config: { effort: think ? 'high' : wantsSite ? 'medium' : 'low' },
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
     ...(search ? { tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: unlimited ? 5 : 2 }] } : {}),
@@ -95,12 +115,13 @@ export default async function handler(req, res) {
       const stream = client.beta.messages.stream({ ...params, messages: convo });
       for await (const event of stream) {
         if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-          res.write(event.delta.text);
+          begin(true); res.write(event.delta.text);
         } else if (event.type === 'content_block_start' && event.content_block.type === 'server_tool_use') {
-          res.write('\n\n_🔎 Pesquisando na web..._\n\n');
+          begin(true); res.write('\n\n_🔎 Pesquisando na web..._\n\n');
         }
       }
       const final = await stream.finalMessage();
+      begin(true);
       if (final.stop_reason === 'refusal') {
         res.write('\n\nDesculpe, não posso ajudar com esse pedido.');
       } else if (final.stop_reason === 'max_tokens') {
@@ -117,13 +138,43 @@ export default async function handler(req, res) {
       ? 'Muitas solicitações agora. Tente de novo em instantes.'
       : err instanceof Anthropic.AuthenticationError
         ? 'Chave da API inválida. Verifique ANTHROPIC_API_KEY na Vercel.'
-        : 'Erro ao falar com a IA. Tente novamente.';
+        : 'Erro ao falar com o Claude. Tente novamente.';
+    begin(false);
     res.write('\n\n⚠️ ' + msg);
   }
+  if (!res.headersSent) res.writeHead(200, base);
   res.end();
 }
 
-// ---- Grok (xAI) — usado quando XAI_API_KEY está configurada ----
+// ---- Grok Imagine (xAI) — gera imagens a partir do pedido ----
+async function grokImage(res, prompt, begin) {
+  try {
+    const r = await fetch('https://api.x.ai/v1/images/generations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
+      body: JSON.stringify({ model: process.env.XAI_IMAGE_MODEL || 'grok-imagine-image-2.0', prompt: prompt.replace(/^\/imagem\s*/i, '').slice(0, 1500), n: 1, response_format: 'url' }),
+    });
+    const j = await r.json().catch(() => ({}));
+    const url = j && j.data && j.data[0] && j.data[0].url;
+    if (!r.ok || !url) {
+      console.error('xAI image', r.status, JSON.stringify(j).slice(0, 300));
+      begin(false);
+      res.write('⚠️ ' + (r.status === 401 || r.status === 403 ? 'Chave do Grok sem permissão para imagens. Libere o modelo de imagem no console da xAI.'
+        : r.status === 404 || r.status === 400 ? 'Modelo de imagem indisponível (' + r.status + '). Ajuste XAI_IMAGE_MODEL na Vercel.'
+        : r.status === 429 ? 'Muitas imagens agora. Tente de novo em instantes.'
+        : 'Não consegui gerar a imagem (' + r.status + '). Tente novamente.'));
+      return;
+    }
+    begin(true);
+    res.write(`Aqui está! 🎨\n\n![Imagem gerada](${url})\n\n_Criada com Grok Imagine · [abrir em tamanho real](${url})_`);
+  } catch (err) {
+    console.error(err);
+    begin(false);
+    res.write('⚠️ Erro ao gerar a imagem. Tente novamente.');
+  }
+}
+
+// ---- Grok (xAI) — conversa rápida ----
 async function streamGrok(res, history, unlimited, think, system, begin) {
   try {
     const r = await fetch('https://api.x.ai/v1/chat/completions', {
