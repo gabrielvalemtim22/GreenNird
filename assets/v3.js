@@ -22,7 +22,7 @@
     share: SV('<path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>'),
     page: SV('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/>'),
   };
-  const BOT = GNBot();
+  let BOT = GNBot();
   const BOTC = ['#ff8a1f', '#a78bfa', '#4aa3ff', '#ff5a6a', '#ffffff'];
   const botImg = c => GNBot(c);
 
@@ -80,7 +80,7 @@
       const sp = it.querySelector('span'); const t = sp.textContent;
       sp.className = 'v4-txt'; sp.innerHTML = '<b></b><small></small>';
       sp.firstChild.textContent = t; sp.lastChild.textContent = last ? String(last.display ?? last.content).replace(/[#*_`>]/g, '').slice(0, 80) : 'Nova conversa';
-      const ic = document.createElement('span'); ic.className = 'v4-ic'; ic.innerHTML = GNBot('#ffffff'); it.prepend(ic);
+      const ic = document.createElement('span'); ic.className = 'v4-ic'; ic.innerHTML = GNBot(); it.prepend(ic);
     });
     items.forEach((it, i) => it.classList.toggle('extra', !showAll && i >= 6));
     $('list').querySelectorAll('.group').forEach(g => g.classList.add('v3-hide'));
@@ -172,19 +172,20 @@
 
   function renderRight() {
     rp.innerHTML = `<button class="v3-round rp-x" title="Fechar">${I.x}</button>
-      <div class="rp-id"><span class="rp-av">${GNBot('#ffffff')}</span><h2>Green Nird</h2></div>
+      <div class="rp-id"><button class="rp-av" id="rpBot" title="Personalizar o bot">${GNBot()}</button><h2>Green Nird</h2></div>
       <div class="rp-tabs"><button data-t="atividade" class="${tab === 'atividade' ? 'on' : ''}">Atividade</button><button data-t="biblioteca" class="${tab === 'biblioteca' ? 'on' : ''}">Biblioteca</button></div>
       <div class="rp-body"></div>`;
     rp.querySelector('.rp-x').onclick = togglePanel;
+    $('rpBot').onclick = e => { e.stopPropagation(); openLook($('rpBot')); };
     rp.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; set('gn-rtab', tab); renderRight(); window.fx && fx.toggle(); });
     const body = rp.querySelector('.rp-body');
     if (tab === 'atividade') {
       const tasks = (window.GNTasks ? GNTasks.get() : []).filter(t => t.status !== 'done').slice(0, 4);
       body.innerHTML = `
-        <h4>Em breve</h4>
-        <div class="rp-card">${tasks.length ? tasks.map(t => `<div class="rp-task">${I.clock}<span><b></b><small>${esc(GNTasks.describe(t))}</small></span><label class="sw2"><input type="checkbox" data-id="${t.id}" ${t.status === 'active' ? 'checked' : ''}><i></i></label></div>`).join('') : `<div class="rp-empty">Nenhuma tarefa agendada. <button class="rp-link" id="rpNewTask">Criar uma</button></div>`}</div>
+        ${tasks.length ? `<h4>Em breve</h4><div class="rp-card">${tasks.map(t => `<div class="rp-task">${I.clock}<span><b></b><small>${esc(GNTasks.describe(t))}</small></span><label class="sw2"><input type="checkbox" data-id="${t.id}" ${t.status === 'active' ? 'checked' : ''}><i></i></label></div>`).join('')}</div>`
+          : (get('gn-sug-off', false) ? '' : `<h4 class="rp-h">Sugestões<button class="rp-hide" id="rpHide">Ocultar</button></h4><button class="rp-card rp-row" id="rpNewTask">${I.clock}<span>Criar uma rotina</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></button>`)}
         <h4>Computador</h4>
-        <button class="rp-card rp-pc" id="rpPc"><span><b>Computador do Green Nird</b><small>Em repouso</small></span><span class="rp-av sm">${BOT}</span></button>
+        <button class="rp-card rp-pc" id="rpPc"><span><b>Computador do Bot</b><small>Em repouso</small></span><span class="rp-thumb">${GNBot('#9a9aa0')}</span></button>
         <h4>Chat de voz</h4>
         <div class="rp-card rp-voice">
           <label>Voz<select id="rpVoice"><option>${esc(voice.name ? voice.name.split(' - ')[0] : 'Carregando…')}</option></select></label>
@@ -196,6 +197,7 @@
         x.status = inp.checked ? 'active' : 'paused'; if (inp.checked) x.next = GNTasks.nextRun(x); GNTasks.set(all);
         toast(inp.checked ? 'Tarefa ligada ▶' : 'Tarefa pausada ⏸'); window.fx && fx.toggle();
       });
+      const hd = $('rpHide'); if (hd) hd.onclick = () => { set('gn-sug-off', true); renderRight(); };
       const nt = $('rpNewTask'); if (nt) nt.onclick = () => { const a = oldNav && oldNav.querySelector('[data-go="agenda"]'); if (a) a.click(); };
       $('rpPc').onclick = openComputer;
       fetch('/api/voices').then(r => r.json()).then(j => {
@@ -325,8 +327,79 @@
   const brand = document.querySelector('.hero-brand .hero-lm');
   if (brand) {
     const one = document.createElement('button'); one.className = 'v4-hero-bot'; one.setAttribute('aria-label', 'Green Nird');
-    one.innerHTML = GNBot('var(--lime)');
+    one.innerHTML = GNBot();
     brand.replaceWith(one);
     one.onclick = () => { one.classList.remove('boop'); void one.offsetWidth; one.classList.add('boop'); window.fx && (fx.boop ? fx.boop() : fx.click && fx.click()); };
   }
+
+  // ---------------- personalizar o bot (formato e cor) ----------------
+  function openLook(anchor) {
+    document.querySelectorAll('.v4-look').forEach(x => x.remove());
+    const L = GNBotLook.get();
+    const pop = document.createElement('div'); pop.className = 'v4-look';
+    pop.innerHTML = `<div class="lk-tabs"><button class="on" data-t="bot">Bot</button><button data-t="gerar">Gerar</button><button data-t="enviar">Enviar</button><span class="spacer"></span><button class="lk-reset">Redefinir</button></div>
+      <div class="lk-body"></div>`;
+    document.body.appendChild(pop);
+    pop.addEventListener('click', e => e.stopPropagation());   // escolher cor/forma não fecha a janela
+    const r = anchor.getBoundingClientRect();
+    pop.style.top = (r.bottom + 10) + 'px'; pop.style.left = Math.max(10, Math.min(innerWidth - 330, r.left + r.width / 2 - 160)) + 'px';
+    const body = pop.querySelector('.lk-body');
+    const draw = t => {
+      pop.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+      if (t !== 'bot') { body.innerHTML = `<div class="lk-soon">${t === 'gerar' ? 'Gerar um bot novo com IA' : 'Enviar sua própria imagem'} está chegando ✨</div>`; return; }
+      const cur = GNBotLook.get();
+      body.innerHTML = `<div class="lk-shapes">${GNBotLook.ORDER.map(sh => `<button data-sh="${sh}" class="${cur.shape === sh ? 'on' : ''}" title="${sh}">${GNBot(cur.color, { shape: sh })}</button>`).join('')}</div>
+        <div class="lk-colors">${GNBotLook.COLORS.map(c => `<button data-c="${c}" class="${cur.color === c ? 'on' : ''}" style="--c:${c}"></button>`).join('')}</div>`;
+      body.querySelectorAll('[data-sh]').forEach(b => b.onclick = () => { GNBotLook.set({ shape: b.dataset.sh }); window.fx && fx.toggle(); draw('bot'); });
+      body.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { GNBotLook.set({ color: b.dataset.c }); window.fx && fx.toggle(); draw('bot'); });
+    };
+    pop.querySelectorAll('[data-t]').forEach(b => b.onclick = () => draw(b.dataset.t));
+    pop.querySelector('.lk-reset').onclick = () => { GNBotLook.set(GNBotLook.DEF); draw('bot'); };
+    draw('bot');
+    setTimeout(() => document.addEventListener('click', function off(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('click', off); } }), 0);
+  }
+  window.openLook = openLook;
+  // repinta todos os bots quando o visual muda
+  addEventListener('gn-botlook', () => {
+    BOT = GNBot();
+    const me = document.querySelector('.v4-me-bot'); if (me) me.innerHTML = GNBot() + '<i>★</i>';
+    const m = document.querySelector('#v3Model .gnbot'); if (m) m.outerHTML = GNBot();
+    const hb = document.querySelector('.v4-hero-bot'); if (hb) hb.innerHTML = GNBot();
+    const sb = document.querySelector('.v4-status .v4-sbot'); if (sb) sb.innerHTML = GNBot();
+    renderList(); renderRight();
+  });
+
+  // ---------------- animação de status: bolinhas → bot ----------------
+  const status = document.createElement('div'); status.className = 'v4-status'; status.hidden = true;
+  status.innerHTML = `<span class="v4-anim"><i></i><i></i><i></i><span class="v4-sbot">${GNBot()}</span></span><em></em>`;
+  const THINK = ['Juntando as peças', 'Pensando', 'Organizando as ideias', 'Quase lá'];
+  let st = '', thinkAt = 0;
+  setInterval(() => {
+    const dock = document.querySelector('.dock'); if (!dock) return;
+    if (status.parentNode !== dock) dock.prepend(status);
+    let mode = '';
+    if (typeof busy !== 'undefined' && busy) {
+      const last = [...document.querySelectorAll('#thread .msg.ai .body')].pop();
+      mode = last && last.textContent.trim() ? 'type' : 'think';
+    }
+    if (mode === st) {
+      if (mode === 'think' && Date.now() - thinkAt > 2600) { thinkAt = Date.now(); const e = status.querySelector('em'); e.textContent = THINK[(THINK.indexOf(e.textContent) + 1) % THINK.length]; }
+      return;
+    }
+    st = mode; status.hidden = !mode; status.className = 'v4-status ' + mode;
+    status.querySelector('em').textContent = mode === 'type' ? 'Digitando…' : THINK[0]; thinkAt = Date.now();
+    document.body.classList.toggle('gn-busy', !!mode);
+    const ic = document.querySelector('#list .item.on .v4-ic'); if (ic) ic.classList.toggle('busy', !!mode);
+  }, 120);
+
+  // ---------------- dica ao passar o mouse no bot da barra lateral ----------------
+  const tip = document.createElement('div'); tip.className = 'v4-tip'; tip.hidden = true; document.body.appendChild(tip);
+  hero.addEventListener('mouseenter', () => {
+    const c = [...chats].sort((a, b) => b.updated - a.updated)[0];
+    const last = c && [...c.messages].reverse().find(m => m.role === 'assistant');
+    tip.innerHTML = `<b>${GNBot()}<span>Green Nird</span></b><small></small>`;
+    tip.querySelector('small').textContent = last ? String(last.content).replace(/[#*_`>]/g, '').slice(0, 90) : 'Toque para personalizar seus bots.';
+    const r = hero.getBoundingClientRect(); tip.style.left = (r.right + 8) + 'px'; tip.style.top = (r.top + 6) + 'px'; tip.hidden = false;
+  });
+  hero.addEventListener('mouseleave', () => { tip.hidden = true; });
 })();
