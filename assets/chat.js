@@ -83,7 +83,7 @@ function bubble(m) {
   }
   else {
     d.className = 'msg ai';
-    d.innerHTML = '<span class="bot-av"><img src="/assets/bots/lime.svg" alt=""></span><div class="body"></div>';
+    d.innerHTML = '<span class="bot-av"><img src="/assets/bot-lime.svg" alt=""></span><div class="body"></div>';
     d.querySelector('.body').innerHTML = m.content ? md(m.content) : '<div class="dots"><span></span><span></span><span></span></div>';
     if (m.content && !m.blocked) addActs(d, m);
   }

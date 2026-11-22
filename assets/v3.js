@@ -22,9 +22,9 @@
     share: SV('<path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>'),
     page: SV('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/>'),
   };
-  const BOT = '<img class="b3d" src="/assets/bots/lime.svg" alt="">';
-  const BOTC = ['orange', 'purple', 'blue', 'red', 'brown'];
-  const botImg = c => `<img class="b3d" src="/assets/bots/${c}.svg" alt="">`;
+  const BOT = GNBot();
+  const BOTC = ['#ff8a1f', '#a78bfa', '#4aa3ff', '#ff5a6a', '#ffffff'];
+  const botImg = c => GNBot(c);
 
   // ---------------- barra lateral ----------------
   const side = $('side');
@@ -43,8 +43,16 @@
   const toolsBox = document.createElement('div'); toolsBox.className = 'v3-tools'; toolsBox.hidden = true;
   nav.after(toolsBox);
   if (oldNav) toolsBox.appendChild(oldNav);           // Agendamentos, Meu espaço, Ligar, Pedidos, Meta Ads, Imagens…
-  const recents = document.createElement('div'); recents.className = 'v3-rec'; recents.textContent = 'Chats recentes';
-  $('list').before(recents);
+  nav.hidden = true;                                   // os atalhos agora ficam no menu do rodapé (igual ao vídeo)
+  const topBtns = document.createElement('div'); topBtns.className = 'v4-top';
+  topBtns.innerHTML = `<button class="v4-ib" id="v4Find" title="Buscar conversas">${I.search}</button><button class="v4-ib" id="v4New" title="Nova conversa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`;
+  top.appendChild(topBtns);
+  const hero = document.createElement('button'); hero.className = 'v4-me'; hero.title = 'Modelos de bots';
+  hero.innerHTML = `<span class="v4-me-bot">${GNBot()}<i>★</i></span><b>Green Nird</b>`;
+  top.after(hero);
+  hero.onclick = () => openBots();
+  $('v4New').onclick = () => { $('new').click(); };
+  $('v4Find').onclick = () => { const f = $('findBtn'); if (f) f.click(); };
   const more = document.createElement('button'); more.className = 'v3-more'; more.innerHTML = I.chev + '<span>Mostrar mais</span>';
   $('list').after(more);
   let showAll = false;
@@ -65,6 +73,15 @@
   window.renderList = function () {
     baseRender();
     const items = [...$('list').querySelectorAll('.item')];
+    const sorted = chats.filter(c => c.title.toLowerCase().includes(filter)).sort((a, b) => b.updated - a.updated);
+    items.forEach((it, i) => {
+      const c = sorted[i]; if (!c) return;
+      const last = [...c.messages].reverse().find(m => m.role === 'assistant' || m.role === 'user');
+      const sp = it.querySelector('span'); const t = sp.textContent;
+      sp.className = 'v4-txt'; sp.innerHTML = '<b></b><small></small>';
+      sp.firstChild.textContent = t; sp.lastChild.textContent = last ? String(last.display ?? last.content).replace(/[#*_`>]/g, '').slice(0, 80) : 'Nova conversa';
+      const ic = document.createElement('span'); ic.className = 'v4-ic'; ic.innerHTML = GNBot('#ffffff'); it.prepend(ic);
+    });
     items.forEach((it, i) => it.classList.toggle('extra', !showAll && i >= 6));
     $('list').querySelectorAll('.group').forEach(g => g.classList.add('v3-hide'));
     more.hidden = items.length <= 6;
@@ -75,22 +92,57 @@
 
   // rodapé: engrenagem abre as configurações
   const acct = $('acct');
-  const gearFoot = document.createElement('button'); gearFoot.className = 'v3-gear'; gearFoot.title = 'Configurações'; gearFoot.innerHTML = I.gear;
-  gearFoot.onclick = e => { e.stopPropagation(); e.preventDefault(); openSettingsModal('geral'); };
+  const gearFoot = document.createElement('button'); gearFoot.className = 'v3-gear'; gearFoot.title = 'Conectar aplicativos';
+  gearFoot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg>';
+  gearFoot.onclick = e => { e.stopPropagation(); e.preventDefault(); openApps(); };
+  const MI2 = {
+    plan: SV('<path d="M12 3c.4 4.2 3.8 7.6 8 8-4.2.4-7.6 3.8-8 8-.4-4.2-3.8-7.6-8-8 4.2-.4 7.6-3.8 8-8Z"/>'),
+    up: SV('<path d="M12 19V5M5 12l7-7 7 7"/>'),
+    phone: SV('<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>'),
+    help: SV('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17.5v.01"/>'),
+    add: SV('<circle cx="10" cy="8" r="4"/><path d="M3 20a7 7 0 0 1 12-4.9M19 14v6M16 17h6"/>'),
+    out: SV('<path d="M14 4h-7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7M10 12h11M17 8l4 4-4 4"/>'),
+  };
+  acct.onclick = e => {
+    e.preventDefault(); e.stopPropagation();
+    const a = typeof account !== 'undefined' && account ? account : {}; const u = a.usage || {};
+    const pct = a.isAdmin ? 0 : Math.round(Math.min(100, (u.week || 0) / (u.weeklyLimit || 15) * 100));
+    const tools = oldNav ? [...oldNav.querySelectorAll('[data-go], a.snav, button.snav')].map(x => ({ icon: x.querySelector('svg') ? x.querySelector('svg').outerHTML : '', label: x.textContent.trim(), run: () => x.click() })).filter(x => x.label) : [];
+    gnPopMenu({ currentTarget: acct }, [
+      { icon: MI2.plan, label: (a.isAdmin ? 'Dono · sem limite' : (a.plan || 'Grátis') + ' · ' + pct + '% usado'), run: () => openSettingsModal('uso') },
+      { icon: MI2.up, label: 'Fazer upgrade do plano', run: () => location.href = '/conta#planos' },
+      '-',
+      { icon: I.folder, label: 'Projetos', run: () => { const p = oldNav && oldNav.querySelector('[data-go="/espaco"]'); if (p) p.click(); } },
+      { icon: I.apps, label: 'Conectar aplicativos', run: openApps },
+      { icon: I.bots, label: 'Modelos de bots', run: openBots },
+      ...(tools.length ? [{ icon: I.tools, label: 'Ferramentas', sub: tools }] : []),
+      '-',
+      { icon: MI2.phone, label: 'Obter o Green Nird para celular', run: () => toast('No celular, abra o site e toque em “Adicionar à tela inicial” 📱', { ms: 5000 }) },
+      { icon: MI2.help, label: 'Suporte', sub: [
+        { icon: MI2.help, label: 'Central de ajuda', run: () => location.href = '/ajuda#central' },
+        { icon: MI2.help, label: 'Falar no WhatsApp', run: () => location.href = '/ajuda#contato' },
+        { icon: MI2.help, label: 'Relatar um bug', run: () => location.href = '/ajuda#contato' },
+      ] },
+      { icon: I.gear, label: 'Configurações', run: () => openSettingsModal('geral') },
+      '-',
+      { icon: MI2.add, label: a.loggedIn ? 'Adicionar conta' : 'Entrar / Criar conta', run: () => location.href = '/conta' },
+      ...(a.loggedIn ? [{ icon: MI2.out, label: 'Sair', danger: true, run: async () => { await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }); toast('Você saiu da conta'); setTimeout(() => location.reload(), 800); } }] : []),
+    ]);
+  };
   acct.appendChild(gearFoot);
 
   // ---------------- cabeçalho do chat ----------------
   const main = $('main');
   const head = document.createElement('header'); head.className = 'v3-head';
-  head.innerHTML = `<button class="v3-model" id="v3Model">${BOT}<b id="v3ModelName">Green Nird</b>${I.chev}</button>
+  head.innerHTML = `<span class="spacer"></span><button class="v3-model" id="v3Model">${BOT}<b id="v3ModelName">Green Nird</b></button>
     <span class="spacer"></span>
-    <button class="v3-pill" id="v3Share">${I.share}Compartilhar</button>
-    <button class="v3-pill" id="v3New">${I.spark}Novo chat</button>
+    <button class="v3-pill" id="v3Share">Compartilhar</button>
+    <button class="v3-pill" id="v3New" hidden>Novo chat</button>
     <button class="v3-round" id="v3Panel" title="Atividade e Biblioteca">${I.panel}</button>
     <button class="v3-round" id="v3More" title="Mais">${I.dots}</button>`;
   main.prepend(head);
   const modelName = () => ((window.getModel ? getModel() : 'pro') === 'pro' ? 'Green Nird Pro' : 'Green Nird');
-  const paintModel = () => { $('v3ModelName').textContent = modelName(); };
+  const paintModel = () => { $('v3ModelName').textContent = modelName(); const q2 = document.querySelector('#f textarea'); if (q2) q2.placeholder = 'Mensagem para Green Nird'; };
   paintModel(); addEventListener('gn-model', paintModel);
   $('v3Model').onclick = () => gnPopMenu({ currentTarget: $('v3Model') }, [
     { icon: BOT, label: 'Green Nird · rápido', run: () => window.setModel && setModel('ia') },
@@ -120,7 +172,7 @@
 
   function renderRight() {
     rp.innerHTML = `<button class="v3-round rp-x" title="Fechar">${I.x}</button>
-      <div class="rp-id"><span class="rp-av">${BOT}</span><h2>Green Nird</h2></div>
+      <div class="rp-id"><span class="rp-av">${GNBot('#ffffff')}</span><h2>Green Nird</h2></div>
       <div class="rp-tabs"><button data-t="atividade" class="${tab === 'atividade' ? 'on' : ''}">Atividade</button><button data-t="biblioteca" class="${tab === 'biblioteca' ? 'on' : ''}">Biblioteca</button></div>
       <div class="rp-body"></div>`;
     rp.querySelector('.rp-x').onclick = togglePanel;
@@ -260,8 +312,8 @@
   // ---------------- tela: Computador do Green Nird ----------------
   function openComputer() {
     const now = new Date();
-    const m = modal(`<div class="pc-top"><img src="/assets/bots/lime.svg" alt=""><span class="bar"></span>Computador do <b>Green Nird</b><span class="spacer"></span></div>
-      <div class="pc-screen"><div class="pc-wall"><img src="/assets/bots/lime.svg" alt=""></div>
+    const m = modal(`<div class="pc-top"><img src="/assets/bot-lime.svg" alt=""><span class="bar"></span>Computador do <b>Green Nird</b><span class="spacer"></span></div>
+      <div class="pc-screen"><div class="pc-wall"><img src="/assets/bot-lime.svg" alt=""></div>
         <div class="pc-dock"><span class="pc-ic chrome"></span><span class="pc-ic files"></span><span class="pc-ic term">&gt;_</span>
           <span class="pc-st"><i></i>Em repouso <span>|</span> ${now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })} ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></div></div>
       <div class="pc-ctrl">${SV('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>')}<span>O computador na nuvem está chegando</span><button class="pc-done">Fechar</button></div>`, 'pc');
@@ -269,24 +321,12 @@
   }
   window.openComputer = openComputer;
 
-  // ---------------- tela inicial: equipe de bots em 3D ----------------
+  // ---------------- tela inicial: o bot ----------------
   const brand = document.querySelector('.hero-brand .hero-lm');
   if (brand) {
-    const scene = document.createElement('div'); scene.className = 'bot-scene';
-    const POS = [['lime', 50, 46, 1.25, 0], ['orange', 16, 26, .62, .6], ['purple', 84, 30, .8, 1.2], ['blue', 26, 78, .5, 1.8], ['red', 76, 76, .66, .9], ['brown', 6, 62, .42, 2.4]];
-    scene.innerHTML = POS.map(([c, x, y, z, d]) => `<button class="sb ${c === 'lime' ? 'main' : ''}" data-c="${c}" style="left:${x}%;top:${y}%;--z:${z};--d:${d}s" aria-label="Bot"><img src="/assets/bots/${c}.svg" alt=""></button>`).join('');
-    brand.replaceWith(scene);
-    const wrap = document.querySelector('.hero') || document.body;
-    wrap.addEventListener('pointermove', e => {
-      const r = scene.getBoundingClientRect(); const dx = (e.clientX - (r.left + r.width / 2)) / innerWidth, dy = (e.clientY - (r.top + r.height / 2)) / innerHeight;
-      scene.style.setProperty('--rx', (-dy * 18).toFixed(2) + 'deg'); scene.style.setProperty('--ry', (dx * 24).toFixed(2) + 'deg');
-      scene.querySelectorAll('.sb').forEach(b => { const z = +b.style.getPropertyValue('--z'); b.style.translate = `${(dx * 40 * z).toFixed(1)}px ${(dy * 30 * z).toFixed(1)}px`; });
-    });
-    wrap.addEventListener('pointerleave', () => { scene.style.setProperty('--rx', '0deg'); scene.style.setProperty('--ry', '0deg'); scene.querySelectorAll('.sb').forEach(b => b.style.translate = ''); });
-    scene.querySelectorAll('.sb').forEach(b => b.onclick = () => {
-      b.classList.remove('boop'); void b.offsetWidth; b.classList.add('boop');
-      window.fx && (fx.boop ? fx.boop() : fx.click && fx.click());
-      if (b.dataset.c !== 'lime') openBots();
-    });
+    const one = document.createElement('button'); one.className = 'v4-hero-bot'; one.setAttribute('aria-label', 'Green Nird');
+    one.innerHTML = GNBot('var(--lime)');
+    brand.replaceWith(one);
+    one.onclick = () => { one.classList.remove('boop'); void one.offsetWidth; one.classList.add('boop'); window.fx && (fx.boop ? fx.boop() : fx.click && fx.click()); };
   }
 })();
