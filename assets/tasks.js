@@ -38,6 +38,7 @@
     const all = get(); const x = all.find(y => y.id === t.id); if (!x) return;
     x.results = [{ at: Date.now(), text: result }, ...(x.results || [])].slice(0, 10);
     x.lastRun = Date.now();
+    try { const lg = JSON.parse(localStorage.getItem('gn-usage-log') || '{}'); const k = new Date().toISOString().slice(0, 10); lg[k] = lg[k] || { you: 0, tasks: 0 }; lg[k].tasks++; localStorage.setItem('gn-usage-log', JSON.stringify(lg)); } catch {}
     if (x.freq === 'once' && !manual) x.status = 'done';
     else x.next = nextRun(x);
     set(all);

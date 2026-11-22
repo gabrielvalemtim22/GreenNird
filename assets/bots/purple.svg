@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="b" cx="38" cy="34" r="78" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0e9ff"/><stop offset=".45" stop-color="#9b6bff"/><stop offset="1" stop-color="#3400a2"/></radialGradient>
+    <radialGradient id="r" cx="84" cy="96" r="40" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0e9ff" stop-opacity=".55"/><stop offset="1" stop-color="#f0e9ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g" cx="44" cy="38" r="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="s" cx="60" cy="110" r="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <clipPath id="c"><circle cx="42" cy="66" r="24"/><circle cx="62" cy="50" r="26"/><circle cx="80" cy="68" r="22"/><rect x="30" y="62" width="62" height="30" rx="15"/></clipPath>
+  </defs>
+  <ellipse cx="60" cy="110" rx="34" ry="7" fill="url(#s)"/>
+  
+  <g fill="url(#b)"><circle cx="42" cy="66" r="24"/><circle cx="62" cy="50" r="26"/><circle cx="80" cy="68" r="22"/><rect x="30" y="62" width="62" height="30" rx="15"/></g>
+  <g clip-path="url(#c)"><rect width="120" height="120" fill="url(#r)"/><ellipse cx="44" cy="38" rx="16" ry="10" fill="url(#g)" transform="rotate(-25 44 38)"/></g>
+  <g class="eyes">
+    <rect x="42" y="56" width="10" height="16" rx="5" fill="#19004f"/><rect x="68" y="56" width="10" height="16" rx="5" fill="#19004f"/>
+    <circle cx="45" cy="60" r="2.2" fill="#fff"/><circle cx="71" cy="60" r="2.2" fill="#fff"/>
+  </g>
+</svg>

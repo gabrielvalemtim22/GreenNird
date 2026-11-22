@@ -18,7 +18,12 @@ think.onclick = () => think.classList.toggle('on');
 search.onclick = () => search.classList.toggle('on');
 try { if (localStorage.getItem('gn-search-default') === 'false') search.classList.remove('on'); } catch {}
 q.addEventListener('input', () => { q.style.height = 'auto'; q.style.height = Math.min(q.scrollHeight, 220) + 'px'; });
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); composer.requestSubmit(); } });
+q.addEventListener('keydown', e => {
+  let ctrlMode = false; try { ctrlMode = JSON.parse(localStorage.getItem('gn-general') || '{}').ctrlEnter; } catch {}
+  if (e.key !== 'Enter') return;
+  if (ctrlMode ? (e.ctrlKey || e.metaKey) : !e.shiftKey) { e.preventDefault(); composer.requestSubmit(); }
+});
+try { q.spellcheck = JSON.parse(localStorage.getItem('gn-general') || '{}').spell !== false; } catch {}
 composer.querySelector('#attach').onclick = () => composer.querySelector('#file').click();
 let attachments = [];
 const MAX_CHARS = 60000;
@@ -78,7 +83,7 @@ function bubble(m) {
   }
   else {
     d.className = 'msg ai';
-    d.innerHTML = '<img src="/assets/logo.svg" alt=""><div class="body"></div>';
+    d.innerHTML = '<span class="bot-av"><img src="/assets/bots/lime.svg" alt=""></span><div class="body"></div>';
     d.querySelector('.body').innerHTML = m.content ? md(m.content) : '<div class="dots"><span></span><span></span><span></span></div>';
     if (m.content && !m.blocked) addActs(d, m);
   }
@@ -169,6 +174,7 @@ async function send(textArg) {
     }
     if (!ai.content) ai.content = '_(sem resposta)_';
     window.fx && fx.done();
+    try { const lg = JSON.parse(localStorage.getItem('gn-usage-log') || '{}'); const k = new Date().toISOString().slice(0, 10); lg[k] = lg[k] || { you: 0, tasks: 0 }; lg[k].you++; localStorage.setItem('gn-usage-log', JSON.stringify(lg)); } catch {}
     const aiEl = body.closest('.msg');
     addActs(aiEl, ai);
     if (voice.autoRead && voice.id && !window.inVoiceMode) speak(ai.content, aiEl.querySelector('.listen'));

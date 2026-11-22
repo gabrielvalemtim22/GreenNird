@@ -46,12 +46,15 @@
   .toggle { appearance: none; width: 50px; height: 30px; border-radius: 999px; background: #d9dbd4; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
   .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--card); transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
   .toggle:checked { background: var(--lime); } .toggle:checked::after { transform: translateX(20px); }
+  :root[data-theme="dark"] .toggle { background: #3a3a3a !important; } :root[data-theme="dark"] .toggle::after { background: #fff; } :root[data-theme="dark"] .toggle:checked { background: var(--lime) !important; } :root[data-theme="dark"] .toggle:checked::after { background: #0e0e0e; }
   .field { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 16px; width: min(460px, 100%); background: var(--card); outline: 0; }
   textarea.field { resize: vertical; }
   .chips3 { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
   .chips3 button { border: 1px solid var(--line); border-radius: 999px; padding: 9px 15px; font-weight: 600; background: var(--card); }
   .chips3 button.on { background: var(--lime); border-color: var(--lime); }
   .savebar { position: sticky; bottom: 18px; display: flex; justify-content: flex-end; margin-top: 26px; }
+  .savebar[hidden] { display: none; }
+  .pside { overflow-x: hidden; }
   .savebar .btn { font-size: 19px; padding: 16px 34px; }
   .vlist2 { display: grid; gap: 8px; width: min(460px, 100%); }
   .vi { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); cursor: pointer; text-align: left; }
@@ -61,6 +64,45 @@
   .ubar { height: 10px; background: #eef0ea; border-radius: 999px; overflow: hidden; width: min(460px, 100%); margin-top: 8px; }
   .ubar i { display: block; height: 100%; background: linear-gradient(90deg, #b9e800, var(--lime)); }
   .danger { color: #c0262d !important; }
+  /* ===== estilo Grok nas configurações ===== */
+  :root[data-theme="dark"] body.app { --card: #161616; --line: #2a2a2a; background: #0e0e0e; }
+  .glabel { color: var(--muted); font-size: 17px; margin: 22px 4px 10px; }
+  .gcard { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 22px; }
+  .gcard > b { font-size: 17px; }
+  .grow { display: flex; align-items: center; gap: 18px; padding: 12px 0; }
+  .grow + .grow { border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+  .grow > span:first-child { flex: 1; min-width: 0; } .grow b { display: block; font-weight: 500; font-size: 17px; } .grow small { color: var(--muted); font-size: 15px; }
+  .gr { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .gsel select { appearance: none; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px; border: 1px solid var(--line); border-radius: 12px; padding: 9px 40px 9px 14px; color: var(--ink); font: inherit; font-size: 16px; min-width: 230px; cursor: pointer; }
+  .gsel select option { background: #161616; color: #fff; }
+  .gdot { width: 16px; height: 16px; border-radius: 50%; margin-right: -4px; }
+  .gbtn { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: 16px; font-weight: 500; white-space: nowrap; }
+  .gbtn:hover { border-color: color-mix(in srgb, var(--ink) 30%, transparent); }
+  .gacct { display: flex; align-items: center; gap: 16px; }
+  .gav { width: 58px; height: 58px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 0 0 2px var(--lime); }
+  .gacct b { font-size: 18px; }
+  .gplan { display: flex; align-items: center; gap: 16px; } .gplan span { flex: 1; } .gplan b { display: block; font-size: 19px; } .gplan small { color: var(--muted); font-size: 15.5px; }
+  .gbig { font-size: 30px; font-weight: 600; margin: 8px 0 10px; } .gbig small { font-size: 16px; color: var(--muted); font-weight: 400; }
+  .gbar { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 12%, transparent); overflow: hidden; margin-bottom: 10px; }
+  .gbar i { display: block; height: 100%; background: var(--lime); border-radius: 999px; }
+  .gmut { color: var(--muted); font-size: 14.5px; }
+  .guse { margin-top: 22px; } .guse-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; } .guse-h b { font-size: 18px; }
+  .gseg { display: inline-flex; background: color-mix(in srgb, var(--ink) 6%, transparent); border-radius: 999px; padding: 3px; }
+  .gseg button { padding: 7px 16px; border-radius: 999px; font-size: 14.5px; color: var(--muted); } .gseg button.on { background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--ink); }
+  .guse-b { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: center; }
+  .guse-l { border-right: 1px solid var(--line); padding-right: 18px; }
+  .gleg { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 16px; } .gleg i { width: 14px; height: 14px; border-radius: 3px; background: var(--lime); } .gleg.t i { background: color-mix(in srgb, var(--lime) 55%, #fff); } .gleg b { margin-left: auto; font-weight: 500; }
+  .gchart { width: 100%; height: auto; color: var(--ink); } .gchart text { fill: var(--muted); font-size: 12px; }
+  .gpc { display: flex; align-items: center; gap: 18px; } .gpc img, .gpc > svg { width: 54px; height: 54px; flex-shrink: 0; } .gpc span:nth-child(2) { flex: 1; } .gpc b { display: block; font-size: 18px; } .gpc small { color: var(--muted); }
+  :root:not([data-theme="dark"]) .gpc img { filter: invert(1); }
+  .gtag { font-size: 14px; color: var(--muted); background: color-mix(in srgb, var(--ink) 7%, transparent); padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+  .gnotes div { padding: 10px 0; color: var(--muted); line-height: 1.5; } .gnotes div + div { border-top: 1px solid var(--line); } .gnotes b { color: var(--ink); margin-right: 8px; }
+  .pside .pnav.on { background: color-mix(in srgb, var(--lime) 14%, #141414); position: relative; }
+  :root:not([data-theme="dark"]) .pside .pnav.on { background: var(--lime-soft); }
+  .pside .pnav.on::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--lime); }
+  .pside .pnav.on svg { color: var(--lime); }
+  @media (max-width: 900px) { .guse-b { grid-template-columns: 1fr; } .guse-l { border: 0; } .grow { flex-wrap: wrap; } .gsel select { min-width: 0; } }
+
   .accs { display: flex; gap: 10px; width: 100%; justify-content: flex-end; }
   html.embed .back-chat { display: none; }
   html.embed .pmain { padding-top: 24px; }
@@ -86,6 +128,10 @@
 <script src="/assets/pages.js"></script>
 <script>
 const I = {
+  comp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  perm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/></svg>',
+  cofre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2.5"/><circle cx="12" cy="12" r="3"/><path d="M12 9V7M12 17v-2M9 12H7M17 12h-2"/></svg>',
+  atual: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 18a5 5 0 0 1-.6-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9"/><path d="M12 11v9M9 17l3 3 3-3"/></svg>',
   conta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5"/></svg>',
   seg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="M12 10v4"/></svg>',
   geral: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
@@ -98,24 +144,26 @@ const I = {
   conex: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
 };
 const SECTIONS = [
-  ['conta', 'Conta', 'Seu código de acesso e plano.'], ['seg', 'Segurança e login', 'Proteja sua conta e suas conversas.'],
-  ['geral', 'Geral', 'Preferências do dia a dia.'], ['apar', 'Aparência', 'Personalize as cores e o visual da GreenNird.'],
-  ['notif', 'Notificações', 'Escolha quando a GreenNird te avisa.'], ['voz', 'Voz', 'Escolha a voz da IA.'],
-  ['pers', 'Personalização', 'Como a GreenNird conversa com você.'], ['uso', 'Uso e limites', 'Acompanhe seu uso e seus limites.'],
-  ['priv', 'Privacidade', 'Seus dados e conversas.'], ['conex', 'Conexões', 'Ferramentas conectadas à GreenNird.'],
+  ['geral', 'Geral', ''], ['comp', 'Computador', 'O computador na nuvem do Green Nird.'], ['perm', 'Permissões', 'O que o Green Nird pode usar neste aparelho.'],
+  ['cofre', 'Cofre', 'Guarde acessos com segurança.'], ['uso', 'Uso e cobrança', ''], ['atual', 'Atualizações', 'Novidades do Green Nird.'],
+  ['-'],
+  ['pers', 'Personalização', 'Como o Green Nird conversa com você.'], ['voz', 'Voz', 'Escolha a voz da IA.'],
+  ['apar', 'Aparência', 'Cores e visual do Green Nird.'], ['priv', 'Privacidade', 'Seus dados e conversas.'],
 ];
+const HIDDEN = { conta: 'geral', seg: 'perm', notif: 'perm', conex: 'geral' };
 const S = {
   theme: store2.get('gn-theme', {}), persona: { tone: 'descontraido', length: 'normal', profanity: false, emojis: true, nickname: '', about: '', custom: '', ...store2.get('gn-persona', {}) },
   voice: store2.get('gn-voice', {}), notify: { tasks: true, sounds: true, replies: false, ...store2.get('gn-notify', {}) },
   search: store2.get('gn-search-default', true), lang: store2.get('gn-lang', 'pt'),
 };
-let cur = (location.hash.slice(1) && SECTIONS.some(s => s[0] === location.hash.slice(1))) ? location.hash.slice(1) : 'apar';
+let cur = (() => { const h = location.hash.slice(1); if (HIDDEN[h]) return HIDDEN[h]; return SECTIONS.some(s => s[0] === h) ? h : 'geral'; })();
 let account = null;
 fetch('/api/account').then(r => r.json()).then(a => { account = a; if (['conta', 'uso'].includes(cur)) show(cur); }).catch(() => {});
 
 function nav(q = '') {
   const n = document.getElementById('nav'); n.innerHTML = '';
-  SECTIONS.filter(s => (s[1] + s[2]).toLowerCase().includes(q)).forEach(([id, label]) => {
+  SECTIONS.filter(s => s[0] === '-' ? !q : (s[1] + s[2]).toLowerCase().includes(q)).forEach(([id, label]) => {
+    if (id === '-') { const h = document.createElement('hr'); h.className = 'psep'; n.appendChild(h); return; }
     const b = document.createElement('button'); b.className = 'pnav' + (id === cur ? ' on' : '');
     b.innerHTML = I[id] + label; b.onclick = () => { show(id); document.getElementById('side').classList.remove('open'); };
     n.appendChild(b);
@@ -126,11 +174,107 @@ const tog = (id, on) => `<input type="checkbox" class="toggle" id="${id}" ${on ?
 
 function show(id) {
   cur = id; history.replaceState(null, '', '#' + id); nav(document.getElementById('find').value.toLowerCase());
-  const [, title, lead] = SECTIONS.find(s => s[0] === id);
+  const [, title, lead] = SECTIONS.find(s => s[0] === id) || [, '', ''];
   document.getElementById('h').textContent = title; document.getElementById('lead').textContent = lead;
   const b = document.getElementById('body'); const t = S.theme, p = S.persona;
-  document.querySelector('.savebar').hidden = !['apar', 'geral', 'notif', 'pers'].includes(id);
+  document.querySelector('.savebar').hidden = !['apar', 'notif', 'pers'].includes(id);
 
+  const sel = (id2, opts, v) => `<label class="gsel"><select id="${id2}">${opts.map(([k, l]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`;
+  const grow = (t, sub, right) => `<div class="grow"><span><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</span><span class="gr">${right}</span></div>`;
+  const G = get => { try { return JSON.parse(localStorage.getItem('gn-general') || '{}'); } catch { return {}; } };
+  const saveG = (k, v) => { const g = G(); g[k] = v; store2.set('gn-general', g); toast('Salvo ✓', { ms: 1200 }); };
+  if (id === 'geral') {
+    const a = account || {}; const av = store2.get('gn-avatar', 'verde'); const g = G();
+    const ACC = [['#d4ff00', 'Verde-limão'], ['#ff6a00', 'Laranja'], ['#8b2cf5', 'Roxo'], ['#ff1f8f', 'Rosa'], ['#1f6bff', 'Azul']];
+    b.innerHTML = `<div class="glabel">Conta</div><div class="gcard gacct"><span class="gav" style="background-image:url(/assets/avatars/${av}.webp)"></span><b>${a.loggedIn ? 'Conta ' + escapeHtml(a.id.replace(/\s/g, '').slice(-4)) : 'Você não entrou'}</b><span class="spacer"></span>
+        <a class="gbtn" href="/conta" target="_top">${a.loggedIn ? 'Gerenciar conta' : 'Entrar / Criar conta'}</a>${a.loggedIn ? '<button class="gbtn" id="gOut">Sair</button>' : ''}</div>
+      <div class="glabel">Aparência</div><div class="gcard">
+        ${grow('Tema', '', sel('gTheme', [['system', 'Seguir o sistema'], ['dark', 'Escuro'], ['light', 'Claro']], t.mode || 'dark'))}
+        ${grow('Destaque', '', `<span class="gdot" style="background:${t.accent || '#d4ff00'}"></span>` + sel('gAcc', ACC, t.accent || '#d4ff00'))}
+        ${grow('Idioma', '', sel('gLang', [['pt', 'Português (Brasil)'], ['sys', 'Seguir o sistema']], S.lang === 'en' ? 'sys' : 'pt'))}
+        ${grow('Verificar a ortografia ao digitar', '', tog('gSpell', g.spell !== false))}
+        ${grow('Enviar com Ctrl+Enter', 'Pressione Ctrl+Enter para enviar sua mensagem. Enter começa uma nova linha.', tog('gCtrl', !!g.ctrlEnter))}
+      </div>
+      <div class="glabel">Sistema</div><div class="gcard">
+        ${grow('Microfone', '', sel('gMic', [['default', 'Padrão do sistema']], 'default'))}
+        ${grow('Sons e vibração', '', tog('gSounds', S.notify.sounds))}
+        ${grow('Usar aceleração de hardware', 'Animações 3D e efeitos completos.', tog('gHw', !t.reduceMotion))}
+      </div>`;
+    const out = b.querySelector('#gOut'); if (out) out.onclick = async () => { await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }); toast('Você saiu'); setTimeout(() => { (window.top || window).location.href = '/'; }, 700); };
+    b.querySelector('#gTheme').onchange = e => { t.mode = e.target.value; preview(); };
+    b.querySelector('#gAcc').onchange = e => { t.accent = e.target.value; b.querySelector('.gdot').style.background = t.accent; preview(); };
+    b.querySelector('#gLang').onchange = e => { store2.set('gn-lang', e.target.value === 'pt' ? 'pt' : 'pt'); toast('Idioma: Português (Brasil) ✓', { ms: 1500 }); };
+    b.querySelector('#gSpell').onchange = e => saveG('spell', e.target.checked);
+    b.querySelector('#gCtrl').onchange = e => saveG('ctrlEnter', e.target.checked);
+    b.querySelector('#gSounds').onchange = e => { if (window.fx && fx.enabled !== e.target.checked) fx.toggleSound(); S.notify.sounds = e.target.checked; store2.set('gn-notify', S.notify); };
+    b.querySelector('#gHw').onchange = e => { t.reduceMotion = !e.target.checked; preview(); };
+    b.querySelector('#gMic').onchange = e => saveG('mic', e.target.value);
+    // lista os microfones do aparelho (os nomes aparecem depois que o navegador libera o microfone)
+    navigator.mediaDevices?.enumerateDevices?.().then(ds => {
+      const mics = ds.filter(d => d.kind === 'audioinput' && d.deviceId && d.deviceId !== 'default');
+      if (!mics.length) return; const s2 = b.querySelector('#gMic'); if (!s2) return;
+      mics.forEach((d, k) => { const o = document.createElement('option'); o.value = d.deviceId; o.textContent = d.label || 'Microfone ' + (k + 1); if (g.mic === d.deviceId) o.selected = true; s2.appendChild(o); });
+    }).catch(() => {});
+  }
+  if (id === 'uso') {
+    const a = account || {}; const u = a.usage || {};
+    const pct = a.isAdmin ? 0 : Math.round(Math.min(100, (u.week || 0) / (u.weeklyLimit || 15) * 100));
+    const d = new Date(); const toMon = ((8 - d.getDay()) % 7) || 7;
+    // gráfico dos últimos 8 dias (registrado neste aparelho)
+    const log = store2.get('gn-usage-log', {});
+    const days = [...Array(8)].map((_, k) => { const x = new Date(Date.now() - (7 - k) * 864e5); const key = x.toISOString().slice(0, 10); const v = log[key] || { you: 0, tasks: 0 }; return { label: x.getDate() + ' de ' + x.toLocaleString('pt-BR', { month: 'short' }).replace('.', ''), you: v.you, tasks: v.tasks }; });
+    const tot = days.reduce((n, x) => n + x.you + x.tasks, 0) || 1, you = days.reduce((n, x) => n + x.you, 0), tk = days.reduce((n, x) => n + x.tasks, 0);
+    const max = Math.max(4, ...days.map(x => x.you + x.tasks));
+    const W = 760, H = 170, px = k => 50 + k * (W - 70) / 7, py = v => H - 20 - v / max * (H - 40);
+    const line = key => days.map((x, k) => `${px(k)},${py(key === 'you' ? x.you + x.tasks : x.tasks)}`).join(' ');
+    const svg = `<svg viewBox="0 0 ${W} ${H + 24}" class="gchart">${[0, .25, .5, .75, 1].map(f => `<line x1="50" x2="${W - 20}" y1="${py(max * f)}" y2="${py(max * f)}" stroke="currentColor" opacity=".12"/><text x="40" y="${py(max * f) + 4}" text-anchor="end">${Math.round(max * f)}</text>`).join('')}
+      <polygon points="${px(0)},${py(0)} ${line('you')} ${px(7)},${py(0)}" fill="var(--lime)" opacity=".28"/><polyline points="${line('you')}" fill="none" stroke="var(--lime)" stroke-width="3" stroke-linejoin="round"/>
+      <polyline points="${line('tasks')}" fill="none" stroke="color-mix(in srgb, var(--lime) 55%, #fff)" stroke-width="2" stroke-dasharray="5 5"/>
+      ${days.map((x, k) => `<text x="${px(k)}" y="${H + 16}" text-anchor="middle">${x.label}</text>`).join('')}</svg>`;
+    b.innerHTML = `<div class="glabel">Meu plano</div><div class="gcard gplan"><span><b>${escapeHtml(a.isAdmin ? 'Dono' : (a.plan || 'Grátis'))}</b><small>Gerencie o plano, as formas de pagamento e as faturas no seu painel.</small></span><a class="gbtn" href="/conta#planos" target="_top">Gerenciar plano</a></div>
+      <div class="glabel">Limites de uso</div><div class="gcard"><b>Uso semanal</b><div class="gbig">${a.isAdmin ? '∞' : pct + '%'} <small>${a.isAdmin ? 'sem limite' : 'usado'}</small></div><div class="gbar"><i style="width:${pct}%"></i></div><small class="gmut">${a.isAdmin ? 'Você é o dono: sem limites.' : 'Renova em ' + toMon + (toMon === 1 ? ' dia' : ' dias') + ' · hoje: ' + (u.today ?? 0) + ' de ' + (u.dailyLimit ?? 3) + ' mensagens'}</small></div>
+      <div class="glabel">Uso adicional</div><div class="gcard">
+        ${grow('Créditos', 'R$ 0,00 restantes · os créditos expiram após dois anos', '<button class="gbtn soonb">Comprar créditos</button>')}
+        ${grow('Limite mensal de uso adicional', 'Não definido', '<button class="gbtn soonb">Editar</button>')}
+        ${grow('Recarga automática', 'Desativada', '<button class="gbtn soonb">Editar</button>')}
+      </div>
+      <div class="gcard guse"><div class="guse-h"><b>Uso do Green Nird</b><span class="gseg"><button class="on">Por origem</button><button class="soonb">Por bot</button></span></div>
+        <div class="guse-b"><div class="guse-l"><div class="gbig">${a.isAdmin ? '∞' : pct + '%'}</div><small class="gmut">do seu limite semanal · últimos 8 dias</small>
+          <div class="gleg"><i></i>Você<b>${Math.round(you / tot * 100)}%</b></div><div class="gleg t"><i></i>Rotinas<b>${Math.round(tk / tot * 100)}%</b></div></div>
+          <div class="guse-r">${svg}</div></div></div>`;
+    b.querySelectorAll('.soonb').forEach(x => x.onclick = () => toast('Pagamentos e créditos estão chegando 💳', { icon: '💳' }));
+  }
+  if (id === 'comp') {
+    b.innerHTML = `<div class="gcard gpc"><img src="/assets/bots/lime.svg" alt=""><span><b>Computador do Green Nird</b><small>Em repouso · o computador na nuvem que a IA usa para navegar, preencher e publicar por você está chegando.</small></span><button class="gbtn" id="gPc">Abrir</button></div>
+      <div class="glabel">Quando ligar</div><div class="gcard">${grow('Pedir permissão antes de agir', 'O Green Nird sempre confirma antes de publicar, comprar ou enviar.', tog('gAsk', true))}${grow('Mostrar a tela enquanto trabalha', '', tog('gShow', true))}</div>`;
+    b.querySelector('#gPc').onclick = () => { if (window.top && window.top.openComputer) { window.top.openComputer(); } else toast('Abra pelo chat'); };
+  }
+  if (id === 'perm') {
+    const st = n => ({ granted: '✅ Permitido', denied: '⛔ Bloqueado', prompt: 'Perguntar', default: 'Perguntar' }[n] || 'Perguntar');
+    b.innerHTML = `<div class="glabel">Neste aparelho</div><div class="gcard">
+      ${grow('Microfone', 'Para falar com o Green Nird no modo voz.', '<span class="gtag" id="pMic">…</span><button class="gbtn" id="askMic">Permitir</button>')}
+      ${grow('Notificações', 'Avisos de tarefas agendadas.', `<span class="gtag">${'Notification' in window ? st(Notification.permission) : 'Indisponível'}</span><button class="gbtn" id="askNot">Permitir</button>`)}
+      ${grow('Tarefas agendadas', 'Avisar quando uma tarefa rodar.', tog('nTasks', S.notify.tasks))}</div>
+      <div class="glabel">Segurança</div><div class="gcard">${grow('Login por código', 'Sua conta usa um código de 12 números — sem senha para vazar.', '<span class="gtag">Ativo ✅</span>')}${grow('PIN das conversas bloqueadas', store2.get('gn-pin', null) ? 'PIN criado.' : 'Crie no chat: ⋯ → Bloquear com PIN.', store2.get('gn-pin', null) ? '<button class="gbtn" id="rpin">Apagar PIN</button>' : '')}</div>`;
+    navigator.permissions?.query({ name: 'microphone' }).then(r => { const e = b.querySelector('#pMic'); if (e) e.textContent = st(r.state); }).catch(() => { const e = b.querySelector('#pMic'); if (e) e.textContent = 'Perguntar'; });
+    b.querySelector('#askMic').onclick = async () => { try { const s3 = await navigator.mediaDevices.getUserMedia({ audio: true }); s3.getTracks().forEach(x => x.stop()); toast('Microfone liberado 🎙'); } catch { toast('Microfone bloqueado. Libere no cadeado ao lado do endereço.', { icon: '⚠️' }); } show('perm'); };
+    b.querySelector('#askNot').onclick = async () => { if (!('Notification' in window)) return; await Notification.requestPermission(); show('perm'); };
+    b.querySelector('#nTasks').onchange = e => { S.notify.tasks = e.target.checked; store2.set('gn-notify', S.notify); toast('Salvo ✓'); };
+    const rp = b.querySelector('#rpin'); if (rp) rp.onclick = () => { localStorage.removeItem('gn-pin'); toast('PIN apagado'); show('perm'); };
+  }
+  if (id === 'cofre') {
+    b.innerHTML = `<div class="gcard gpc">${I.cofre}<span><b>Cofre do Green Nird</b><small>Aqui você vai guardar os acessos das suas contas (Meta, WhatsApp, lojas) com criptografia, para a IA usar só quando você autorizar.</small></span><span class="gtag">Em breve</span></div>
+      <p class="gmut" style="margin:14px 4px">Por segurança, nunca cole senhas no chat. Quando o Cofre chegar, as conexões serão feitas pelo login oficial de cada serviço.</p>`;
+  }
+  if (id === 'atual') {
+    b.innerHTML = `<div class="gcard gplan"><span><b>Você está na versão mais recente</b><small>Green Nird 1.6 · as atualizações chegam sozinhas, é só recarregar a página.</small></span><button class="gbtn" id="reload">Recarregar</button></div>
+      <div class="glabel">Novidades</div><div class="gcard gnotes">
+        <div><b>1.6</b> Visual novo estilo Grok: painel de Atividade e Biblioteca, Conectar aplicativos, Modelos de bots e Uso e cobrança.</div>
+        <div><b>1.5</b> Temas de cor, telas de Imagens, Ligar para clientes, Fechar pedidos e Meta Ads.</div>
+        <div><b>1.4</b> Meu espaço, Agendamentos, Conexões e Configurações completas.</div>
+        <div><b>1.3</b> Modo voz com a bola, vozes brasileiras e robô de WhatsApp.</div></div>`;
+    b.querySelector('#reload').onclick = () => (window.top || window).location.reload();
+  }
   if (id === 'apar') {
     const mode = t.mode || 'dark';
     const BG = [['', '#ffffff'], ['#fbfcf7', '#fbfcf7'], ['#eceef0', '#eceef0'], ['#f3fbe1', '#f3fbe1'], ['#eaffb2', '#eaffb2']];
@@ -157,7 +301,7 @@ function show(id) {
     b.querySelector('#fBig').onchange = e => { t.font = e.target.checked ? 'grande' : ''; preview(); };
     b.querySelector('#fMotion').onchange = e => { t.reduceMotion = e.target.checked; preview(); };
   }
-  if (id === 'geral') {
+  if (id === 'geral_old') {
     b.innerHTML = row('Idioma', 'Idioma da interface e das respostas.', `<label class="sel"><select id="fLang"><option value="pt">Português (Brasil)</option><option value="en">English</option></select></label>`)
       + row('Pesquisa na web ligada', 'Começar o chat com “Pesquisar” ativado.', tog('fSearch', S.search))
       + row('Sons e vibração', 'Cliques e avisos com som.', tog('fSounds', S.notify.sounds))
@@ -222,7 +366,7 @@ function show(id) {
     const rp = b.querySelector('#rp'); if (rp) rp.onclick = () => { localStorage.removeItem('gn-pin'); toast('PIN apagado. As conversas bloqueadas pedirão um PIN novo.'); show('seg'); };
     b.querySelector('#out2').onclick = async () => { await fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) }); toast('Sessão encerrada'); };
   }
-  if (id === 'uso') {
+  if (id === 'uso_old') {
     const a = account || {}; const u = a.usage || {};
     const bar = (x, y) => `<div style="width:min(460px,100%)"><b>${x} de ${y}</b><div class="ubar"><i style="width:${Math.min(100, x / y * 100)}%"></i></div></div>`;
     b.innerHTML = a.isAdmin ? row('Seu plano', 'Você é o dono.', '<b>Sem limites ♾️</b>')

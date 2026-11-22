@@ -63,12 +63,14 @@
       if (el.dataset.dd === 'tipo') {
         if (v === 'vid') { window.toast && toast('Criar vídeos com IA está chegando! 🎬', { icon: '🎬' }); return; }
         if (v === 'img') { window.showFeature && showFeature('imagens'); return; }
-      } else { model = v; set('gn-model', model); applyModel(); window.toast && toast(v === 'pro' ? 'GreenNird Pro: respostas mais inteligentes 🧠' : 'GreenNird IA: respostas rápidas ⚡'); }
+      } else { model = v; set('gn-model', model); applyModel(); window.dispatchEvent(new Event('gn-model')); window.toast && toast(v === 'pro' ? 'GreenNird Pro: respostas mais inteligentes 🧠' : 'GreenNird IA: respostas rápidas ⚡'); }
       d.value = v; paint(el); window.fx && fx.boop();
     });
     el.appendChild(m);
   }
   [ddType, ddModel].forEach(paint);
+  window.getModel = () => model;
+  window.setModel = v => { model = v; DD.modelo.value = v; set('gn-model', v); applyModel(); paint(ddModel); window.dispatchEvent(new Event('gn-model')); };
   document.addEventListener('click', closeAll);
   applyModel();
 
